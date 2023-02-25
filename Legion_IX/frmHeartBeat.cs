@@ -21,8 +21,10 @@ namespace Legion_IX
             AddDBsToComboBox();
         }
 
+        // Printing DATABASE NAMES TO lbl_ShowDatabaseNames
         private void ShowDatabases()
         {
+            dataConnection.RefreshDatabaseNames();
             string display = "";
 
             for (int i = 0; i < dataConnection.DataBaseNames.Count; i++)
@@ -35,16 +37,18 @@ namespace Legion_IX
             lbl_ShowDatabaseNames.Text = display;
         }
 
+        // Printing COLLECTION NAMES in txtBox_AvailableCollections
         private void ShowCollection()
         {
             string display = "";
 
-            foreach (string collectionName in dataConnection.DatabaseCollectionNames)
+            foreach (string collectionName in dataConnection.CollectionNames)
                 display += collectionName + Environment.NewLine;
 
             txtBox_AvailableCollections.Text = display;
         }
 
+        // Assigning DB Names to ComboBox!
         private void AddDBsToComboBox()
         {
             foreach (string DB in dataConnection.DataBaseNames)
@@ -53,6 +57,7 @@ namespace Legion_IX
             }
         }
 
+        // ORIGINAL TESTER CODE! =====> NOT USED
         private void OriginalCode()
         {
             // Choose Database
@@ -83,6 +88,7 @@ namespace Legion_IX
             //txtBox_Data.Text += $"{Environment.NewLine}Index of Mercedes Tyler is : {dataConnection.ChosenDocumentId.ToString()}"; // Showing that ObjectId in TextBox
         }
 
+        // !!! TESTER CODE !!! => Updates the MongoDB Atlas 'email' value 
         private void btn_ConfrimEmailChange_Click(object sender, EventArgs e)
         {
             FilterDefinition<BsonDocument> filter = Builders<BsonDocument>.Filter.Eq("_id", new ObjectId("5a9427648b0beebeb69579e7"));
@@ -95,25 +101,75 @@ namespace Legion_IX
             txtBox_Data.Text += $"{Environment.NewLine}Changed email to: {txtBox_ChangeEmail.Text}";
         }
 
+        // ComboBox INDEX CHANGE
         private void cmBox_ChooseDB_SelectedIndexChanged(object sender, EventArgs e)
         {
-            string chosenDB = dataConnection.DataBaseNames[cmBox_ChooseDB.SelectedIndex];
+            if (CheckIfComboBoxIsEmpty())
+            {
+                string chosenDB = dataConnection.DataBaseNames[cmBox_ChooseDB.SelectedIndex]; // Selected Database through index
 
-            dataConnection.GetDatabase(chosenDB); // Gets the chosen DB
-            dataConnection.GetDatabaseCollectionNames(); // Gets of collection belonging to the chosen database
+                dataConnection.GetAtlasDatabase(chosenDB); // Gets the chosen DB
+                dataConnection.GetAtlasDB_CollectionNameses(); // Gets of collection belonging to the chosen database
 
-            ShowCollection();
+                ShowCollection();
+            }
         }
 
+        // ComboBox VALIDATION!
+        private bool CheckIfComboBoxIsEmpty()
+        {
+            string errMessage = "You must choose a DB!";
+
+            if (cmBox_ChooseDB.SelectedItem == null)
+            {
+                err_ChooseDatabase.SetError(cmBox_ChooseDB, errMessage);
+                return false;
+            }
+            else
+            {
+                err_ChooseDatabase.SetError(cmBox_ChooseDB, "");
+                return true;
+            }
+        }
+
+        // 'Enter' KeyDown EVENT => txtBox_TypeCollection
         private void txtBox_TypeCollection_KeyDown(object sender, KeyEventArgs e)
         {
-            string collection = txtBox_TypeCollection.Text;
-
-            if(!collection.IsNullOrEmpty())
+            if (CheckIfComboBoxIsEmpty()) //Continues only if ComboBox holds a DB
             {
-                dataConnection.Document = dataConnection.Collection.Find(new BsonDocument()).FirstOrDefault();
-                txtBox_Data.Text = dataConnection.Document.ToString();
+                string collection = txtBox_TypeCollection.Text.Trim();
+
+                if (dataConnection.CheckIfCollectionExists(collection))
+                {
+                    // Checking if 'Enter' has been pressed && if collection name is empty string && if the typed collection exists
+                    if (e.KeyCode == Keys.Enter && !collection.IsNullOrEmpty())
+                    {
+                        // Removes leading and trailing whitespaces
+                        // collection = collection.Trim();
+
+                        // Gives Documents to the chosen Collections
+                        dataConnection.Collection = dataConnection.Database.GetCollection<BsonDocument>(collection);
+
+                        // Gives the first document available
+                        dataConnection.Document = dataConnection.Collection.Find(new BsonDocument()).FirstOrDefault();
+
+                        //Gives the Document contents in form of a processed string to TextBox
+                        txtBox_Data.Text = dataConnection.ShowAtlasDocumentContent();
+                    }
+                }
+                else
+                {
+                    txtBox_Data.Text = "            !!! DATABASE NOT FOUND !!!          ";
+                    txtBox_Data.Text += Environment.NewLine + Environment.NewLine + "            CHECK INPUT         ";
+                }
             }
+        }
+
+        // Reresh DATABASE button
+        private void btn_RefreshDB_Click(object sender, EventArgs e)
+        {
+            dataConnection.RefreshDatabaseNames();
+            ShowDatabases();
         }
     }
 }
@@ -131,8 +187,8 @@ namespace Legion_IX
 /*
  *          --- CHOOSING A DATABASE, GETTING IT'S COLLECTION AND ASSIGNING IT'S ID ---
  * 
-            //IMongoDatabase database = dataConnection.Client.GetDatabase("sample_mflix"); // Chosen Database
-            //IMongoCollection<BsonDocument> collection = database.GetCollection<BsonDocument>("comments"); // It's Collection
+            //IMongoDatabase database = dataConnection.Client.GetAtlasDatabase("sample_mflix"); // Chosen Database
+            //IMongoCollection<BsonDocument> collection = database.GetAtlasCollection<BsonDocument>("comments"); // It's Collection
             //BsonDocument firstDocument = collection.Find(new BsonDocument()).FirstOrDefault(); // And getting that collection's data
             //ObjectId theIndex = dataConnection.ChosenDocument.GetValue("_id").AsObjectId; // Receive it's ObjectId
  */
@@ -148,8 +204,8 @@ namespace Legion_IX
 /*
  *          --- GET A COLLECTION FROM DESIRED DATABASE AND PRINT CONETENTS ---
  *          
-        var database = connection.Client.GetDatabase("sample_mflix");
-        var collection = database.GetCollection<BsonDocument>("comments");
+        var database = connection.Client.GetAtlasDatabase("sample_mflix");
+        var collection = database.GetAtlasCollection<BsonDocument>("comments");
         var documents = collection.Find(new BsonDocument()).ToList();
 
         //foreach(var document in documents) // Works but it's a fucking disaster

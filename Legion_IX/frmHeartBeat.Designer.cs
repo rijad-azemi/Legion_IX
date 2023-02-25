@@ -40,10 +40,18 @@
             lbl_CollectionToDisplay = new Label();
             contextMenuStrip2 = new ContextMenuStrip(components);
             grpBox_Main2 = new GroupBox();
+            btn_RefreshDB = new Button();
             txtBox_AvailableCollections = new TextBox();
             cmBox_ChooseDB = new ComboBox();
+            dgv_Databases = new DataGridView();
+            Database = new DataGridViewTextBoxColumn();
+            dgv_Collections = new DataGridView();
+            err_ChooseDatabase = new ErrorProvider(components);
             grpBox_Main.SuspendLayout();
             grpBox_Main2.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)dgv_Databases).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)dgv_Collections).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)err_ChooseDatabase).BeginInit();
             SuspendLayout();
             // 
             // txtBox_Data
@@ -105,7 +113,7 @@
             grpBox_Main.Controls.Add(txtBox_Data);
             grpBox_Main.Controls.Add(btn_ConfrimEmailChange);
             grpBox_Main.Controls.Add(txtBox_ChangeEmail);
-            grpBox_Main.Location = new Point(378, 12);
+            grpBox_Main.Location = new Point(388, 12);
             grpBox_Main.Name = "grpBox_Main";
             grpBox_Main.Size = new Size(459, 492);
             grpBox_Main.TabIndex = 7;
@@ -118,8 +126,7 @@
             txtBox_TypeCollection.Name = "txtBox_TypeCollection";
             txtBox_TypeCollection.Size = new Size(158, 23);
             txtBox_TypeCollection.TabIndex = 6;
-            txtBox_TypeCollection.TextAlign = HorizontalAlignment.Center;
-            txtBox_TypeCollection.KeyDown += new KeyEventHandler(txtBox_TypeCollection_KeyDown);
+            txtBox_TypeCollection.KeyDown += txtBox_TypeCollection_KeyDown;
             // 
             // lbl_CollectionToDisplay
             // 
@@ -138,16 +145,27 @@
             // 
             // grpBox_Main2
             // 
+            grpBox_Main2.Controls.Add(btn_RefreshDB);
             grpBox_Main2.Controls.Add(txtBox_AvailableCollections);
             grpBox_Main2.Controls.Add(cmBox_ChooseDB);
             grpBox_Main2.Controls.Add(lbl_ShowDatabaseNames);
             grpBox_Main2.Controls.Add(infoLbl_AvailableDatabases);
-            grpBox_Main2.Location = new Point(12, 12);
+            grpBox_Main2.Location = new Point(1, 12);
             grpBox_Main2.Name = "grpBox_Main2";
-            grpBox_Main2.Size = new Size(360, 290);
+            grpBox_Main2.Size = new Size(381, 290);
             grpBox_Main2.TabIndex = 9;
             grpBox_Main2.TabStop = false;
             grpBox_Main2.Text = "Visualizer";
+            // 
+            // btn_RefreshDB
+            // 
+            btn_RefreshDB.Location = new Point(252, 25);
+            btn_RefreshDB.Name = "btn_RefreshDB";
+            btn_RefreshDB.Size = new Size(75, 23);
+            btn_RefreshDB.TabIndex = 7;
+            btn_RefreshDB.Text = "Refresh";
+            btn_RefreshDB.UseVisualStyleBackColor = true;
+            btn_RefreshDB.Click += btn_RefreshDB_Click;
             // 
             // txtBox_AvailableCollections
             // 
@@ -169,11 +187,42 @@
             cmBox_ChooseDB.Text = "Choose DB";
             cmBox_ChooseDB.SelectedIndexChanged += cmBox_ChooseDB_SelectedIndexChanged;
             // 
+            // dgv_Databases
+            // 
+            dgv_Databases.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            dgv_Databases.Columns.AddRange(new DataGridViewColumn[] { Database });
+            dgv_Databases.Location = new Point(12, 308);
+            dgv_Databases.Name = "dgv_Databases";
+            dgv_Databases.RowTemplate.Height = 25;
+            dgv_Databases.Size = new Size(167, 196);
+            dgv_Databases.TabIndex = 10;
+            // 
+            // Database
+            // 
+            Database.HeaderText = "Available Databases";
+            Database.Name = "Database";
+            // 
+            // dgv_Collections
+            // 
+            dgv_Collections.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            dgv_Collections.Location = new Point(197, 308);
+            dgv_Collections.Name = "dgv_Collections";
+            dgv_Collections.RowTemplate.Height = 25;
+            dgv_Collections.Size = new Size(169, 196);
+            dgv_Collections.TabIndex = 11;
+            // 
+            // err_ChooseDatabase
+            // 
+            err_ChooseDatabase.ContainerControl = this;
+            // 
             // frmHeartBeat
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
+            AutoValidate = AutoValidate.EnableAllowFocusChange;
             ClientSize = new Size(850, 516);
+            Controls.Add(dgv_Collections);
+            Controls.Add(dgv_Databases);
             Controls.Add(grpBox_Main2);
             Controls.Add(grpBox_Main);
             Name = "frmHeartBeat";
@@ -183,6 +232,9 @@
             grpBox_Main.PerformLayout();
             grpBox_Main2.ResumeLayout(false);
             grpBox_Main2.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)dgv_Databases).EndInit();
+            ((System.ComponentModel.ISupportInitialize)dgv_Collections).EndInit();
+            ((System.ComponentModel.ISupportInitialize)err_ChooseDatabase).EndInit();
             ResumeLayout(false);
         }
 
@@ -201,5 +253,10 @@
         private TextBox txtBox_AvailableCollections;
         private TextBox txtBox_TypeCollection;
         private Label lbl_CollectionToDisplay;
+        private DataGridView dgv_Databases;
+        private DataGridView dgv_Collections;
+        private DataGridViewTextBoxColumn Database;
+        private ErrorProvider err_ChooseDatabase;
+        private Button btn_RefreshDB;
     }
 }

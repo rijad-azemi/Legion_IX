@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.IdentityModel.Tokens;
 using MongoDB;
 using MongoDB.Bson;
 using MongoDB.Driver;
@@ -13,13 +15,14 @@ namespace Legion_IX.DB
     public class AtlasDB
     {
         const string DBconnectionLink = "mongodb+srv://rijadazemi:Karate1227@cluster0.m9qqpen.mongodb.net/?retryWrites=true&w=majority";
-        public MongoClient Client { get; set; }
-        public List<string> DataBaseNames { get; set; }
-        public IMongoDatabase Database { get; set; }
-        public List<string> DatabaseCollectionNames { get; set; }
-        public IMongoCollection<BsonDocument> Collection { get; set; }
-        public BsonDocument Document { get; set; }
-        public ObjectId DocumentId { get; set; }
+        public MongoClient Client { get; set; } // Client for connection to the Cluster containing Databases
+        public List<string> DataBaseNames { get; set; } // List of all existing Database names
+        public IMongoDatabase Database { get; set; } // Interface representing one Database of a Cluster
+        public IMongoCollection<BsonDocument> Collection { get; set; } // Holds documents of one Collection
+        public string CollectionName { get; set; } // A Name of one CHOSEN Collection
+        public List<string> CollectionNames { get; set; } // List of all Collection names inside one Database
+        public BsonDocument Document { get; set; } // Holds one Document from the chosen Collection
+        public ObjectId DocumentId { get; set; } // Holds the ID of the chosen document
 
         public AtlasDB()
         {
@@ -40,24 +43,57 @@ namespace Legion_IX.DB
             this.Collection = Database.GetCollection<BsonDocument>(databaseCollection);
         }
 
-        public void GetDatabase(string databaseName)
+        // Gets Database NAMES
+        public void GetAtlasDatabase(string databaseName)
         {
             this.Database = Client.GetDatabase(databaseName);
         }
 
-        public void GetCollection(string databaseCollection)
+        // Gets COLLECTION (all Documents from a chosen Collection => DOCUMENTS REPRESENTING COLLECTION)
+        public void GetAtlasCollection(string databaseCollection) // !!! Collection is a List of DOCUMENTS !!!
         {
             this.Collection = Database.GetCollection<BsonDocument>(databaseCollection);
         }
 
-        public void GetDatabaseCollectionNames()
+        // Gets Names of all Collections
+        public void GetAtlasDB_CollectionNameses()
         {
-            this.DatabaseCollectionNames = Database.ListCollectionNames().ToList();
+            this.CollectionNames = Database.ListCollectionNames().ToList();
         }
 
-        public void GetDocumentByName()
+        // Gets a Name of chosen Document
+        public void GetAtlasDocumentName()
         {
             //this.Document = Collection.Find()
+        }
+
+        // Shows all contents/elements held by a Document
+        public string ShowAtlasDocumentContent()
+        {
+            List<BsonElement> documentContents = this.Document.ToList(); // Converts to List to get to it's contents
+            string display = ""; // 'display' will receive content Names and Values
+            var newLine = Environment.NewLine; // Shortcut variable for printing new lines
+
+            foreach (BsonElement element in documentContents) // Iterates through Document's contents
+                display += $"{element.Name}: {element.Value.ToString() + newLine + newLine}"; // Adds information to a string
+
+            // Basically informs that Document holds no elements/information
+            if(display.IsNullOrEmpty())
+                display = $"!!! N/A !!!{newLine + newLine}      --- DOCUMENT HOLDS NO INFORMATION---        ";
+
+            return display; // Returns full string
+        }
+
+        // Checks if the searched for Collections exists
+        public bool CheckIfCollectionExists(string collectionName)
+        {
+            return this.CollectionNames.Contains(collectionName);
+        }
+
+        // Refreshes localy available Databases in case of Atlas Update
+        public List<string> RefreshDatabaseNames()
+        {
+            return this.DataBaseNames = this.Client.ListDatabaseNames().ToList();
         }
 
         public override string ToString()
@@ -78,7 +114,7 @@ CONNECTION STRING: mongodb+srv://6usu6rper:<password>@thebridge.4ltipfn.mongodb.
 var settings = MongoClientSettings.FromConnectionString("mongodb+srv://6usu6rper:<password>@thebridge.4ltipfn.mongodb.net/?retryWrites=true&w=majority");
 settings.ServerApi = new ServerApi(ServerApiVersion.V1);
 var client = new MongoClient(settings);
-var database = client.GetDatabase("test");
+var database = client.GetAtlasDatabase("test");
 
 
 MongoDB Project ID: 63f3883181ae1c1d70334ae5
