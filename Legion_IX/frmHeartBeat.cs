@@ -19,6 +19,8 @@ namespace Legion_IX
 
             ShowDatabases();
             AddDBsToComboBox();
+
+            dgv_Databases.DataSource = new List<string>(dataConnection.DataBaseNames);
         }
 
         // Printing DATABASE NAMES TO lbl_ShowDatabaseNames
@@ -135,27 +137,23 @@ namespace Legion_IX
         // 'Enter' KeyDown EVENT => txtBox_TypeCollection
         private void txtBox_TypeCollection_KeyDown(object sender, KeyEventArgs e)
         {
-            if (CheckIfComboBoxIsEmpty()) //Continues only if ComboBox holds a DB
+            if (e.KeyCode == Keys.Enter && CheckIfComboBoxIsEmpty())
             {
                 string collection = txtBox_TypeCollection.Text.Trim();
 
-                if (dataConnection.CheckIfCollectionExists(collection))
+                if (!collection.IsNullOrEmpty() && dataConnection.CheckIfCollectionExists(collection))
                 {
-                    // Checking if 'Enter' has been pressed && if collection name is empty string && if the typed collection exists
-                    if (e.KeyCode == Keys.Enter && !collection.IsNullOrEmpty())
-                    {
-                        // Removes leading and trailing whitespaces
-                        // collection = collection.Trim();
+                    // Removes leading and trailing whitespaces
+                    // collection = collection.Trim();
 
-                        // Gives Documents to the chosen Collections
-                        dataConnection.Collection = dataConnection.Database.GetCollection<BsonDocument>(collection);
+                    // Gives Documents to the chosen Collections
+                    dataConnection.Collection = dataConnection.Database.GetCollection<BsonDocument>(collection);
 
-                        // Gives the first document available
-                        dataConnection.Document = dataConnection.Collection.Find(new BsonDocument()).FirstOrDefault();
+                    // Gives the first document available
+                    dataConnection.Document = dataConnection.Collection.Find(new BsonDocument()).FirstOrDefault();
 
-                        //Gives the Document contents in form of a processed string to TextBox
-                        txtBox_Data.Text = dataConnection.ShowAtlasDocumentContent();
-                    }
+                    //Gives the Document contents in form of a processed string to TextBox
+                    txtBox_Data.Text = dataConnection.ShowAtlasDocumentContent();
                 }
                 else
                 {
@@ -170,6 +168,10 @@ namespace Legion_IX
         {
             dataConnection.RefreshDatabaseNames();
             ShowDatabases();
+        }
+
+        private void pictureBox_userImage_Click(object sender, EventArgs e)
+        {
         }
     }
 }

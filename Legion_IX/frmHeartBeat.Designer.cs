@@ -36,6 +36,7 @@
             infoLbl_AvailableDatabases = new Label();
             contextMenuStrip1 = new ContextMenuStrip(components);
             grpBox_Main = new GroupBox();
+            pictureBox_userImage = new PictureBox();
             txtBox_TypeCollection = new TextBox();
             lbl_CollectionToDisplay = new Label();
             contextMenuStrip2 = new ContextMenuStrip(components);
@@ -44,10 +45,11 @@
             txtBox_AvailableCollections = new TextBox();
             cmBox_ChooseDB = new ComboBox();
             dgv_Databases = new DataGridView();
-            Database = new DataGridViewTextBoxColumn();
             dgv_Collections = new DataGridView();
             err_ChooseDatabase = new ErrorProvider(components);
+            btn_UploadImage = new Button();
             grpBox_Main.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)pictureBox_userImage).BeginInit();
             grpBox_Main2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)dgv_Databases).BeginInit();
             ((System.ComponentModel.ISupportInitialize)dgv_Collections).BeginInit();
@@ -65,7 +67,7 @@
             // 
             // txtBox_ChangeEmail
             // 
-            txtBox_ChangeEmail.Location = new Point(17, 427);
+            txtBox_ChangeEmail.Location = new Point(17, 277);
             txtBox_ChangeEmail.Name = "txtBox_ChangeEmail";
             txtBox_ChangeEmail.Size = new Size(158, 23);
             txtBox_ChangeEmail.TabIndex = 1;
@@ -73,7 +75,7 @@
             // 
             // btn_ConfrimEmailChange
             // 
-            btn_ConfrimEmailChange.Location = new Point(53, 456);
+            btn_ConfrimEmailChange.Location = new Point(53, 306);
             btn_ConfrimEmailChange.Name = "btn_ConfrimEmailChange";
             btn_ConfrimEmailChange.Size = new Size(75, 25);
             btn_ConfrimEmailChange.TabIndex = 2;
@@ -113,12 +115,23 @@
             grpBox_Main.Controls.Add(txtBox_Data);
             grpBox_Main.Controls.Add(btn_ConfrimEmailChange);
             grpBox_Main.Controls.Add(txtBox_ChangeEmail);
-            grpBox_Main.Location = new Point(388, 12);
+            grpBox_Main.Location = new Point(983, 12);
             grpBox_Main.Name = "grpBox_Main";
             grpBox_Main.Size = new Size(459, 492);
             grpBox_Main.TabIndex = 7;
             grpBox_Main.TabStop = false;
             grpBox_Main.Text = "Keeper";
+            // 
+            // pictureBox_userImage
+            // 
+            pictureBox_userImage.BorderStyle = BorderStyle.FixedSingle;
+            pictureBox_userImage.Location = new Point(793, 12);
+            pictureBox_userImage.Name = "pictureBox_userImage";
+            pictureBox_userImage.Size = new Size(184, 196);
+            pictureBox_userImage.SizeMode = PictureBoxSizeMode.StretchImage;
+            pictureBox_userImage.TabIndex = 7;
+            pictureBox_userImage.TabStop = false;
+            pictureBox_userImage.Click += pictureBox_userImage_Click;
             // 
             // txtBox_TypeCollection
             // 
@@ -189,38 +202,49 @@
             // 
             // dgv_Databases
             // 
+            dgv_Databases.AllowUserToAddRows = false;
+            dgv_Databases.AllowUserToDeleteRows = false;
             dgv_Databases.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dgv_Databases.Columns.AddRange(new DataGridViewColumn[] { Database });
-            dgv_Databases.Location = new Point(12, 308);
+            dgv_Databases.Location = new Point(388, 12);
             dgv_Databases.Name = "dgv_Databases";
+            dgv_Databases.ReadOnly = true;
             dgv_Databases.RowTemplate.Height = 25;
-            dgv_Databases.Size = new Size(167, 196);
+            dgv_Databases.Size = new Size(230, 196);
             dgv_Databases.TabIndex = 10;
-            // 
-            // Database
-            // 
-            Database.HeaderText = "Available Databases";
-            Database.Name = "Database";
             // 
             // dgv_Collections
             // 
+            dgv_Collections.AllowUserToAddRows = false;
+            dgv_Collections.AllowUserToDeleteRows = false;
             dgv_Collections.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dgv_Collections.Location = new Point(197, 308);
+            dgv_Collections.Location = new Point(388, 214);
             dgv_Collections.Name = "dgv_Collections";
+            dgv_Collections.ReadOnly = true;
             dgv_Collections.RowTemplate.Height = 25;
-            dgv_Collections.Size = new Size(169, 196);
+            dgv_Collections.Size = new Size(396, 196);
             dgv_Collections.TabIndex = 11;
             // 
             // err_ChooseDatabase
             // 
             err_ChooseDatabase.ContainerControl = this;
             // 
+            // btn_UploadImage
+            // 
+            btn_UploadImage.Location = new Point(850, 214);
+            btn_UploadImage.Name = "btn_UploadImage";
+            btn_UploadImage.Size = new Size(75, 23);
+            btn_UploadImage.TabIndex = 12;
+            btn_UploadImage.Text = "Upload";
+            btn_UploadImage.UseVisualStyleBackColor = true;
+            // 
             // frmHeartBeat
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             AutoValidate = AutoValidate.EnableAllowFocusChange;
-            ClientSize = new Size(850, 516);
+            ClientSize = new Size(1454, 516);
+            Controls.Add(btn_UploadImage);
+            Controls.Add(pictureBox_userImage);
             Controls.Add(dgv_Collections);
             Controls.Add(dgv_Databases);
             Controls.Add(grpBox_Main2);
@@ -230,6 +254,7 @@
             Load += frmHeartBeat_Load;
             grpBox_Main.ResumeLayout(false);
             grpBox_Main.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)pictureBox_userImage).EndInit();
             grpBox_Main2.ResumeLayout(false);
             grpBox_Main2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)dgv_Databases).EndInit();
@@ -255,8 +280,9 @@
         private Label lbl_CollectionToDisplay;
         private DataGridView dgv_Databases;
         private DataGridView dgv_Collections;
-        private DataGridViewTextBoxColumn Database;
         private ErrorProvider err_ChooseDatabase;
         private Button btn_RefreshDB;
+        private PictureBox pictureBox_userImage;
+        private Button btn_UploadImage;
     }
 }
