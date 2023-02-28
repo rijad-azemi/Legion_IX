@@ -24,6 +24,10 @@ namespace Legion_IX.DB
         public BsonDocument Document { get; set; } // Holds one Document from the chosen Collection
         public ObjectId DocumentId { get; set; } // Holds the ID of the chosen document
 
+
+        // Creating List of Students and created profiles to be stored and uploaded later
+        public List<Student> Students { get; set; }
+
         public AtlasDB()
         {
             this.Client = new MongoClient(DBconnectionLink);
@@ -39,6 +43,9 @@ namespace Legion_IX.DB
         //User defined constuctor for getting a Database Collection
         public AtlasDB(string databaseName, string databaseCollection)
         {
+            this.Client = new MongoClient(DBconnectionLink);
+            this.DataBaseNames = Client.ListDatabaseNames().ToList();
+
             this.Database = Client.GetDatabase(databaseName);
             this.Collection = Database.GetCollection<BsonDocument>(databaseCollection);
         }
@@ -47,6 +54,18 @@ namespace Legion_IX.DB
         public void GetAtlasDatabase(string databaseName)
         {
             this.Database = Client.GetDatabase(databaseName);
+        }
+
+        // Gets Fresh database names
+        public IMongoDatabase GetFreshDatabase(string databaseName)
+        {
+            return this.Client.GetDatabase(databaseName);
+        }
+        
+        //Gets Fresh needed Collection
+        public void GetAll(string collectionName)
+        {
+            //return this.
         }
 
         // Gets COLLECTION (all Documents from a chosen Collection => DOCUMENTS REPRESENTING COLLECTION)

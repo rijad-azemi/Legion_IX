@@ -173,6 +173,12 @@ namespace Legion_IX
         private void pictureBox_userImage_Click(object sender, EventArgs e)
         {
         }
+
+        private void btn_AddStudent_Click(object sender, EventArgs e)
+        {
+            frm_AddStudent frm_AddStudent = new frm_AddStudent();
+            frm_AddStudent.ShowDialog();
+        }
     }
 }
 
