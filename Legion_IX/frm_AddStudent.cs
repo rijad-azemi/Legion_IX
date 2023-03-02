@@ -128,24 +128,30 @@ namespace Legion_IX
                     dtTimePicker_Birthdate.Value,
                     comboBox_StudyYear.Text,
                     txtBox_Index.Text,
+                    txtBox_Password.Text,
+                    txtBox_Email.Text,
                     checkBox_Revised.Checked
                     );
 
                 if (newStudent.CreateAndUpload())
-                    MessageBox.Show("Created and Added to ATLAS!");
+                {
+                    MessageBox.Show("Created and Added to ATLAS!", "SUCCESS", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                    // Resseting Input Fields
+                    txtBox_Name.Text = "";
+                    txtBox_Surname.Text = "";
+                    dtTimePicker_Birthdate.Value = DateTime.Now;
+                    comboBox_StudyYear.Text = "- - - - - - - - - - - - - - - - - - - -";
+                    txtBox_Email.Text = ".@edu.fit.ba";
+                    checkBox_EnterCustomEmail.Checked = false;
+                    txtBox_Index.Text = "";
+                    txtBox_Password.Text = "";
+                    pictureBox_StudentPhoto.Image = null;
+                }
 
                 else
                     MessageBox.Show("Problem has occured: Check 'btn_CreateStudent_Click'!");
             }
-            /*
-        public string Name { get; set; }
-        public string Surname { get; set; }
-        public DateTime? Birthdate { get; set; }
-        public string StudyYear { get; set; }
-        public Image _Image { get; set; }
-        public string Index { get; set; }
-        public bool Revised { get; set; }
-             */
         }
     }
 }

@@ -18,7 +18,7 @@ namespace Legion_IX.Helpers
 
         public bool ValidatePassword(string password)
         {
-            string pattern = @"(\w+[a-zZ-A]{5})(\d+{4})";
+            string pattern = @"(^\w+[a-zZ-A]{5})(\d+{4})";
             //return Regex.IsMatch(password, pattern);
             return true;
         }

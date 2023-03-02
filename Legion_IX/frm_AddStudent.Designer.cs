@@ -41,11 +41,12 @@
             txtBox_Surname = new TextBox();
             txtBox_Name = new TextBox();
             groupBox_LoginInfo = new GroupBox();
+            checkBox_Revised = new CheckBox();
             checkBox_EnterCustomEmail = new CheckBox();
             label2 = new Label();
             lbl_Email = new Label();
             lbl_Index = new Label();
-            textBox_Password = new TextBox();
+            txtBox_Password = new TextBox();
             txtBox_Email = new TextBox();
             txtBox_Index = new TextBox();
             btn_CreateStudent = new Button();
@@ -56,7 +57,6 @@
             err_EmailFormat = new ErrorProvider(components);
             openFileDialog_SetPhoto = new OpenFileDialog();
             err_PasswordFormat = new ErrorProvider(components);
-            checkBox_Revised = new CheckBox();
             ((System.ComponentModel.ISupportInitialize)pictureBox_fitLogo).BeginInit();
             groupBox_StudentData.SuspendLayout();
             groupBox_LoginInfo.SuspendLayout();
@@ -171,7 +171,7 @@
             groupBox_LoginInfo.Controls.Add(label2);
             groupBox_LoginInfo.Controls.Add(lbl_Email);
             groupBox_LoginInfo.Controls.Add(lbl_Index);
-            groupBox_LoginInfo.Controls.Add(textBox_Password);
+            groupBox_LoginInfo.Controls.Add(txtBox_Password);
             groupBox_LoginInfo.Controls.Add(txtBox_Email);
             groupBox_LoginInfo.Controls.Add(txtBox_Index);
             groupBox_LoginInfo.Location = new Point(236, 283);
@@ -180,6 +180,16 @@
             groupBox_LoginInfo.TabIndex = 2;
             groupBox_LoginInfo.TabStop = false;
             groupBox_LoginInfo.Text = "Login Info";
+            // 
+            // checkBox_Revised
+            // 
+            checkBox_Revised.AutoSize = true;
+            checkBox_Revised.Location = new Point(79, 119);
+            checkBox_Revised.Name = "checkBox_Revised";
+            checkBox_Revised.Size = new Size(100, 19);
+            checkBox_Revised.TabIndex = 14;
+            checkBox_Revised.Text = "Revising Year?";
+            checkBox_Revised.UseVisualStyleBackColor = true;
             // 
             // checkBox_EnterCustomEmail
             // 
@@ -219,12 +229,13 @@
             lbl_Index.TabIndex = 8;
             lbl_Index.Text = "Index:";
             // 
-            // textBox_Password
+            // txtBox_Password
             // 
-            textBox_Password.Location = new Point(79, 90);
-            textBox_Password.Name = "textBox_Password";
-            textBox_Password.Size = new Size(302, 23);
-            textBox_Password.TabIndex = 10;
+            txtBox_Password.Location = new Point(79, 90);
+            txtBox_Password.Name = "txtBox_Password";
+            txtBox_Password.Size = new Size(302, 23);
+            txtBox_Password.TabIndex = 10;
+            txtBox_Password.PasswordChar = '*';
             // 
             // txtBox_Email
             // 
@@ -238,7 +249,6 @@
             // 
             txtBox_Index.Location = new Point(79, 32);
             txtBox_Index.Name = "txtBox_Index";
-            txtBox_Index.ReadOnly = false;
             txtBox_Index.Size = new Size(302, 23);
             txtBox_Index.TabIndex = 8;
             // 
@@ -302,16 +312,6 @@
             // 
             err_PasswordFormat.ContainerControl = this;
             // 
-            // checkBox_Revised
-            // 
-            checkBox_Revised.AutoSize = true;
-            checkBox_Revised.Location = new Point(79, 119);
-            checkBox_Revised.Name = "checkBox_Revised";
-            checkBox_Revised.Size = new Size(100, 19);
-            checkBox_Revised.TabIndex = 14;
-            checkBox_Revised.Text = "Revising Year?";
-            checkBox_Revised.UseVisualStyleBackColor = true;
-            // 
             // frm_AddStudent
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -353,7 +353,7 @@
         private ComboBox comboBox_StudyYear;
         private Label lbl_StudyYear;
         private GroupBox groupBox_LoginInfo;
-        private TextBox textBox_Password;
+        private TextBox txtBox_Password;
         private TextBox txtBox_Email;
         private TextBox txtBox_Index;
         private Button btn_CreateStudent;

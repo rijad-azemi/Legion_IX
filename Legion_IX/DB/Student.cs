@@ -18,7 +18,8 @@ namespace Legion_IX.DB
         public string StudyYear { get; set; }
         public Image _Image { get; set; }
         public string Index { get; set; }
-        //public int IndexIncrementor { get; }
+        public string Password { get; set; }
+        public string Email { get; set; }
         public bool Revised { get; set; }
 
         // Default ctor
@@ -30,12 +31,14 @@ namespace Legion_IX.DB
             StudyYear = "";
             _Image = null;
             Index = "IB";
+            Password = "";
+            Email = "";
             //IndexIncrementor = 190000;
             Revised = false;
         }
 
         // User defined ctor
-        public Student(string name, string surname,Image image, DateTime birthdate, string studyYear, string index, bool revised)
+        public Student(string name, string surname,Image image, DateTime birthdate, string studyYear, string index, string password, string email, bool revised)
         {
             Name = name;
             Surname = surname;
@@ -44,6 +47,8 @@ namespace Legion_IX.DB
             StudyYear = studyYear;
             //_Image = null;//
             Index = index;
+            Password = password;
+            Email = email;
             Revised = revised;
         }
 
@@ -56,26 +61,51 @@ namespace Legion_IX.DB
             StudyYear = studentToCopy.StudyYear;
             _Image = studentToCopy._Image;
             Index = studentToCopy.Index;
+            Password = studentToCopy.Password;
+            Email = studentToCopy.Email;
             Revised = studentToCopy.Revised;
         }
 
         // Create and Insert/Upload
         public bool CreateAndUpload()
         {
-            var document = new BsonDocument
+            // TRY
+            try
             {
-                {"name", Name},
-                {"surname", Surname},
-                {"birthdate", Birthdate},
-                {"studyYear", StudyYear},
-                {"image", new BsonBinaryData(ImageHelper.FromImageToByte(_Image))},
-                {"index", Index},
-                {"revised", Revised}
-            };
+                var document = new BsonDocument
+                {
+                    {"name", Name},
+                    {"surname", Surname},
+                    {"birthdate", Birthdate},
+                    {"studyYear", StudyYear},
+                    {"image", new BsonBinaryData(ImageHelper.FromImageToByte(_Image))},
+                    {"index", Index},
+                    {"password", Password},
+                    {"email", Email},
+                    {"revised", Revised}
+                };
 
-            AtlasDB access = new AtlasDB("FacultyPersonell", "Student");
-            access.Collection.InsertOne(document);
+                AtlasDB access = new AtlasDB("FacultyPersonell", "Student");
+                access.Collection.InsertOne(document);
+            }
 
+            // CATCH
+            catch (Exception insertFAILED)
+            {
+                // Shows Message box displaying an error and it's description
+                MessageBox.Show
+                    (
+                    $"Student upload/insertion failed:{insertFAILED.Message}; Source: {insertFAILED.Source + Environment.NewLine}",
+                    "Problem Detected: FAILED Document insertion",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error
+                    );
+
+                // Returns false to fucntion call source
+                return false;
+            }
+
+            // Returns true to function call source
             return true;
         }
 
