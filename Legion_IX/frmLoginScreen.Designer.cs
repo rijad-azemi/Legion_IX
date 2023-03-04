@@ -85,6 +85,7 @@
             linkLabel_DLWMSweb.BackColor = Color.Transparent;
             linkLabel_DLWMSweb.Font = new Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point);
             linkLabel_DLWMSweb.ForeColor = SystemColors.ControlLight;
+            linkLabel_DLWMSweb.LinkColor = Color.White;
             linkLabel_DLWMSweb.Location = new Point(12, 534);
             linkLabel_DLWMSweb.Name = "linkLabel_DLWMSweb";
             linkLabel_DLWMSweb.Size = new Size(100, 15);

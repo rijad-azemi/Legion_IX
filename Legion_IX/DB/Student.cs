@@ -1,6 +1,7 @@
 ﻿using Legion_IX.Helpers;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using MongoDB.Bson;
+using MongoDB.Driver;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,6 +22,15 @@ namespace Legion_IX.DB
         public string Password { get; set; }
         public string Email { get; set; }
         public bool Revised { get; set; }
+
+        // Connection to Atlas Database for this class
+        AtlasDB StudentDBConnection { get; set; }
+
+        // Database Name where 'Student' account is stored
+        public string StudentAtlasDB = "FacultyPersonell";
+
+        //Collection Name where 'Student' account is stored
+        public string StudentAtlasCollection = "Student";
 
         // Default ctor
         public Student()
@@ -107,6 +117,22 @@ namespace Legion_IX.DB
 
             // Returns true to function call source
             return true;
+        }
+
+        public async Task<IAsyncCursor<BsonDocument>>? ServerSideFilter_EmailPassword(string email, string password)
+        {
+            StudentDBConnection = new AtlasDB();
+
+            List<BsonDocument> pipeline = new List<BsonDocument>()
+            {
+                new BsonDocument("$match", new BsonDocument("email", email)),
+                new BsonDocument("$match", new BsonDocument("password", password))
+            };
+
+            IAsyncCursor<BsonDocument>? foundAccounts = await
+                StudentDBConnection.Client.GetDatabase(StudentAtlasDB).GetCollection<BsonDocument>(StudentAtlasCollection).AggregateAsync<BsonDocument>(pipeline);
+
+            return foundAccounts;
         }
 
         // Insert Document into Atlas

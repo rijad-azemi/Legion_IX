@@ -9,6 +9,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.ListView;
@@ -25,11 +26,8 @@ namespace Legion_IX
         // Button LOGIN click event
         private async void button_Login_Click(object sender, EventArgs e)
         {
-            AtlasDB filterTest = new AtlasDB();
-
-            string database = "FacultyPersonell";
-            string collection = "Student";
-
+            #region commentedCode
+            /*TO hell with this
             //            var pipeline = new BsonArray
             //{
             //    BsonDocument.Parse("{ $match: { email: 'sead.azemi@edu.fit.ba', password: 'undp123' } }")
@@ -62,6 +60,9 @@ namespace Legion_IX
             //var pipeline = PipelineDefinitionBuilder<BsonDocument, BsonDocument>.Create(matchStage)
 
             //var foundAccount = await filterTest.Client.GetDatabase(database).GetCollection<BsonDocument>(collection).AggregateAsync<BsonDocument>(pipeline);
+            
+            //txtBox_DisplayDocument.Text = foundAccount.ToString();
+
 
             var pipeline = new BsonDocument[]
             {
@@ -72,17 +73,67 @@ namespace Legion_IX
             {"password", "undp123"}
         })
             };
+                        //if (firstDocument != null)
+            //{
+            //    foreach (var field in firstDocument.ToJson()) 
+            //    {
+            //        txtBox_DisplayDocument.Text += field.ToString();
+            //    }
+            //}
 
-            var foundAccount = await filterTest.Client.GetDatabase(database).GetCollection<BsonDocument>(collection)
-                .AggregateAsync<BsonDocument>(pipeline);
+                        //var studyYear = firstDocument.GetValue("studyYear");
+            //var revised = firstDocument.GetValue("revised");
+            //var index = firstDocument.GetValue("index");
+            //txtBox_DisplayDocument.Text = $"{studyYear+Environment.NewLine+revised+Environment.NewLine+index}";
 
+                        //var firstDocument = await foundAccount.FirstOrDefaultAsync();
 
-            txtBox_DisplayDocument.Text = foundAccount.ToList().ToString();
+            //if (textBox_email.Text == firstDocument.GetValue("email")
+            //    && textBox_password.Text == firstDocument.GetValue("password"))
+            //{
+            //    MessageBox.Show("Login Successful", "Success!", MessageBoxButtons.OK);
+            //}
+            //else
+            //    MessageBox.Show("Account not found!", "Failed", MessageBoxButtons.OK);
+            */
+            #endregion commentedCode
 
-            foreach (var doc in foundAccount.ToList())
+            textBox_email.Text = "rijad.azemi@edu.fit.ba";
+            textBox_password.Text = "rijadazemi2000";
+
+            Student student = new Student();
+            IAsyncCursor<BsonDocument>? accountsMatch = await student.ServerSideFilter_EmailPassword(textBox_email.Text, textBox_password.Text);
+            
+            List<BsonDocument> matchingAccounts = accountsMatch.ToList();
+
+            #region mainCode
+
+            if (matchingAccounts.Count > 1)
             {
-                txtBox_DisplayDocument.Text += (doc.ToJson());
+                List<BsonDocument>? listOfAccounts = accountsMatch.ToList();
+
+                foreach (BsonDocument account in listOfAccounts)
+                {
+                    if (account.GetValue("email") == textBox_email.Text && account.GetValue("password") == textBox_password.Text)
+                        MessageBox.Show("Login Successful!", "Success!", MessageBoxButtons.OK);
+
+                    else
+                        MessageBox.Show("Login Failed!", "Account not found", MessageBoxButtons.OK);
+                }
             }
+
+            else
+            {
+                var getDocument = matchingAccounts.First();
+
+                if (getDocument.GetValue("email") == textBox_email.Text && getDocument.GetValue("password") == textBox_password.Text)
+                    MessageBox.Show("Login Successful!", "Success!", MessageBoxButtons.OK);
+
+                else
+                    MessageBox.Show("Login Failed!", "Account not found", MessageBoxButtons.OK);
+            }
+
+            #endregion
         }
 
         // DLWMS link (opens in browser)
