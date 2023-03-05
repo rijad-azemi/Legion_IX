@@ -12,15 +12,14 @@ namespace Legion_IX.Helpers
     {
         public bool ValidateEmail(string email)
         {
-            string pattern = @"^(\w+[a-z]{2})\.(\w+[a-z]{3})@edu.fit.ba";
+            string pattern = @"^(\w+[a-z]{3,})\.(\w+[a-z]{3,})@edu.fit.ba";
             return Regex.IsMatch(email, pattern);
         }
 
         public bool ValidatePassword(string password)
         {
-            string pattern = @"(^\w+[a-zZ-A]{5})(\d+{4})";
-            //return Regex.IsMatch(password, pattern);
-            return true;
+            string pattern = @"(^(?=.+[A-Za-z]){5,}(?=.+\d){3,})";
+            return Regex.IsMatch(password, pattern);
         }
     }
 }

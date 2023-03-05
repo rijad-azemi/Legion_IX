@@ -1,4 +1,7 @@
-﻿using Legion_IX.DB;
+﻿using Amazon.Util.Internal.PlatformServices;
+using Legion_IX.DB;
+using Legion_IX.Helpers;
+using Microsoft.IdentityModel.Tokens;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using System;
@@ -8,6 +11,7 @@ using System.Data;
 using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
+using System.Net.NetworkInformation;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -21,119 +25,157 @@ namespace Legion_IX
         public frmLoginScreen()
         {
             InitializeComponent();
+
+            NetworkListener.NetworkAvailabilityChanged += NetworkAvailability;
+
+        }
+
+        // Global declaration of `Student` instance for use upon need
+        static Student? student;
+        static Helpers.Validators vali = new Helpers.Validators();
+        private void frmLoginScreen_Load(object sender, EventArgs e)
+        {
+            // Initializing it's instance upon Form Load
+            student = new Student();
+
+            NetworkAvailability(sender, e);
         }
 
         // Button LOGIN click event
         private async void button_Login_Click(object sender, EventArgs e)
         {
-            #region commentedCode
-            /*TO hell with this
-            //            var pipeline = new BsonArray
-            //{
-            //    BsonDocument.Parse("{ $match: { email: 'sead.azemi@edu.fit.ba', password: 'undp123' } }")
-            //};
+            // Reseting the text field of the warning label just in case
+            lblAccNotFound.Text = "";
 
+            // Checks if inputs are valid, and returns immediatelty if not
+            if (!CheckIfNullOrEmpty() && !CheckIfValid())
+                return;
 
-            //var pipeline = new BsonDocument[]
-            //{
-            //    new BsonDocument("$match",
-            //    new BsonDocument
-            //{
-            //        {"email", "sead.azemi@edu.fit.ba"},
-            //        {"password", "undp123"}
-            //}
-            //    )
-            //};
+            // Recieving results from `ServerSideFilter_EmailPassword()`
+            IAsyncCursor<BsonDocument>? serverSideFilterResult = await student.ServerSideFilter_EmailPassword(textBox_email.Text, textBox_password.Text);
 
-            //var pipline2 = BsonArray
+            // Converts said results to `List<BsonDocument>`
+            List<BsonDocument>? matchingAccounts = serverSideFilterResult.ToList();
+            int matchAccountIndex = 0;
 
-            //            new BsonArray
-            //{
-            //    new BsonDocument("$match",
-            //    new BsonDocument("email", "sead.azemi@edu.fit.ba"))
-            //};
-
-            //var matchStage = BsonDocument.Parse
-            //    (
-            //    @"{ $match: { email: {$eq: 'sead.azemi@edu.fit.ba'}, password: {$eq: 'undp123' } } }"
-            //    );
-            //var pipeline = PipelineDefinitionBuilder<BsonDocument, BsonDocument>.Create(matchStage)
-
-            //var foundAccount = await filterTest.Client.GetDatabase(database).GetCollection<BsonDocument>(collection).AggregateAsync<BsonDocument>(pipeline);
-            
-            //txtBox_DisplayDocument.Text = foundAccount.ToString();
-
-
-            var pipeline = new BsonDocument[]
+            // Calls checkpoint to enstablish veracity and displays appropriate message
+            if (Checkpoint(ref matchingAccounts, ref matchAccountIndex))
             {
-    new BsonDocument("$match",
-        new BsonDocument
-        {
-            {"email", "sead.azemi@edu.fit.ba"},
-            {"password", "undp123"}
-        })
-            };
-                        //if (firstDocument != null)
-            //{
-            //    foreach (var field in firstDocument.ToJson()) 
-            //    {
-            //        txtBox_DisplayDocument.Text += field.ToString();
-            //    }
-            //}
 
-                        //var studyYear = firstDocument.GetValue("studyYear");
-            //var revised = firstDocument.GetValue("revised");
-            //var index = firstDocument.GetValue("index");
-            //txtBox_DisplayDocument.Text = $"{studyYear+Environment.NewLine+revised+Environment.NewLine+index}";
+                // Saving logged student to send to displaying form
+                BsonDocument loggedStudent = new BsonDocument(matchingAccounts[matchAccountIndex]);
 
-                        //var firstDocument = await foundAccount.FirstOrDefaultAsync();
+                // Creating the instance of the form
+                frmStudentProfile frmStudentProfile = new frmStudentProfile(ref loggedStudent);
 
-            //if (textBox_email.Text == firstDocument.GetValue("email")
-            //    && textBox_password.Text == firstDocument.GetValue("password"))
-            //{
-            //    MessageBox.Show("Login Successful", "Success!", MessageBoxButtons.OK);
-            //}
-            //else
-            //    MessageBox.Show("Account not found!", "Failed", MessageBoxButtons.OK);
-            */
-            #endregion commentedCode
+                // Hiding current
+                this.Hide();
 
-            textBox_email.Text = "rijad.azemi@edu.fit.ba";
-            textBox_password.Text = "rijadazemi2000";
+                // Showing the profile form
+                frmStudentProfile.ShowDialog();
 
-            Student student = new Student();
-            IAsyncCursor<BsonDocument>? accountsMatch = await student.ServerSideFilter_EmailPassword(textBox_email.Text, textBox_password.Text);
-            
-            List<BsonDocument> matchingAccounts = accountsMatch.ToList();
-
-            #region mainCode
-
-            if (matchingAccounts.Count > 1)
-            {
-                List<BsonDocument>? listOfAccounts = accountsMatch.ToList();
-
-                foreach (BsonDocument account in listOfAccounts)
-                {
-                    if (account.GetValue("email") == textBox_email.Text && account.GetValue("password") == textBox_password.Text)
-                        MessageBox.Show("Login Successful!", "Success!", MessageBoxButtons.OK);
-
-                    else
-                        MessageBox.Show("Login Failed!", "Account not found", MessageBoxButtons.OK);
-                }
+                //Closing this one
+                this.Close();
             }
 
             else
+                lblAccNotFound.Text = "--- ACCOUNT NOT FOUND ---";
+
+            #region Checkpoint
+            /*if (Checkpoint(ref matchingAccounts))
+                MessageBox.Show("Login Successful!", "Operation completed successfully!", MessageBoxButtons.OK);
+
+            else
+                MessageBox.Show("Login Failed!", "Operation has failed!", MessageBoxButtons.OK);*/
+            #endregion Checkpoint
+        }
+
+        // Checks for mattching accounts in Atlas based on login indo provided
+        private bool Checkpoint(ref List<BsonDocument> Accounts, ref int index)
+        {
+            // If `Accounts.Count` is higher or equal to 1, means `ServerSideFilter_EmailPassword()` returned matching account
+            if (Accounts.Count >= 1)
             {
-                var getDocument = matchingAccounts.First();
+                // `Accounts` might hold more than one document, so iterating to check 
+                for (int i = 0; i < Accounts.Count; i++)
+                {
 
-                if (getDocument.GetValue("email") == textBox_email.Text && getDocument.GetValue("password") == textBox_password.Text)
-                    MessageBox.Show("Login Successful!", "Success!", MessageBoxButtons.OK);
+                    if (Accounts[i].GetValue("email") == textBox_email.Text && Accounts[i].GetValue("password") == textBox_password.Text)
+                    {
+                        index = i;
+                        return true;// Returns `true` if match is found
+                    }
 
-                else
-                    MessageBox.Show("Login Failed!", "Account not found", MessageBoxButtons.OK);
+                }
+
+                // Returns `false` if none are found
+                return false;
             }
 
-            #endregion
+            // Returns `false` if `ServerSideFilter_EmailPassword()` found no matches
+            return false;
+        }
+
+        // Key down event for the form
+        private void textBox_EmailPassword_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+
+                if (CheckIfNullOrEmpty() && CheckIfValid())
+                    button_Login_Click(sender, e);
+
+            }
+        }
+
+        // Checks if NullOrEmpty()
+        private bool CheckIfNullOrEmpty()
+        {
+            // For EMAIL
+            if (textBox_email.Text.IsNullOrEmpty())
+            {
+                err_EmailPassword.SetError(textBox_email, "This field cannot be empty!");
+                return false;
+            }
+            else
+                err_EmailPassword.SetError(textBox_email, "");
+
+            // For PASSWORD
+            if (textBox_password.Text.IsNullOrEmpty())
+            {
+                err_EmailPassword.SetError(textBox_password, "This field cannot be empty!");
+                return false;
+            }
+            else
+                err_EmailPassword.SetError(textBox_password, "");
+
+            // Returns TRUE if all is good above
+            return true;
+        }
+
+        // Checks if Email and Password typed is valid in format
+        private bool CheckIfValid()
+        {
+            // Checks Email
+            if (!vali.ValidateEmail(textBox_email.Text))
+            {
+                err_EmailPassword.SetError(textBox_email, "Invalid Format!");
+                return false;
+            }
+
+            #region idiot
+            //You don't need to check the format for an ALREADY CREATED PASSWORD, you moron
+
+            // Checks Password
+            /*if (!vali.ValidatePassword(textBox_password.Text))
+            {
+                err_EmailPassword.SetError(textBox_password, "Invalid Format!");
+                return false;
+            }*/
+            #endregion idiot
+
+            // Returns true if all is good
+            return true;
         }
 
         // DLWMS link (opens in browser)
@@ -178,5 +220,103 @@ namespace Legion_IX
                 }
             }
         }
+
+        // Check Box ShowPassword
+        private void checkBox_ShowPassword_CheckedChanged(object sender, EventArgs e)
+        {
+            if (checkBox_ShowPassword.Checked)
+                textBox_password.UseSystemPasswordChar = false;
+
+            else
+                textBox_password.UseSystemPasswordChar = true;
+        }
+
+        // Network availability detector
+        private void NetworkAvailability(object sender, EventArgs e)
+        {
+            if (NetworkListener.IsConnectedToNet())
+            {
+                txtBox_NetworkStatus.Text = "-ONLINE-";
+                txtBox_NetworkStatus.BackColor = Color.Green;
+            }
+
+            else
+            {
+                txtBox_NetworkStatus.Text = "-OFFLINE-";
+                txtBox_NetworkStatus.BackColor = Color.Red;
+            }
+        }
     }
 }
+
+#region commentedCode
+/*TO hell with this
+//            var pipeline = new BsonArray
+//{
+//    BsonDocument.Parse("{ $match: { email: 'sead.azemi@edu.fit.ba', password: 'undp123' } }")
+//};
+
+
+//var pipeline = new BsonDocument[]
+//{
+//    new BsonDocument("$match",
+//    new BsonDocument
+//{
+//        {"email", "sead.azemi@edu.fit.ba"},
+//        {"password", "undp123"}
+//}
+//    )
+//};
+
+//var pipline2 = BsonArray
+
+//            new BsonArray
+//{
+//    new BsonDocument("$match",
+//    new BsonDocument("email", "sead.azemi@edu.fit.ba"))
+//};
+
+//var matchStage = BsonDocument.Parse
+//    (
+//    @"{ $match: { email: {$eq: 'sead.azemi@edu.fit.ba'}, password: {$eq: 'undp123' } } }"
+//    );
+//var pipeline = PipelineDefinitionBuilder<BsonDocument, BsonDocument>.Create(matchStage)
+
+//var foundAccount = await filterTest.Client.GetDatabase(database).GetCollection<BsonDocument>(collection).AggregateAsync<BsonDocument>(pipeline);
+
+//txtBox_DisplayDocument.Text = foundAccount.ToString();
+
+
+var pipeline = new BsonDocument[]
+{
+new BsonDocument("$match",
+new BsonDocument
+{
+{"email", "sead.azemi@edu.fit.ba"},
+{"password", "undp123"}
+})
+};
+            //if (firstDocument != null)
+//{
+//    foreach (var field in firstDocument.ToJson()) 
+//    {
+//        txtBox_DisplayDocument.Text += field.ToString();
+//    }
+//}
+
+            //var studyYear = firstDocument.GetValue("studyYear");
+//var revised = firstDocument.GetValue("revised");
+//var index = firstDocument.GetValue("index");
+//txtBox_DisplayDocument.Text = $"{studyYear+Environment.NewLine+revised+Environment.NewLine+index}";
+
+            //var firstDocument = await foundAccount.FirstOrDefaultAsync();
+
+//if (textBox_email.Text == firstDocument.GetValue("email")
+//    && textBox_password.Text == firstDocument.GetValue("password"))
+//{
+//    MessageBox.Show("Login Successful", "Success!", MessageBoxButtons.OK);
+//}
+//else
+//    MessageBox.Show("Account not found!", "Failed", MessageBoxButtons.OK);
+*/
+#endregion commentedCode

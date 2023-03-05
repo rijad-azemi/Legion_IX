@@ -19,10 +19,11 @@ namespace Legion_IX.DB
         public string StudyYear { get; set; }
         public Image _Image { get; set; }
         public string Index { get; set; }
-        public string Password { get; set; }
+        public string? Password { get; set; }
         public string Email { get; set; }
         public bool Revised { get; set; }
 
+        #region Data for Atlas connection
         // Connection to Atlas Database for this class
         AtlasDB StudentDBConnection { get; set; }
 
@@ -31,6 +32,7 @@ namespace Legion_IX.DB
 
         //Collection Name where 'Student' account is stored
         public string StudentAtlasCollection = "Student";
+        #endregion Data for Atlas connection
 
         // Default ctor
         public Student()
@@ -119,6 +121,7 @@ namespace Legion_IX.DB
             return true;
         }
 
+        // Server Side filtering
         public async Task<IAsyncCursor<BsonDocument>>? ServerSideFilter_EmailPassword(string email, string password)
         {
             StudentDBConnection = new AtlasDB();
@@ -135,18 +138,35 @@ namespace Legion_IX.DB
             return foundAccounts;
         }
 
-        // Insert Document into Atlas
-        public void DocumentToInsert()
+        // Gets the data for Student from BsonDocument
+        public Student GetStudentFromBson(ref BsonDocument theStudent)
         {
-            var document = new BsonDocument
+            return new Student()
             {
-                {"name", Name},
-                {"surname", Surname},
-                {"birthdate", Birthdate},
-                {"image", _Image.ToString()},
-                {"index", Index},
-                {"revised", Revised}
+                Name = theStudent.GetValue("name").ToString(),
+                Surname = theStudent.GetValue("surname").ToString(),
+                Birthdate = ((DateTime)theStudent.GetValue("birthdate")),
+                StudyYear = theStudent.GetValue("studyYear").ToString(),
+                _Image = ImageHelper.FromByteToImage((byte[])theStudent.GetValue("image")),
+                Index = theStudent.GetValue("index").ToString(),
+                Password = null,
+                Email = theStudent.GetValue("email").ToString(),
+                Revised = (bool)theStudent.GetValue("revised")
             };
         }
+
+        /*        // Insert Document into Atlas
+                public void DocumentToInsert()
+                {
+                    var document = new BsonDocument
+                    {
+                        {"name", Name},
+                        {"surname", Surname},
+                        {"birthdate", Birthdate},
+                        {"image", _Image.ToString()},
+                        {"index", Index},
+                        {"revised", Revised}
+                    };
+                }*/
     }
 }
