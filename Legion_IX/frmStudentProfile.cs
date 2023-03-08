@@ -15,9 +15,11 @@ namespace Legion_IX
     public partial class frmStudentProfile : Form
     {
         static Student? theStudent = new Student();
+
         public frmStudentProfile(ref BsonDocument loggedStudent)
         {
             BsonDocument studentBson = new BsonDocument(loggedStudent);
+
             // Gets student data from BsonDocument
             theStudent = theStudent.GetStudentFromBson(ref studentBson);
 
@@ -34,6 +36,24 @@ namespace Legion_IX
             txtBox_DisplayIndex.Text = theStudent.Index;
             txtBox_Email.Text = theStudent.Email;
             txtBox_Revised.Text = (theStudent.Revised) ? "--- Yes ---" : "--- No ---";
+        }
+
+        private void button_LogOut_Click(object sender, EventArgs e)
+        {
+            // Creating again the instance of the login form
+            frmLoginScreen backToTlogIn = new frmLoginScreen();
+
+            // Hide current from view
+            this.Hide();
+
+            // Show the form
+            backToTlogIn.ShowDialog();
+
+            // This message will be displayed onto the 'lblAccNotFound'
+            backToTlogIn.displayLogoutMessage("--- You have been logged out ---");
+
+            // Closing current form
+            this.Close();
         }
     }
 }

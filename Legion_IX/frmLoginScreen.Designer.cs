@@ -50,9 +50,9 @@
             lbl_email.BackColor = Color.Transparent;
             lbl_email.Font = new Font("Segoe UI", 11F, FontStyle.Regular, GraphicsUnit.Point);
             lbl_email.ForeColor = SystemColors.ButtonFace;
-            lbl_email.Location = new Point(203, 233);
+            lbl_email.Location = new Point(232, 311);
             lbl_email.Name = "lbl_email";
-            lbl_email.Size = new Size(59, 20);
+            lbl_email.Size = new Size(75, 25);
             lbl_email.TabIndex = 0;
             lbl_email.Text = "E-mail: ";
             // 
@@ -62,27 +62,29 @@
             lbl_password.BackColor = Color.Transparent;
             lbl_password.Font = new Font("Segoe UI", 11F, FontStyle.Regular, GraphicsUnit.Point);
             lbl_password.ForeColor = SystemColors.ButtonFace;
-            lbl_password.Location = new Point(189, 289);
+            lbl_password.Location = new Point(216, 385);
             lbl_password.Name = "lbl_password";
-            lbl_password.Size = new Size(73, 20);
+            lbl_password.Size = new Size(95, 25);
             lbl_password.TabIndex = 1;
             lbl_password.Text = "Password:";
             // 
             // textBox_email
             // 
             textBox_email.BorderStyle = BorderStyle.None;
-            textBox_email.Location = new Point(282, 237);
+            textBox_email.Location = new Point(322, 316);
+            textBox_email.Margin = new Padding(3, 4, 3, 4);
             textBox_email.Name = "textBox_email";
-            textBox_email.Size = new Size(215, 16);
+            textBox_email.Size = new Size(246, 20);
             textBox_email.TabIndex = 2;
             textBox_email.KeyDown += textBox_EmailPassword_KeyDown;
             // 
             // textBox_password
             // 
             textBox_password.BorderStyle = BorderStyle.None;
-            textBox_password.Location = new Point(282, 293);
+            textBox_password.Location = new Point(322, 391);
+            textBox_password.Margin = new Padding(3, 4, 3, 4);
             textBox_password.Name = "textBox_password";
-            textBox_password.Size = new Size(215, 16);
+            textBox_password.Size = new Size(246, 20);
             textBox_password.TabIndex = 3;
             textBox_password.UseSystemPasswordChar = true;
             textBox_password.KeyDown += textBox_EmailPassword_KeyDown;
@@ -94,9 +96,9 @@
             linkLabel_DLWMSweb.Font = new Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point);
             linkLabel_DLWMSweb.ForeColor = SystemColors.ControlLight;
             linkLabel_DLWMSweb.LinkColor = Color.White;
-            linkLabel_DLWMSweb.Location = new Point(12, 534);
+            linkLabel_DLWMSweb.Location = new Point(14, 712);
             linkLabel_DLWMSweb.Name = "linkLabel_DLWMSweb";
-            linkLabel_DLWMSweb.Size = new Size(100, 15);
+            linkLabel_DLWMSweb.Size = new Size(127, 20);
             linkLabel_DLWMSweb.TabIndex = 4;
             linkLabel_DLWMSweb.TabStop = true;
             linkLabel_DLWMSweb.Text = "Visit DLWMS Web";
@@ -108,9 +110,10 @@
             button_Login.BackgroundImage = (Image)resources.GetObject("button_Login.BackgroundImage");
             button_Login.FlatAppearance.BorderSize = 0;
             button_Login.ForeColor = SystemColors.ButtonFace;
-            button_Login.Location = new Point(331, 339);
+            button_Login.Location = new Point(378, 452);
+            button_Login.Margin = new Padding(3, 4, 3, 4);
             button_Login.Name = "button_Login";
-            button_Login.Size = new Size(75, 23);
+            button_Login.Size = new Size(86, 31);
             button_Login.TabIndex = 5;
             button_Login.Text = "Log in";
             button_Login.UseVisualStyleBackColor = false;
@@ -129,9 +132,10 @@
             checkBox_ShowPassword.AutoSize = true;
             checkBox_ShowPassword.BackColor = Color.Transparent;
             checkBox_ShowPassword.ForeColor = SystemColors.ButtonFace;
-            checkBox_ShowPassword.Location = new Point(532, 292);
+            checkBox_ShowPassword.Location = new Point(608, 389);
+            checkBox_ShowPassword.Margin = new Padding(3, 4, 3, 4);
             checkBox_ShowPassword.Name = "checkBox_ShowPassword";
-            checkBox_ShowPassword.Size = new Size(113, 19);
+            checkBox_ShowPassword.Size = new Size(141, 24);
             checkBox_ShowPassword.TabIndex = 6;
             checkBox_ShowPassword.Text = "Show password?";
             checkBox_ShowPassword.UseVisualStyleBackColor = false;
@@ -142,27 +146,28 @@
             lblAccNotFound.BackColor = Color.Transparent;
             lblAccNotFound.Font = new Font("Segoe UI", 11F, FontStyle.Regular, GraphicsUnit.Point);
             lblAccNotFound.ForeColor = Color.Red;
-            lblAccNotFound.Location = new Point(189, 365);
+            lblAccNotFound.Location = new Point(232, 246);
             lblAccNotFound.Name = "lblAccNotFound";
-            lblAccNotFound.Size = new Size(372, 23);
+            lblAccNotFound.Size = new Size(425, 31);
             lblAccNotFound.TabIndex = 7;
             lblAccNotFound.TextAlign = ContentAlignment.MiddleCenter;
             // 
             // txtBox_NetworkStatus
             // 
-            txtBox_NetworkStatus.Location = new Point(602, 541);
+            txtBox_NetworkStatus.Location = new Point(688, 721);
+            txtBox_NetworkStatus.Margin = new Padding(3, 4, 3, 4);
             txtBox_NetworkStatus.Name = "txtBox_NetworkStatus";
             txtBox_NetworkStatus.ReadOnly = true;
-            txtBox_NetworkStatus.Size = new Size(100, 23);
+            txtBox_NetworkStatus.Size = new Size(114, 27);
             txtBox_NetworkStatus.TabIndex = 8;
             txtBox_NetworkStatus.TextAlign = HorizontalAlignment.Center;
             // 
             // frmLoginScreen
             // 
-            AutoScaleDimensions = new SizeF(7F, 15F);
+            AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             BackgroundImage = (Image)resources.GetObject("$this.BackgroundImage");
-            ClientSize = new Size(714, 576);
+            ClientSize = new Size(816, 768);
             Controls.Add(txtBox_NetworkStatus);
             Controls.Add(lblAccNotFound);
             Controls.Add(checkBox_ShowPassword);
@@ -173,6 +178,7 @@
             Controls.Add(lbl_password);
             Controls.Add(lbl_email);
             FormBorderStyle = FormBorderStyle.FixedSingle;
+            Margin = new Padding(3, 4, 3, 4);
             Name = "frmLoginScreen";
             ShowIcon = false;
             StartPosition = FormStartPosition.CenterScreen;

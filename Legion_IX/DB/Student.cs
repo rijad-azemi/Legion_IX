@@ -144,13 +144,21 @@ namespace Legion_IX.DB
             return new Student()
             {
                 Name = theStudent.GetValue("name").ToString(),
+
                 Surname = theStudent.GetValue("surname").ToString(),
+
                 Birthdate = ((DateTime)theStudent.GetValue("birthdate")),
+
                 StudyYear = theStudent.GetValue("studyYear").ToString(),
+
                 _Image = ImageHelper.FromByteToImage((byte[])theStudent.GetValue("image")),
+
                 Index = theStudent.GetValue("index").ToString(),
+
                 Password = null,
+
                 Email = theStudent.GetValue("email").ToString(),
+
                 Revised = (bool)theStudent.GetValue("revised")
             };
         }

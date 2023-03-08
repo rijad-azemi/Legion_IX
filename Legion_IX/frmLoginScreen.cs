@@ -30,6 +30,33 @@ namespace Legion_IX
 
         }
 
+        public void displayLogoutMessage(string message)
+        {
+            lblAccNotFound.Text = message;
+            int counter = 0;
+
+            ThreadStart inform = new ThreadStart( () =>
+            {
+                if (counter >= 5)
+                    Thread.CurrentThread.Abort();
+
+                lblAccNotFound.ForeColor = Color.Green;
+
+                Thread.Sleep(500);
+
+                lblAccNotFound.ForeColor = Color.White;
+
+                counter++;
+            });
+
+            Thread mythread = new Thread( inform );
+            mythread.Start();
+
+            lblAccNotFound.Text = "";
+            
+            lblAccNotFound.Text = message;
+        }
+
         // Global declaration of `Student` instance for use upon need
         static Student? student;
         static Helpers.Validators vali = new Helpers.Validators();
@@ -96,6 +123,10 @@ namespace Legion_IX
             // If `Accounts.Count` is higher or equal to 1, means `ServerSideFilter_EmailPassword()` returned matching account
             if (Accounts.Count >= 1)
             {
+
+                // Could have added another if statement to return true immediately if one document is detected; Would make code more...
+                // unredable, so won't implement
+
                 // `Accounts` might hold more than one document, so iterating to check 
                 for (int i = 0; i < Accounts.Count; i++)
                 {
@@ -215,7 +246,7 @@ namespace Legion_IX
                     if (fileDialogResult == DialogResult.OK)
                     {
                         string selectedFilePath = openFileDialog_searchForBrowser.FileName;
-                        System.Diagnostics.Process.Start(selectedFilePath);
+                        System.Diagnostics.Process.Start(selectedFilePath, "https://www.fit.ba/student/login.aspx");
                     }
                 }
             }
@@ -234,17 +265,25 @@ namespace Legion_IX
         // Network availability detector
         private void NetworkAvailability(object sender, EventArgs e)
         {
+
             if (NetworkListener.IsConnectedToNet())
             {
-                txtBox_NetworkStatus.Text = "-ONLINE-";
-                txtBox_NetworkStatus.BackColor = Color.Green;
+                this.Invoke((Action)(() =>
+                {
+                    txtBox_NetworkStatus.Text = "-ONLINE-";
+                    txtBox_NetworkStatus.BackColor = Color.Green;
+                }));
             }
 
             else
             {
-                txtBox_NetworkStatus.Text = "-OFFLINE-";
-                txtBox_NetworkStatus.BackColor = Color.Red;
+                this.Invoke((Action)(() =>
+                {
+                    txtBox_NetworkStatus.Text = "-OFFLINE-";
+                    txtBox_NetworkStatus.BackColor = Color.Red;
+                }));
             }
+
         }
     }
 }
