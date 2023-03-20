@@ -24,6 +24,7 @@ namespace Legion_IX.DB
         public bool Revised { get; set; }
 
         #region Data for Atlas connection
+
         // Connection to Atlas Database for this class
         AtlasDB StudentDBConnection { get; set; }
 
@@ -32,6 +33,7 @@ namespace Legion_IX.DB
 
         //Collection Name where 'Student' account is stored
         public string StudentAtlasCollection = "Student";
+
         #endregion Data for Atlas connection
 
         // Default ctor
@@ -162,19 +164,5 @@ namespace Legion_IX.DB
                 Revised = (bool)theStudent.GetValue("revised")
             };
         }
-
-        /*        // Insert Document into Atlas
-                public void DocumentToInsert()
-                {
-                    var document = new BsonDocument
-                    {
-                        {"name", Name},
-                        {"surname", Surname},
-                        {"birthdate", Birthdate},
-                        {"image", _Image.ToString()},
-                        {"index", Index},
-                        {"revised", Revised}
-                    };
-                }*/
     }
 }

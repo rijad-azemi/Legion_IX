@@ -30,47 +30,33 @@ namespace Legion_IX
 
         }
 
-        public void displayLogoutMessage(string message)
-        {
-            lblAccNotFound.Text = message;
-            int counter = 0;
+        // Global declaration variables
 
-            ThreadStart inform = new ThreadStart( () =>
-            {
-                if (counter >= 5)
-                    Thread.CurrentThread.Abort();
-
-                lblAccNotFound.ForeColor = Color.Green;
-
-                Thread.Sleep(500);
-
-                lblAccNotFound.ForeColor = Color.White;
-
-                counter++;
-            });
-
-            Thread mythread = new Thread( inform );
-            mythread.Start();
-
-            lblAccNotFound.Text = "";
-            
-            lblAccNotFound.Text = message;
-        }
-
-        // Global declaration of `Student` instance for use upon need
         static Student? student;
         static Helpers.Validators vali = new Helpers.Validators();
+        public bool loggedOut { get; set; } = false;
+
+        // Global declaration variables
+
         private void frmLoginScreen_Load(object sender, EventArgs e)
         {
             // Initializing it's instance upon Form Load
             student = new Student();
 
             NetworkAvailability(sender, e);
+
+            if(loggedOut)
+            {
+                displayLogoutMessage("--- You have been logged out ---");
+            }
         }
 
         // Button LOGIN click event
         private async void button_Login_Click(object sender, EventArgs e)
         {
+            textBox_email.Text = "rijad.azemi@edu.fit.ba";
+            textBox_password.Text = "rijadazemi2000";
+
             // Reseting the text field of the warning label just in case
             lblAccNotFound.Text = "";
 
@@ -284,6 +270,31 @@ namespace Legion_IX
                 }));
             }
 
+        }
+
+        // Gets called when logging out and displays a blinking message informing the user
+        public void displayLogoutMessage(string message) // Test the following idea, make the method STATIC!
+        {
+            //Threads access = new Threads();
+
+            /*Thread myThread = new Thread( () => Threads.BlinkingMessage_LOGOUT(this.lblAccNotFound, message) );
+
+            myThread.Start();
+            myThread.Join();*/
+
+            this.Invoke((Action)(() => {
+                int blinkTimes = 5;
+                lblAccNotFound.Text = message;
+
+                for (int i = 0; i < blinkTimes; i++)
+                {
+                    lblAccNotFound.ForeColor = Color.Green;
+
+                    Thread.Sleep(1000);
+
+                    lblAccNotFound.ForeColor = Color.AntiqueWhite;
+                }
+            }));
         }
     }
 }

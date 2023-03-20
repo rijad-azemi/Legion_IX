@@ -1,0 +1,66 @@
+*Connect "Legion_IX" to MongoDB Atlas Database
+*Put my Project on Github and make chnages from there accordingly
+
+MyAppUser (Username: AppUser777 ; Password: ToHellAndBack777)
+
+! If you cannot access the DB, check "Network Access" on MongoDB Atlas. Make sure your IP
+   allowed to connect.
+
+
+7JlDBbz3uCTr3U9zXKMHrI5Lhb6eq7V7CFpefK3K2n4xGHByukcoCbjUaxOKSIlP
+DataAPI key: nuTm6Brf0d0D6P0eAKdTTIzocJhOGzOqZCdees9ECrjWhdBGKcAWxus7v7UWr07R
+
+-----------My new ATLAS database access information-------------
+Username: rijadazemi
+Password: Karate1227
+
+API URL endpoint: https://eu-central-1.aws.data.mongodb-api.com/app/data-iebju/endpoint/data/v1S
+Data API key: sWwfBaA7J9tLL68gxtdZ0B9nQ6CX7ykGfri6jyu3apEAuYWiLHXahE2EHoQSBbPw
+
+CRUD = Create, Read, Update, Delete
+***Problem with listing information from the chosen Database might be the READ part.***
+
+1)What kind of data and it's types does my collection contain in C#
+2)How I can display it
+
+*** I would have to make another class by the name of the collection I want to dislay, give that
+    class the same parameters as the ones on Atlas, and (somehow) assign them such data to local
+    variables in C# to be later displayed ***
+
+*** ChosenCollection variable is actually of BsonDocument type - I need to find a way to look
+    into it ***
+
+!!! Look into MongoDB.Driver.Collection !!!
+!!! Also look at the data after you Convert it to a list (or string) !!!
+
+*** I learned that each list element is of type "MongoDB.Bson.BsonElement", they might have
+    ToString() method. ***
+
+!!! BsonElement class has a value "Name" which HOLDS(names) the datatype of that element! !!!
+
+*** So what I want to do now is to take three documents or more, and play with them. ***
+
+CTRL + F12 to enter assembly, cool as shit.
+
+!!! PUT A REFRESH DATABASE BUTTON !!!
+
+-----------------------------------------------------------
+!!!!! Client-side filtering & Server-side filtering !!!!!
+-----------------------------------------------------------
+
+-----------------------------------------------------------
+!!!! Add Server-side filter for index !!!!
+-----------------------------------------------------------
+
+
+Size For User Control: Width = 654;
+                       Height = 335;
+
+Location For User Control: X = 234;
+                           Y = 12;
+
+
+--------------------------------------------------
+            I reallyyyyy want to try messing around pointers some more
+... remember to explore that idea further.
+--------------------------------------------------
