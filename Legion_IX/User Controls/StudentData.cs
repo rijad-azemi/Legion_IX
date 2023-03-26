@@ -20,7 +20,8 @@ namespace Legion_IX.User_Controls
 
         private void StudentData_Load(object sender, EventArgs e)
         {
-            this.Visible = false;
+            // Hiding from view on load
+            this.Hide();
         }
 
         public void GetDataFrom_frmStudentProfile(in Student theStudent)

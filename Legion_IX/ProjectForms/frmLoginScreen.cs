@@ -30,13 +30,14 @@ namespace Legion_IX
 
         }
 
-        // Global declaration variables
+        #region Global Variables
 
         static Student? student;
         static Helpers.Validators vali = new Helpers.Validators();
+
         public bool loggedOut { get; set; } = false;
 
-        // Global declaration variables
+        #endregion Global Variables
 
         private void frmLoginScreen_Load(object sender, EventArgs e)
         {
@@ -47,7 +48,11 @@ namespace Legion_IX
 
             if(loggedOut)
             {
-                displayLogoutMessage("--- You have been logged out ---");
+                lblAccNotFound.Text = "--- You have logged out ---";
+                int blinkTimes = 5;
+
+                Thread blinker = new Thread(new ThreadStart( () => displayLogoutMessage(blinkTimes) ) );
+                blinker.Start();
             }
         }
 
@@ -273,28 +278,20 @@ namespace Legion_IX
         }
 
         // Gets called when logging out and displays a blinking message informing the user
-        public void displayLogoutMessage(string message) // Test the following idea, make the method STATIC!
+        public void displayLogoutMessage(int blinkTimes) // Test the following idea, make the method STATIC!
         {
-            //Threads access = new Threads();
+            for (int i = 0; i < blinkTimes; i++)
+            {
+                lblAccNotFound.ForeColor = Color.Green;
+                Thread.Sleep(400);
 
-            /*Thread myThread = new Thread( () => Threads.BlinkingMessage_LOGOUT(this.lblAccNotFound, message) );
+                lblAccNotFound.ForeColor = Color.AntiqueWhite;
+                Thread.Sleep(400);
+            }
+            lblAccNotFound.ForeColor = Color.AntiqueWhite;
 
-            myThread.Start();
-            myThread.Join();*/
-
-            this.Invoke((Action)(() => {
-                int blinkTimes = 5;
-                lblAccNotFound.Text = message;
-
-                for (int i = 0; i < blinkTimes; i++)
-                {
-                    lblAccNotFound.ForeColor = Color.Green;
-
-                    Thread.Sleep(1000);
-
-                    lblAccNotFound.ForeColor = Color.AntiqueWhite;
-                }
-            }));
+            // Invoking action for a control on it's original created thread to prevent cross threading exception
+            this.Invoke((Action)(() => lblAccNotFound.Text = ""));
         }
     }
 }

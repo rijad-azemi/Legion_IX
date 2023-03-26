@@ -99,7 +99,7 @@
             lblRevised.AutoSize = true;
             lblRevised.BackColor = Color.Transparent;
             lblRevised.Font = new Font("Segoe UI", 12F, FontStyle.Regular, GraphicsUnit.Point);
-            lblRevised.ForeColor = SystemColors.ButtonFace;
+            lblRevised.ForeColor = SystemColors.Control;
             lblRevised.Location = new Point(275, 259);
             lblRevised.Name = "lblRevised";
             lblRevised.Size = new Size(67, 21);
@@ -121,7 +121,7 @@
             lblEmail.AutoSize = true;
             lblEmail.BackColor = Color.Transparent;
             lblEmail.Font = new Font("Segoe UI", 12F, FontStyle.Regular, GraphicsUnit.Point);
-            lblEmail.ForeColor = Color.Transparent;
+            lblEmail.ForeColor = SystemColors.Control;
             lblEmail.Location = new Point(289, 95);
             lblEmail.Name = "lblEmail";
             lblEmail.Size = new Size(57, 21);
@@ -183,7 +183,7 @@
             lbl_Index.AutoSize = true;
             lbl_Index.BackColor = Color.Transparent;
             lbl_Index.Font = new Font("Segoe UI", 12F, FontStyle.Regular, GraphicsUnit.Point);
-            lbl_Index.ForeColor = SystemColors.ButtonFace;
+            lbl_Index.ForeColor = SystemColors.Control;
             lbl_Index.Location = new Point(296, 216);
             lbl_Index.Name = "lbl_Index";
             lbl_Index.Size = new Size(50, 21);
@@ -205,7 +205,7 @@
             lbl_StudyYear.AutoSize = true;
             lbl_StudyYear.BackColor = Color.Transparent;
             lbl_StudyYear.Font = new Font("Segoe UI", 12F, FontStyle.Regular, GraphicsUnit.Point);
-            lbl_StudyYear.ForeColor = SystemColors.ButtonFace;
+            lbl_StudyYear.ForeColor = SystemColors.Control;
             lbl_StudyYear.Location = new Point(247, 178);
             lbl_StudyYear.Name = "lbl_StudyYear";
             lbl_StudyYear.Size = new Size(104, 21);
@@ -217,7 +217,7 @@
             lbl_Name.AutoSize = true;
             lbl_Name.BackColor = Color.Transparent;
             lbl_Name.Font = new Font("Segoe UI", 12F, FontStyle.Regular, GraphicsUnit.Point);
-            lbl_Name.ForeColor = SystemColors.ButtonFace;
+            lbl_Name.ForeColor = SystemColors.Control;
             lbl_Name.Location = new Point(296, 22);
             lbl_Name.Name = "lbl_Name";
             lbl_Name.Size = new Size(55, 21);
@@ -229,7 +229,7 @@
             lbl_Birthdate.AutoSize = true;
             lbl_Birthdate.BackColor = Color.Transparent;
             lbl_Birthdate.Font = new Font("Segoe UI", 12F, FontStyle.Regular, GraphicsUnit.Point);
-            lbl_Birthdate.ForeColor = SystemColors.ButtonFace;
+            lbl_Birthdate.ForeColor = SystemColors.Control;
             lbl_Birthdate.Location = new Point(275, 137);
             lbl_Birthdate.Name = "lbl_Birthdate";
             lbl_Birthdate.Size = new Size(76, 21);
@@ -241,7 +241,7 @@
             lbl_Surname.AutoSize = true;
             lbl_Surname.BackColor = Color.Transparent;
             lbl_Surname.Font = new Font("Segoe UI", 12F, FontStyle.Regular, GraphicsUnit.Point);
-            lbl_Surname.ForeColor = Color.Transparent;
+            lbl_Surname.ForeColor = SystemColors.Control;
             lbl_Surname.Location = new Point(275, 60);
             lbl_Surname.Name = "lbl_Surname";
             lbl_Surname.Size = new Size(76, 21);
@@ -252,9 +252,11 @@
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
+            BackColor = Color.Transparent;
+            BorderStyle = BorderStyle.FixedSingle;
             Controls.Add(groupBox_uc_StudentInfo);
             Name = "StudentData";
-            Size = new Size(654, 335);
+            Size = new Size(652, 333);
             Load += StudentData_Load;
             groupBox_uc_StudentInfo.ResumeLayout(false);
             groupBox_uc_StudentInfo.PerformLayout();

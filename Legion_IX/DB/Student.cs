@@ -23,10 +23,12 @@ namespace Legion_IX.DB
         public string Email { get; set; }
         public bool Revised { get; set; }
 
+        public List<string> Subjects { get; set; }
+
         #region Data for Atlas connection
 
         // Connection to Atlas Database for this class
-        AtlasDB StudentDBConnection { get; set; }
+        public AtlasDB StudentDBConnection { get; set; }
 
         // Database Name where 'Student' account is stored
         public string StudentAtlasDB = "FacultyPersonell";
@@ -49,9 +51,12 @@ namespace Legion_IX.DB
             Email = "";
             //IndexIncrementor = 190000;
             Revised = false;
+
+            StudentDBConnection = new AtlasDB();
         }
 
         // User defined ctor
+        // YOU FORGOT StudentDBConnection
         public Student(string name, string surname,Image image, DateTime birthdate, string studyYear, string index, string password, string email, bool revised)
         {
             Name = name;
@@ -67,6 +72,7 @@ namespace Legion_IX.DB
         }
 
         // Copy ctor
+        // YOU FORGOT StudentDBConnection
         public Student(Student studentToCopy)
         {
             Name = studentToCopy.Name;

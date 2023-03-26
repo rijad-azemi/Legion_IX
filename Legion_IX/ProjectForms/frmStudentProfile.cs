@@ -16,7 +16,12 @@ namespace Legion_IX
         #region Global Variables
 
         // Global variable of type `Student` that will recieve Bson Documents
-        static Student? theStudent = new Student();
+        public static Student? theStudent = new Student();
+
+        // Reference variable to current shown `UserControl`
+        private UserControl currentOpen;
+
+        private Button currentButton;
 
         #endregion Global Variables
 
@@ -43,7 +48,7 @@ namespace Legion_IX
             // Setting size and location to all `User Controls`
             SetLocationSizeToAll_UC();
 
-            studentData1.Visible = true;
+            ShowCurrent_UserControl();
 
             // Calling the method to detect and display Network change
             NetworkAvailability_frmStudentProfile(sender, e);
@@ -68,12 +73,23 @@ namespace Legion_IX
             SetUserControlSizeAndLocation(studentDocuments1);
         }
 
+        // Shows current(studentdata1) UserControl
+        private void ShowCurrent_UserControl()
+        {
+            // Assigning current button, open Control and showing it
+            currentButton = btn_Profile;
+            currentButton.BackColor = Color.Gray;
+
+            currentOpen = studentData1;
+            currentOpen.Show();
+        }
+
         // Log Out button event
         private void button_LogOut_Click(object sender, EventArgs e)
         {
             // Creating again the instance of the login form
             frmLoginScreen backToTlogIn = new frmLoginScreen();
-            backToTlogIn.loggedOut = false;
+            backToTlogIn.loggedOut = true;
 
             // Hide current from view
             this.Hide();
@@ -88,14 +104,44 @@ namespace Legion_IX
             this.Close();
         }
 
+        // Profile button event
+        private void btn_Profile_Click(object sender, EventArgs e)
+        {
+            if(currentButton.Name != btn_Profile.Name)
+            {
+                currentButton.BackColor = Color.White;
+
+                // Hiding current UserControl
+                currentOpen.Hide();
+
+                // Assigning appropriate UC to `currentOpen` and showing it
+                currentOpen = studentData1;
+                currentOpen.Show();
+
+                // Assigning this button as current
+                currentButton = btn_Profile;
+                currentButton.BackColor = Color.Gray;
+            }
+        }
+
         // Documents button event
         private void btn_Documents_Click(object sender, EventArgs e)
         {
-            btn_Documents.Focus();
-        }
+            if(currentButton.Name != btn_Documents.Name)
+            {
+                currentButton.BackColor = Color.White;
 
-        private void btn_Profile_Click(object sender, EventArgs e)
-        {
+                // Hiding current UserControl
+                currentOpen.Hide();
+
+                // Assigning appropriate UC to `currentOpen` and showing it
+                currentOpen = studentDocuments1;
+                currentOpen.Show();
+
+                // Assining this button as current
+                currentButton = btn_Documents;
+                currentButton.BackColor = Color.Gray;
+            }
         }
 
         // Network availability detector
