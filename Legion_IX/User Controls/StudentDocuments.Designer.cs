@@ -33,23 +33,27 @@
             opf_ChooseDocument = new OpenFileDialog();
             btn_GetMe = new Button();
             dgv_Files = new DataGridView();
-            btn_Refresh = new Button();
             NameOfFile = new DataGridViewTextBoxColumn();
             Open = new DataGridViewButtonColumn();
+            btn_Refresh = new Button();
+            lbl_Status = new Label();
+            lbl_StatusMessage = new Label();
             ((System.ComponentModel.ISupportInitialize)dgv_Files).BeginInit();
             SuspendLayout();
             // 
             // comboBox_Subjects
             // 
             comboBox_Subjects.FormattingEnabled = true;
-            comboBox_Subjects.Location = new Point(3, 3);
+            comboBox_Subjects.Location = new Point(3, 44);
             comboBox_Subjects.Name = "comboBox_Subjects";
             comboBox_Subjects.Size = new Size(155, 23);
             comboBox_Subjects.TabIndex = 0;
+            comboBox_Subjects.Text = "Choose a Subject";
+            comboBox_Subjects.SelectedIndexChanged += comboBox_Subjects_SelectedIndexChanged;
             // 
             // btn_UploadPdf
             // 
-            btn_UploadPdf.Location = new Point(16, 61);
+            btn_UploadPdf.Location = new Point(16, 102);
             btn_UploadPdf.Name = "btn_UploadPdf";
             btn_UploadPdf.Size = new Size(113, 23);
             btn_UploadPdf.TabIndex = 1;
@@ -63,7 +67,7 @@
             // 
             // btn_GetMe
             // 
-            btn_GetMe.Location = new Point(16, 104);
+            btn_GetMe.Location = new Point(16, 145);
             btn_GetMe.Name = "btn_GetMe";
             btn_GetMe.Size = new Size(75, 23);
             btn_GetMe.TabIndex = 2;
@@ -86,16 +90,6 @@
             dgv_Files.TabIndex = 3;
             dgv_Files.CellContentClick += dgv_Files_CellContentClick;
             // 
-            // btn_Refresh
-            // 
-            btn_Refresh.Location = new Point(576, 309);
-            btn_Refresh.Name = "btn_Refresh";
-            btn_Refresh.Size = new Size(75, 23);
-            btn_Refresh.TabIndex = 4;
-            btn_Refresh.Text = "Refresh?";
-            btn_Refresh.UseVisualStyleBackColor = true;
-            btn_Refresh.Click += btn_Refresh_Click;
-            // 
             // NameOfFile
             // 
             NameOfFile.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
@@ -112,22 +106,53 @@
             Open.Text = "Open";
             Open.UseColumnTextForButtonValue = true;
             // 
+            // btn_Refresh
+            // 
+            btn_Refresh.Location = new Point(576, 309);
+            btn_Refresh.Name = "btn_Refresh";
+            btn_Refresh.Size = new Size(75, 23);
+            btn_Refresh.TabIndex = 4;
+            btn_Refresh.Text = "Refresh?";
+            btn_Refresh.UseVisualStyleBackColor = true;
+            btn_Refresh.Click += btn_Refresh_Click;
+            // 
+            // lbl_Status
+            // 
+            lbl_Status.AutoSize = true;
+            lbl_Status.ForeColor = SystemColors.ButtonFace;
+            lbl_Status.Location = new Point(3, 3);
+            lbl_Status.Name = "lbl_Status";
+            lbl_Status.Size = new Size(42, 15);
+            lbl_Status.TabIndex = 5;
+            lbl_Status.Text = "Status:";
+            // 
+            // lbl_StatusMessage
+            // 
+            lbl_StatusMessage.ForeColor = SystemColors.ButtonFace;
+            lbl_StatusMessage.Location = new Point(51, 3);
+            lbl_StatusMessage.Name = "lbl_StatusMessage";
+            lbl_StatusMessage.Size = new Size(107, 15);
+            lbl_StatusMessage.TabIndex = 6;
+            // 
             // StudentDocuments
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.Transparent;
             BorderStyle = BorderStyle.FixedSingle;
+            Controls.Add(lbl_StatusMessage);
+            Controls.Add(lbl_Status);
             Controls.Add(btn_Refresh);
             Controls.Add(dgv_Files);
             Controls.Add(btn_GetMe);
             Controls.Add(btn_UploadPdf);
             Controls.Add(comboBox_Subjects);
             Name = "StudentDocuments";
-            Size = new Size(654, 335);
+            Size = new Size(691, 335);
             Load += StudentDocuments_Load;
             ((System.ComponentModel.ISupportInitialize)dgv_Files).EndInit();
             ResumeLayout(false);
+            PerformLayout();
         }
 
         #endregion
@@ -140,5 +165,7 @@
         private Button btn_Refresh;
         private DataGridViewTextBoxColumn NameOfFile;
         private DataGridViewButtonColumn Open;
+        private Label lbl_Status;
+        private Label lbl_StatusMessage;
     }
 }

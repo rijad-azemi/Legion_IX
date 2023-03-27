@@ -1,5 +1,6 @@
 ﻿using Legion_IX.Helpers;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using System;
@@ -167,7 +168,7 @@ namespace Legion_IX.DB
 
                 Email = theStudent.GetValue("email").ToString(),
 
-                Revised = (bool)theStudent.GetValue("revised")
+                Revised = (bool)theStudent.GetValue("revised"),
             };
         }
     }

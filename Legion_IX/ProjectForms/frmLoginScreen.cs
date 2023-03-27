@@ -59,8 +59,8 @@ namespace Legion_IX
         // Button LOGIN click event
         private async void button_Login_Click(object sender, EventArgs e)
         {
-            textBox_email.Text = "rijad.azemi@edu.fit.ba";
-            textBox_password.Text = "rijadazemi2000";
+            textBox_email.Text = "sead.azemi@edu.fit.ba";
+            textBox_password.Text = "undp123";
 
             // Reseting the text field of the warning label just in case
             lblAccNotFound.Text = "";

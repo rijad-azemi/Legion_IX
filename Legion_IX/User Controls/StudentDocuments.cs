@@ -13,6 +13,7 @@ using System.Data;
 using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -25,11 +26,13 @@ namespace Legion_IX.User_Controls
 
         const string ChromeLocation = "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe";
 
+        public string? ChosenSubject { get; set; }
+
         // Reference variable to `Student` object belonging to `frmStudentProfile`
         Student? theStudent = frmStudentProfile.theStudent;
 
         // PDF file
-        PDF_File pdf;
+        PDF_File? pdf;
 
         // Basically information describing the files stored on Atlas associated with Student
         List<PDF_File> files;
@@ -43,6 +46,8 @@ namespace Legion_IX.User_Controls
 
         private void StudentDocuments_Load(object sender, EventArgs e)
         {
+            btn_GetMe.Hide();
+
             // Hiding from view on load
             this.Hide();
 
@@ -55,8 +60,10 @@ namespace Legion_IX.User_Controls
             // Adding available Databases to ComboBox
             AddSubjectsToComboBox();
 
+            #region Not needed now
             // Retrieving available documents from the Atlas and displaying it to `DataGridView`
-            GetAvailableDocuments();
+            //GetAvailableDocuments();
+            #endregion Not needed now
         }
 
         // Registering 
@@ -64,7 +71,8 @@ namespace Legion_IX.User_Controls
         {
 
             if (BsonClassMap.TryRegisterClassMap<PDF_File>(cm => cm.AutoMap()))
-                MessageBox.Show("Sucess!", "Class PDF_File Registered", MessageBoxButtons.OK);
+                return;
+            //MessageBox.Show("Sucess!", "Class PDF_File Registered", MessageBoxButtons.OK);
 
             else
                 MessageBox.Show("Failed!", "Class PDF_File NOT Registered", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
@@ -87,9 +95,11 @@ namespace Legion_IX.User_Controls
 
         private void PreppingGlobalVarsForUse()
         {
+            string DataBase_byStudyYear = theStudent.StudyYear.Replace(" ", "");
+
             // Assigning the list of subjects to `theStudent` variable belonging to `frmStudentProfile`
             if (theStudent != null)
-                theStudent.Subjects = theStudent.StudentDBConnection.Client.GetDatabase("Subjects").ListCollectionNames().ToList();
+                theStudent.Subjects = theStudent.StudentDBConnection.Client.GetDatabase(DataBase_byStudyYear).ListCollectionNames().ToList();
 
             // Creating instance
             pdf = new PDF_File();
@@ -120,32 +130,40 @@ namespace Legion_IX.User_Controls
         // TestButton for Document Insertion
         private async void btn_UploadPdf_Click(object sender, EventArgs e)
         {
-            opf_ChooseDocument.Filter = "PDF files (*.pdf)|*.pdf";
-
-            if (opf_ChooseDocument.ShowDialog() == DialogResult.OK)
+            if (CheckForChosenSubject())
             {
-                PDF_File toInsert = new PDF_File();
 
-                toInsert._id = new ObjectId();
-                toInsert.pdfData = File.ReadAllBytes(opf_ChooseDocument.FileName);
-                toInsert.NameOfFile = Path.GetFileName(opf_ChooseDocument.FileName);
+                // Creating a Filter for `OpenFileDialog`
+                opf_ChooseDocument.Filter = "PDF files (*.pdf)|*.pdf";
 
-                BsonDocument converted = toInsert.ToBsonDocument();
+                // Continue if chosen file
+                if (opf_ChooseDocument.ShowDialog() == DialogResult.OK)
+                {
+                    // Creating an instance of the Object to insert
+                    PDF_File toInsert = new PDF_File(
 
-                #region TesterCode
-                /*
-                 pdf.pdfData = System.IO.File.ReadAllBytes(opf_ChooseDocument.FileName);
-                 pdf.NameOfFile = opf_ChooseDocument.FileName.ToString();
-                 //Data = File.ReadAllBytes(opf_ChooseDocument.FileName);
-                */
-                #endregion TesterCode
+                        new ObjectId(),
+                        Path.GetFileName(opf_ChooseDocument.FileName),
+                        File.ReadAllBytes(opf_ChooseDocument.FileName)
 
-                await theStudent.StudentDBConnection.Client.GetDatabase("Subjects").GetCollection<BsonDocument>("Baze Podataka I").InsertOneAsync(converted);
+                        );
 
-                MessageBox.Show("Uploaded", "All went fine!", MessageBoxButtons.OK);
+                    // Serialising the `PDF_File` object as `BsonDocument`
+                    BsonDocument converted = toInsert.ToBsonDocument();
+
+                    // Inserting serialised document
+                    await theStudent.StudentDBConnection.Client.GetDatabase("Subjects").GetCollection<BsonDocument>(ChosenSubject).InsertOneAsync(converted);
+
+                    // Showing confirmation message
+                    MessageBox.Show("Uploaded", "All went fine!", MessageBoxButtons.OK);
+
+                    GetAvailableDocuments();
+                }
+
             }
         }
 
+        #region Button used for testing
         // TestButton
         private void btn_GetMe_Click(object sender, EventArgs e)
         {
@@ -171,6 +189,7 @@ namespace Legion_IX.User_Controls
                 //File.Delete(tempFilePath);
             }
         }
+        #endregion Button used for testing
 
         // Refreshes DataGridView
         private void btn_Refresh_Click(object sender, EventArgs e)
@@ -181,26 +200,30 @@ namespace Legion_IX.User_Controls
         // Retrieve available document names
         private async void GetAvailableDocuments()
         {
-            // I just want you to remember that you spent more than 10 hours because of this code below.
-            List<BsonDocument> pipeline = new List<BsonDocument>()
+            if (CheckForChosenSubject())
             {
-                new BsonDocument("$project", new BsonDocument("NameOfFile", 1))
-            };
 
-            IAsyncCursor<BsonDocument> theAvailableDocs =
-                await theStudent.StudentDBConnection.Client.GetDatabase("Subjects").GetCollection<BsonDocument>("Baze Podataka I").AggregateAsync<BsonDocument>(pipeline);
+                List<BsonDocument> pipeline = new List<BsonDocument>() // I just want you to remember that you spent more than 10 hours because of this code below. //
+                {
+                    new BsonDocument("$project", new BsonDocument("NameOfFile", 1))
+                };
 
-            if (files.Count > 0)
-                files.Clear();
+                IAsyncCursor<BsonDocument> theAvailableDocs =
+                    await theStudent.StudentDBConnection.Client.GetDatabase("Subjects").GetCollection<BsonDocument>(ChosenSubject).AggregateAsync<BsonDocument>(pipeline);
 
-            foreach (BsonDocument document in theAvailableDocs.ToList())
-            {
-                // Check if the List already contains the `PDF_File` that you are trying to add
-                // No need, I learned that can be slower, just create new list
-                files.Add(new PDF_File(in document));
+                if (files.Count > 0)
+                    files.Clear();
+
+                foreach (BsonDocument document in theAvailableDocs.ToList())
+                {
+                    // Check if the List already contains the `PDF_File` that you are trying to add
+                    // No need, I learned that can be slower, just create new list
+                    files.Add(new PDF_File(in document));
+                }
+
+                LoadToDataGridView();
+
             }
-
-            LoadToDataGridView();
         }
 
         // DataGridView `CellContent` click event
@@ -209,61 +232,65 @@ namespace Legion_IX.User_Controls
             // Checking to see if the clicked cell was a button
             if (dgv_Files.Columns[e.ColumnIndex] is DataGridViewButtonColumn && e.RowIndex >= 0)
             {
-                // Getting the `Id` property from the object in the Cell
-                ObjectId theDocID = (ObjectId)(dgv_Files.Rows[e.RowIndex].DataBoundItem as PDF_File)._id;
-                string theDocName = (dgv_Files.Rows[e.RowIndex].DataBoundItem as PDF_File).NameOfFile;
+                // Getting the `_id` and `NameOfFile` property from the object in the Cell
+                ObjectId theDocID = ((dgv_Files.Rows[e.RowIndex].DataBoundItem as PDF_File)?._id) ?? ObjectId.Empty;
+                string theDocName = (dgv_Files.Rows[e.RowIndex].DataBoundItem as PDF_File)?.NameOfFile ?? string.Empty;
 
                 // Getting the PDF
                 pdf = await GetFile(theDocID, theDocName);
 
-                // Creating teporary filepath for the PDF to be stored for later viewing
-                string tempFilePath = Path.GetTempFileName();
+                // Check to see if `GetFile()` method has returned null
+                if (pdf != null)
+                {
+                    // Creating teporary filepath for the PDF to be stored for later viewing
+                    string tempFilePath = Path.GetTempFileName();
 
-                // Writing the PDF to that file
-                File.WriteAllBytes(tempFilePath, pdf.pdfData);
+                    // Writing the PDF to that file
+                    if (pdf.pdfData != null)
+                    {
+                        File.WriteAllBytes(tempFilePath, pdf.pdfData);
+                        // Creating a Process for starting the Browser
+                        ProcessStartInfo psi = new ProcessStartInfo();
+                        psi.FileName = ChromeLocation;
+                        psi.Arguments = tempFilePath;
 
-                // Creating a Process for starting the Browser
-                ProcessStartInfo psi = new ProcessStartInfo();
-                psi.FileName = ChromeLocation;
-                psi.Arguments = tempFilePath;
+                        // Starting the browser with PDF binary Data to read
+                        Process.Start(psi);
+                    }
 
-                // Starting the browser with PDF binary Data to read
-                Process.Start(psi);
-                #region testPart
-                /*
-                //MessageBox.Show("This worked", "I got in");
-                AtlasFile chosenDoc = dgv_Files.Rows[e.RowIndex].DataBoundItem as AtlasFile;
-                MessageBox.Show(chosenDoc.Name, "I got in");
-                */
-                #endregion testPart
+                    else
+                        MessageBox.Show("Problem encountered", "At `dgv_Files_CellContentClick()` `pdf.pdfData` was null!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+
             }
         }
 
         // Getting the chosen PDF file via Server-Side filtering
         private async Task<PDF_File> GetFile(ObjectId theDocID, string theDocName)
         {
-            // Creating the pipeline for Server-Side filtering
-            List<BsonDocument> pipeline = new List<BsonDocument>()
-                {
-                    new BsonDocument( "$match" , new BsonDocument("_id", theDocID)),
-                    new BsonDocument( "$match" , new BsonDocument("NameOfFile", theDocName))
-                };
+            if (CheckForChosenSubject() && theDocID != ObjectId.Empty && theDocName != null)
+            {
 
-            // Getting the filtered document
-            IAsyncCursor<BsonDocument> theDoc = await
-                theStudent.StudentDBConnection.Client.GetDatabase("Subjects").GetCollection<BsonDocument>("Baze Podataka I").AggregateAsync<BsonDocument>(pipeline);
+                // Creating the pipeline for Server-Side filtering
+                List<BsonDocument> pipeline = new List<BsonDocument>()
+                    {
+                        new BsonDocument( "$match" , new BsonDocument("_id", theDocID)),
+                        new BsonDocument( "$match" , new BsonDocument("NameOfFile", theDocName))
+                    };
 
-            BsonDocument extracted = theDoc.FirstOrDefault();
-            PDF_File newFile = BsonSerializer.Deserialize<PDF_File>(extracted);
+                // Getting the filtered document
+                IAsyncCursor<BsonDocument> theDoc = await
+                    theStudent.StudentDBConnection.Client.GetDatabase("Subjects").GetCollection<BsonDocument>(ChosenSubject).AggregateAsync<BsonDocument>(pipeline);
 
-            // Returning Finished Proccessed document
-            return new PDF_File(newFile);
-        }
+                BsonDocument extracted = theDoc.FirstOrDefault();
+                PDF_File newFile = BsonSerializer.Deserialize<PDF_File>(extracted);
 
-        // DataGridView Button click event
-        private void dgv_FilesClickEvent()
-        {
+                // Returning Finished Proccessed document
+                return new PDF_File(newFile);
 
+            }
+
+            return new PDF_File();
         }
 
         // Load Data to `DataGridView`
@@ -272,9 +299,61 @@ namespace Legion_IX.User_Controls
             dgv_Files.DataSource = null;
             dgv_Files.DataSource = files;
         }
+
+        // `comboBox_Subjects` option changed event
+        private void comboBox_Subjects_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            ChosenSubject = comboBox_Subjects.SelectedItem.ToString();
+
+            // Calling the method For Refreshing
+            btn_Refresh_Click(sender, e);
+        }
+
+        // If `comboBox_Subject` option has been selected
+        private bool CheckForChosenSubject()
+        {
+            if (ChosenSubject == null)
+            {
+                #region I know the code is a mess, but I wanted to practise delegates and lambda functions
+                Action Lambdi = () =>
+                {
+                    this.Invoke(() => lbl_StatusMessage.Text = "You Must Choose a Subject.");
+
+                    for (int i = 0; i < 3; i++)
+                    {
+                        this.Invoke(() =>
+                        {
+                            comboBox_Subjects.ForeColor = Color.Red;
+                            lbl_StatusMessage.ForeColor = Color.Red;
+                        });
+
+                        Thread.Sleep(300);
+
+                        this.Invoke(() =>
+                        {
+                            lbl_StatusMessage.ForeColor = Color.White;
+                            comboBox_Subjects.ForeColor = Color.Black;
+                        });
+
+                        Thread.Sleep(300);
+                    }
+
+                    this.Invoke(() => comboBox_Subjects.ForeColor = Color.Black);
+                    this.Invoke(() => lbl_StatusMessage.Text = "");
+                };
+                #endregion I know the code is a mess, but I wanted to practise delegates and lambda functions
+
+                Thread blinker = new Thread(new ThreadStart(Lambdi));
+                blinker.Start();
+
+                return false;
+            }
+
+            return true;
+        }
+
     }
 }
-
 
 /*
                  After 50000000000000000000000000000000000000000000000000000000000000000 years of testing, I figured out how to use it
