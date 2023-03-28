@@ -17,6 +17,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Windows.Forms.Design;
 
 namespace Legion_IX.User_Controls
 {
@@ -24,9 +25,14 @@ namespace Legion_IX.User_Controls
     {
         #region Global vars
 
-        const string ChromeLocation = "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe";
+        // Browser directory for opening PDF Files
+        static string? ChromeLocation = frmLoginScreen.GetBrowserPathFromSQL();
 
+        // Variable that hold the chosen options from `comboBox_Subjects` as string (obviously)
         public string? ChosenSubject { get; set; }
+
+        // This is necessary for Accessing the correct Atlas Data Base holding the collections containing the Subject documents (pdf files)
+        public string SubjectsStudyYear = frmStudentProfile.theStudent.StudyYear.Replace(" ", "");
 
         // Reference variable to `Student` object belonging to `frmStudentProfile`
         Student? theStudent = frmStudentProfile.theStudent;
@@ -152,11 +158,12 @@ namespace Legion_IX.User_Controls
                     BsonDocument converted = toInsert.ToBsonDocument();
 
                     // Inserting serialised document
-                    await theStudent.StudentDBConnection.Client.GetDatabase("Subjects").GetCollection<BsonDocument>(ChosenSubject).InsertOneAsync(converted);
+                    await theStudent.StudentDBConnection.Client.GetDatabase(SubjectsStudyYear).GetCollection<BsonDocument>(ChosenSubject).InsertOneAsync(converted);
 
                     // Showing confirmation message
                     MessageBox.Show("Uploaded", "All went fine!", MessageBoxButtons.OK);
 
+                    // Refreshing the `DataGridView`
                     GetAvailableDocuments();
                 }
 
@@ -200,29 +207,31 @@ namespace Legion_IX.User_Controls
         // Retrieve available document names
         private async void GetAvailableDocuments()
         {
+            // Only continues if something an option has been chosen from `comboBox_Subjects`
             if (CheckForChosenSubject())
             {
-
+                // Pipileni for retreiving only `NameOfFile` field from Atlas
                 List<BsonDocument> pipeline = new List<BsonDocument>() // I just want you to remember that you spent more than 10 hours because of this code below. //
                 {
                     new BsonDocument("$project", new BsonDocument("NameOfFile", 1))
                 };
 
                 IAsyncCursor<BsonDocument> theAvailableDocs =
-                    await theStudent.StudentDBConnection.Client.GetDatabase("Subjects").GetCollection<BsonDocument>(ChosenSubject).AggregateAsync<BsonDocument>(pipeline);
+                    await theStudent.StudentDBConnection.Client.GetDatabase(SubjectsStudyYear).GetCollection<BsonDocument>(ChosenSubject).AggregateAsync<BsonDocument>(pipeline);
 
+                // Cleats the list holding the Existing collections to create a new one with fresh records
                 if (files.Count > 0)
                     files.Clear();
 
                 foreach (BsonDocument document in theAvailableDocs.ToList())
                 {
                     // Check if the List already contains the `PDF_File` that you are trying to add
-                    // No need, I learned that can be slower, just create new list
+                    // No need, I learned that can be slower, just create new list if the previous one was filled
                     files.Add(new PDF_File(in document));
                 }
 
+                // Assigning the List of collections to `DataGridView` source
                 LoadToDataGridView();
-
             }
         }
 
@@ -261,7 +270,6 @@ namespace Legion_IX.User_Controls
                     else
                         MessageBox.Show("Problem encountered", "At `dgv_Files_CellContentClick()` `pdf.pdfData` was null!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
-
             }
         }
 

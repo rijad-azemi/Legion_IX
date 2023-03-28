@@ -1,5 +1,4 @@
-﻿using Azure.Identity;
-using MongoDB.Bson;
+﻿using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Libmongocrypt;
 using System;
@@ -18,7 +17,6 @@ namespace Legion_IX.DB
 
         [BsonRepresentation(BsonType.Binary)]
         public byte[]? pdfData { get; set; }
-        //public Binary Data { get; set; }
 
         public PDF_File()
         {

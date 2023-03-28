@@ -1,6 +1,7 @@
 ﻿using Amazon.Util.Internal.PlatformServices;
 using Legion_IX.DB;
 using Legion_IX.Helpers;
+using Microsoft.Data.SqlClient;
 using Microsoft.IdentityModel.Tokens;
 using MongoDB.Bson;
 using MongoDB.Driver;
@@ -8,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Data.SQLite;
 using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
@@ -22,14 +24,6 @@ namespace Legion_IX
 {
     public partial class frmLoginScreen : Form
     {
-        public frmLoginScreen()
-        {
-            InitializeComponent();
-
-            NetworkListener.NetworkAvailabilityChanged += NetworkAvailability;
-
-        }
-
         #region Global Variables
 
         static Student? student;
@@ -37,7 +31,17 @@ namespace Legion_IX
 
         public bool loggedOut { get; set; } = false;
 
+        MySQLcustomConnection connection = new MySQLcustomConnection();
+
         #endregion Global Variables
+
+        public frmLoginScreen()
+        {
+            InitializeComponent();
+
+            NetworkListener.NetworkAvailabilityChanged += NetworkAvailability;
+
+        }
 
         private void frmLoginScreen_Load(object sender, EventArgs e)
         {
@@ -206,11 +210,16 @@ namespace Legion_IX
             // Look for exceptions in case browser is not found
             try
             {
-                System.Diagnostics.Process.Start("C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe", "https://www.fit.ba/student/login.aspx");
+                // Assigning the existing directory to a chosen browser if it exists or if it's valid
+                // Assigning `null` if path doesn't exist inside the SQL DB and Throwing Exception where user get's to choose his own Browser
+                string? DefaultBrowserPath = GetBrowserPathFromSQL();
+
+                // Opening the `.exe` file (assumed browser) by the given directory.
+                System.Diagnostics.Process.Start(DefaultBrowserPath, "https://www.fit.ba/student/login.aspx");
             }
 
             // Catch the said exception if thrown
-            catch (Exception ex)
+            catch (Exception)
             {
                 //MessageBox.Show("Problem has occured", "Opening the link did not work!", MessageBoxButtons.YesNo, MessageBoxIcon.Error);
                 DialogResult mshBoxResult = MessageBox.Show
@@ -236,7 +245,13 @@ namespace Legion_IX
                     // Open the dialog and allow the user to choose
                     if (fileDialogResult == DialogResult.OK)
                     {
+                        // Getting directory of assumed browser `.exe` file
                         string selectedFilePath = openFileDialog_searchForBrowser.FileName;
+
+                        // Mesmorizing said directory inside SQLite DataBase
+                        Update_Add_BrowserToSQL(selectedFilePath);
+
+                        // Opening the `.exe` file (assumed browser) by the given directory.
                         System.Diagnostics.Process.Start(selectedFilePath, "https://www.fit.ba/student/login.aspx");
                     }
                 }
@@ -292,6 +307,77 @@ namespace Legion_IX
 
             // Invoking action for a control on it's original created thread to prevent cross threading exception
             this.Invoke((Action)(() => lblAccNotFound.Text = ""));
+        }
+
+        // Updates the browser record path to SQL DataBase
+        public static void Update_Add_BrowserToSQL(string path)
+        {
+            try
+            {
+                string access = MySQLcustomConnection.myConnection;
+                string updateCommand = "UPDATE table_DefaultBrowser SET DefaultBrowserPath = @NewPath";
+
+                using (SQLiteConnection line = new SQLiteConnection(access))
+                {
+                    line.Open();
+
+                    using (SQLiteCommand command = new SQLiteCommand(updateCommand, line))
+                    {
+                        command.Parameters.AddWithValue("@NewPath", path);
+                        command.ExecuteNonQuery();
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                MessageBox.Show("Problem encountered with SQL DB",
+                    "Method `AddBrowserToSQL` at `frmLoginScreen` encountered a problem",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
+            }
+
+        }
+
+        // Retrieve browser `.exe` file from SQL => returns null if field in SQL table is null
+        public static string? GetBrowserPathFromSQL()
+        {
+            try
+            {
+                string access = MySQLcustomConnection.myConnection;
+                string? directoryFromSQL = null;
+                string queryCommand = "SELECT DefaultBrowserPath FROM table_DefaultBrowser LIMIT 1;";
+
+                using (SQLiteConnection line = new SQLiteConnection(access))
+                {
+                    line.Open();
+
+                    using (SQLiteCommand command = new SQLiteCommand(queryCommand, line))
+                    {
+
+                        using (SQLiteDataReader reader = command.ExecuteReader())
+                        {
+                            if(reader.Read())
+                            {
+                                directoryFromSQL = reader.GetString(0);
+                            }
+                        }
+
+                    }
+
+                }
+
+                return directoryFromSQL;
+            }
+
+            catch (Exception)
+            {
+                MessageBox.Show("Problem encountered with SQL DB",
+                    "Method `GetBrowserPathFromSQL` at `frmLoginScreen` encountered a problem",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
+            }
+
+            return null;
         }
     }
 }
