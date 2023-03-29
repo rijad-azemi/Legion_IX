@@ -10,10 +10,28 @@ namespace Legion_IX.DB
 {
     public class MySQLcustomConnection : DbContext
     {
-        public static string myConnection = "Data Source = C:\\Users\\quan2um_kille0\\Desktop\\BadChoice_WiseMan\\Legion_IX\\Legion_IX\\DB\\SQLiteDataBase.db";
-
+        // Gets a connection string to SQL
+        public static string myConnection = "Data Source = " + GetSQL_Directory(); // I also lost like 35 minutes here, Because I was giving this variable a path that had no
+                                                                                   // "Data Source = " at the begining. I thought that 15 cups of coffe from this morning would
+                                                                                   // help me... HahaHaHAhaaHAHA
+                                                                                   //    'laughing in faulty brain cells'
         public MySQLcustomConnection()
         {
+        }
+
+        public static string GetSQL_Directory()
+        {
+            string projectDirectory = Directory.GetCurrentDirectory();
+
+            // Going down one directory until the project file is found. This is done in order to reach the `DB` folder
+            while (!File.Exists(Path.Combine(projectDirectory, "Legion_IX.csproj")))
+            {
+                projectDirectory = Directory.GetParent(projectDirectory).FullName;
+            }
+
+            projectDirectory = Path.Combine(projectDirectory, "DB", "SQLiteDataBase.db");
+
+            return projectDirectory;
         }
 
         // This method gets automatically called on application startup and connects the already existing SQLite `.db` file to the app

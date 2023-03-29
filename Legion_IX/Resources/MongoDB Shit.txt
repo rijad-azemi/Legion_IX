@@ -64,3 +64,12 @@ Location For User Control: X = 234;
             I reallyyyyy want to try messing around pointers some more
 ... remember to explore that idea further.
 --------------------------------------------------
+
+
+
+
+
+
+-Modified some UI elements
+-Connected SQLite database to APP (Now chosen default browser directory get's saved and reused when opening `.pdf` previews)
+-

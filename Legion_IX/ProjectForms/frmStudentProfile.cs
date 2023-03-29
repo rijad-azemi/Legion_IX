@@ -21,6 +21,7 @@ namespace Legion_IX
         // Reference variable to current shown `UserControl`
         private UserControl currentOpen;
 
+        // Reference variable to current clicked Button
         private Button currentButton;
 
         #endregion Global Variables
@@ -52,10 +53,6 @@ namespace Legion_IX
 
             // Calling the method to detect and display Network change
             NetworkAvailability_frmStudentProfile(sender, e);
-
-            // Tester code //
-            groupBox_StudentInfo.Visible = false;
-            // Tester code //
         }
 
         // User Control location and size
@@ -71,6 +68,7 @@ namespace Legion_IX
         {
             SetUserControlSizeAndLocation(studentData1);
             SetUserControlSizeAndLocation(studentDocuments1);
+            SetUserControlSizeAndLocation(studentProfileSettings1);
         }
 
         // Shows current(studentdata1) UserControl
@@ -78,7 +76,7 @@ namespace Legion_IX
         {
             // Assigning current button, open Control and showing it
             currentButton = btn_Profile;
-            currentButton.BackColor = Color.Gray;
+            UC_Clicked();
 
             currentOpen = studentData1;
             currentOpen.Show();
@@ -107,9 +105,9 @@ namespace Legion_IX
         // Profile button event
         private void btn_Profile_Click(object sender, EventArgs e)
         {
-            if(currentButton.Name != btn_Profile.Name)
+            if (currentButton.Name != btn_Profile.Name)
             {
-                currentButton.BackColor = Color.White;
+                UC_Unclicked();
 
                 // Hiding current UserControl
                 currentOpen.Hide();
@@ -120,16 +118,17 @@ namespace Legion_IX
 
                 // Assigning this button as current
                 currentButton = btn_Profile;
-                currentButton.BackColor = Color.Gray;
+
+                UC_Clicked();
             }
         }
 
         // Documents button event
         private void btn_Documents_Click(object sender, EventArgs e)
         {
-            if(currentButton.Name != btn_Documents.Name)
+            if (currentButton.Name != btn_Documents.Name)
             {
-                currentButton.BackColor = Color.White;
+                UC_Unclicked();
 
                 // Hiding current UserControl
                 currentOpen.Hide();
@@ -140,8 +139,43 @@ namespace Legion_IX
 
                 // Assining this button as current
                 currentButton = btn_Documents;
-                currentButton.BackColor = Color.Gray;
+                UC_Clicked();
             }
+        }
+
+        // ProfileSettings button event
+        private void btn_ProfileSettings_Click(object sender, EventArgs e)
+        {
+            if (currentButton.Name != btn_ProfileSettings.Name)
+            {
+                UC_Unclicked();
+
+                // Hiding current UserControl
+                currentOpen.Hide();
+
+                // Assigning appropriate UC to `currentOpen` and showing it
+                currentOpen = studentProfileSettings1;
+                currentOpen.Show();
+
+                // Assining this button as current
+                currentButton = btn_ProfileSettings;
+                UC_Clicked();
+            }
+        }
+
+        // Changes `currentButton` clicked BackColor and ForeColor when Clicked
+        private void UC_Clicked()
+        {
+            currentButton.BackColor = Color.White;
+            currentButton.ForeColor = Color.Black;
+
+        }
+
+        // Changes `currentButton` clicked BackColor and ForeColor Unclicked (hilarious, I know)
+        private void UC_Unclicked() // The name is hilarious, I know...
+        {
+            currentButton.BackColor = Color.DimGray;
+            currentButton.ForeColor = Color.White;
         }
 
         // Network availability detector

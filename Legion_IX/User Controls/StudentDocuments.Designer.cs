@@ -34,9 +34,9 @@
             btn_GetMe = new Button();
             dgv_Files = new DataGridView();
             NameOfFile = new DataGridViewTextBoxColumn();
+            FileType = new DataGridViewTextBoxColumn();
             Open = new DataGridViewButtonColumn();
             btn_Refresh = new Button();
-            lbl_Status = new Label();
             lbl_StatusMessage = new Label();
             ((System.ComponentModel.ISupportInitialize)dgv_Files).BeginInit();
             SuspendLayout();
@@ -80,7 +80,7 @@
             dgv_Files.AllowUserToAddRows = false;
             dgv_Files.AllowUserToDeleteRows = false;
             dgv_Files.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dgv_Files.Columns.AddRange(new DataGridViewColumn[] { NameOfFile, Open });
+            dgv_Files.Columns.AddRange(new DataGridViewColumn[] { NameOfFile, FileType, Open });
             dgv_Files.Location = new Point(164, 3);
             dgv_Files.Name = "dgv_Files";
             dgv_Files.ReadOnly = true;
@@ -97,12 +97,23 @@
             NameOfFile.HeaderText = "File Name";
             NameOfFile.Name = "NameOfFile";
             NameOfFile.ReadOnly = true;
+            NameOfFile.Resizable = DataGridViewTriState.False;
+            // 
+            // FileType
+            // 
+            FileType.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            FileType.DataPropertyName = "FileType";
+            FileType.HeaderText = "File Type";
+            FileType.Name = "FileType";
+            FileType.ReadOnly = true;
+            FileType.Resizable = DataGridViewTriState.False;
             // 
             // Open
             // 
             Open.HeaderText = "Open";
             Open.Name = "Open";
             Open.ReadOnly = true;
+            Open.Resizable = DataGridViewTriState.False;
             Open.Text = "Open";
             Open.UseColumnTextForButtonValue = true;
             // 
@@ -116,22 +127,13 @@
             btn_Refresh.UseVisualStyleBackColor = true;
             btn_Refresh.Click += btn_Refresh_Click;
             // 
-            // lbl_Status
-            // 
-            lbl_Status.AutoSize = true;
-            lbl_Status.ForeColor = SystemColors.ButtonFace;
-            lbl_Status.Location = new Point(3, 3);
-            lbl_Status.Name = "lbl_Status";
-            lbl_Status.Size = new Size(42, 15);
-            lbl_Status.TabIndex = 5;
-            lbl_Status.Text = "Status:";
-            // 
             // lbl_StatusMessage
             // 
+            lbl_StatusMessage.Font = new Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point);
             lbl_StatusMessage.ForeColor = SystemColors.ButtonFace;
-            lbl_StatusMessage.Location = new Point(51, 3);
+            lbl_StatusMessage.Location = new Point(3, 3);
             lbl_StatusMessage.Name = "lbl_StatusMessage";
-            lbl_StatusMessage.Size = new Size(107, 15);
+            lbl_StatusMessage.Size = new Size(155, 28);
             lbl_StatusMessage.TabIndex = 6;
             // 
             // StudentDocuments
@@ -141,7 +143,6 @@
             BackColor = Color.Transparent;
             BorderStyle = BorderStyle.FixedSingle;
             Controls.Add(lbl_StatusMessage);
-            Controls.Add(lbl_Status);
             Controls.Add(btn_Refresh);
             Controls.Add(dgv_Files);
             Controls.Add(btn_GetMe);
@@ -152,7 +153,6 @@
             Load += StudentDocuments_Load;
             ((System.ComponentModel.ISupportInitialize)dgv_Files).EndInit();
             ResumeLayout(false);
-            PerformLayout();
         }
 
         #endregion
@@ -163,9 +163,9 @@
         private Button btn_GetMe;
         private DataGridView dgv_Files;
         private Button btn_Refresh;
-        private DataGridViewTextBoxColumn NameOfFile;
-        private DataGridViewButtonColumn Open;
-        private Label lbl_Status;
         private Label lbl_StatusMessage;
+        private DataGridViewTextBoxColumn NameOfFile;
+        private DataGridViewTextBoxColumn FileType;
+        private DataGridViewButtonColumn Open;
     }
 }

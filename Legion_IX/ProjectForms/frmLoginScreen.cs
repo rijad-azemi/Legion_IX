@@ -14,6 +14,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Net.NetworkInformation;
+using System.Reflection;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -50,12 +51,12 @@ namespace Legion_IX
 
             NetworkAvailability(sender, e);
 
-            if(loggedOut)
+            if (loggedOut)
             {
                 lblAccNotFound.Text = "--- You have logged out ---";
-                int blinkTimes = 5;
+                int blinkTimes = 3;
 
-                Thread blinker = new Thread(new ThreadStart( () => displayLogoutMessage(blinkTimes) ) );
+                Thread blinker = new Thread(new ThreadStart(() => displayLogoutMessage(blinkTimes)));
                 blinker.Start();
             }
         }
@@ -63,45 +64,59 @@ namespace Legion_IX
         // Button LOGIN click event
         private async void button_Login_Click(object sender, EventArgs e)
         {
-            textBox_email.Text = "sead.azemi@edu.fit.ba";
-            textBox_password.Text = "undp123";
-
-            // Reseting the text field of the warning label just in case
-            lblAccNotFound.Text = "";
-
-            // Checks if inputs are valid, and returns immediatelty if not
-            if (!CheckIfNullOrEmpty() && !CheckIfValid())
-                return;
-
-            // Recieving results from `ServerSideFilter_EmailPassword()`
-            IAsyncCursor<BsonDocument>? serverSideFilterResult = await student.ServerSideFilter_EmailPassword(textBox_email.Text, textBox_password.Text);
-
-            // Converts said results to `List<BsonDocument>`
-            List<BsonDocument>? matchingAccounts = serverSideFilterResult.ToList();
-            int matchAccountIndex = 0;
-
-            // Calls checkpoint to enstablish veracity and displays appropriate message
-            if (Checkpoint(ref matchingAccounts, ref matchAccountIndex))
+            if(NetworkListener.IsConnectedToNet())
             {
 
-                // Saving logged student to send to displaying form
-                BsonDocument loggedStudent = new BsonDocument(matchingAccounts[matchAccountIndex]);
+                textBox_email.Text = "sead.azemi@edu.fit.ba";
+                textBox_password.Text = "undp123";
 
-                // Creating the instance of the form
-                frmStudentProfile frmStudentProfile = new frmStudentProfile(ref loggedStudent);
+                // Reseting the text field of the warning label just in case
+                lblAccNotFound.Text = "";
 
-                // Hiding current
-                this.Hide();
+                // Checks if inputs are valid, and returns immediatelty if not
+                if (!CheckIfNullOrEmpty() && !CheckIfValid())
+                    return;
 
-                // Showing the profile form
-                frmStudentProfile.ShowDialog();
+                // Recieving results from `ServerSideFilter_EmailPassword()`
+                IAsyncCursor<BsonDocument>? serverSideFilterResult = await student.ServerSideFilter_EmailPassword(textBox_email.Text, textBox_password.Text);
 
-                //Closing this one
-                this.Close();
+                // Converts said results to `List<BsonDocument>`
+                List<BsonDocument>? matchingAccounts = serverSideFilterResult.ToList();
+                int matchAccountIndex = 0;
+
+                // Calls checkpoint to enstablish veracity and displays appropriate message
+                if (Checkpoint(ref matchingAccounts, ref matchAccountIndex))
+                {
+
+                    // Saving logged student to send to displaying form
+                    BsonDocument loggedStudent = new BsonDocument(matchingAccounts[matchAccountIndex]);
+
+                    // Creating the instance of the form
+                    frmStudentProfile frmStudentProfile = new frmStudentProfile(ref loggedStudent);
+
+                    // Hiding current
+                    this.Hide();
+
+                    // Showing the profile form
+                    frmStudentProfile.ShowDialog();
+
+                    //Closing this one
+                    this.Close();
+                }
+
+                else
+                    lblAccNotFound.Text = "--- ACCOUNT NOT FOUND ---";
+
             }
 
             else
-                lblAccNotFound.Text = "--- ACCOUNT NOT FOUND ---";
+            {
+                lblAccNotFound.Text = "--- You are OFFLINE => !Cannot LOGIN! ---";
+
+                int blinkTimes = 4;
+
+                Thread blinkNoInternet_Message = new Thread(new ThreadStart( () => InformUserNoInternet(blinkTimes) ));
+            }
 
             #region Checkpoint
             /*if (Checkpoint(ref matchingAccounts))
@@ -300,10 +315,26 @@ namespace Legion_IX
                 lblAccNotFound.ForeColor = Color.Green;
                 Thread.Sleep(400);
 
-                lblAccNotFound.ForeColor = Color.AntiqueWhite;
+                lblAccNotFound.ForeColor = Color.White;
                 Thread.Sleep(400);
             }
-            lblAccNotFound.ForeColor = Color.AntiqueWhite;
+            lblAccNotFound.ForeColor = Color.White;
+
+            // Invoking action for a control on it's original created thread to prevent cross threading exception
+            this.Invoke((Action)(() => lblAccNotFound.Text = ""));
+        }
+
+        public void InformUserNoInternet(int blinkTimes)
+        {
+            for (int i = 0; i < blinkTimes; i++)
+            {
+                lblAccNotFound.ForeColor = Color.Red;
+                Thread.Sleep(400);
+
+                lblAccNotFound.ForeColor = Color.White;
+                Thread.Sleep(400);
+            }
+            lblAccNotFound.ForeColor = Color.White;
 
             // Invoking action for a control on it's original created thread to prevent cross threading exception
             this.Invoke((Action)(() => lblAccNotFound.Text = ""));
@@ -330,8 +361,8 @@ namespace Legion_IX
             }
             catch (Exception)
             {
-                MessageBox.Show("Problem encountered with SQL DB",
-                    "Method `AddBrowserToSQL` at `frmLoginScreen` encountered a problem",
+                MessageBox.Show("Method `AddBrowserToSQL` at `frmLoginScreen` encountered a problem",
+                    "Problem encountered with SQL DB",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Error);
             }
@@ -356,7 +387,7 @@ namespace Legion_IX
 
                         using (SQLiteDataReader reader = command.ExecuteReader())
                         {
-                            if(reader.Read())
+                            if (reader.Read())
                             {
                                 directoryFromSQL = reader.GetString(0);
                             }
@@ -371,8 +402,8 @@ namespace Legion_IX
 
             catch (Exception)
             {
-                MessageBox.Show("Problem encountered with SQL DB",
-                    "Method `GetBrowserPathFromSQL` at `frmLoginScreen` encountered a problem",
+                MessageBox.Show("Method `GetBrowserPathFromSQL` at `frmLoginScreen` encountered a problem",
+                    "Problem encountered with SQL DB",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Error);
             }

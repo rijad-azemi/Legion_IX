@@ -19,7 +19,6 @@ namespace Legion_IX.Helpers
         {
             var ms = new MemoryStream(image);
             return Image.FromStream(ms);
-
         }
     }
 }

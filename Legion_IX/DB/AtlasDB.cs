@@ -14,7 +14,8 @@ namespace Legion_IX.DB
 {
     public class AtlasDB
     {
-        const string DBconnectionLink = "mongodb+srv://rijadazemi:Karate1227@cluster0.m9qqpen.mongodb.net/?retryWrites=true&w=majority";
+        //const string DBconnectionLink = "mongodb+srv://rijadazemi:Karate1227@cluster0.m9qqpen.mongodb.net/?retryWrites=true&w=majority";
+        const string DBconnectionLink = "mongodb+srv://AppUser777:itsMarioo@cluster0.m9qqpen.mongodb.net/?retryWrites=true&w=majority";
         public MongoClient Client { get; set; } // Client for connection to the Cluster containing Databases
         public List<string> DataBaseNames { get; set; } // List of all existing Database names
         public IMongoDatabase Database { get; set; } // Interface representing one Database of a Cluster

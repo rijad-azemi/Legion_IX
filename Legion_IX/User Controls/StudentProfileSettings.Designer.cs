@@ -1,6 +1,6 @@
 ﻿namespace Legion_IX.User_Controls
 {
-    partial class StudentData
+    partial class StudentProfileSettings
     {
         /// <summary> 
         /// Required designer variable.
@@ -29,6 +29,7 @@
         private void InitializeComponent()
         {
             groupBox_uc_StudentInfo = new GroupBox();
+            btn_ChangePhoto = new Button();
             lbl_uc_Line = new Label();
             txtBox_uc_Revised = new TextBox();
             lblRevised = new Label();
@@ -45,6 +46,7 @@
             lbl_Name = new Label();
             lbl_Birthdate = new Label();
             lbl_Surname = new Label();
+            opf_ChangePhoto = new OpenFileDialog();
             groupBox_uc_StudentInfo.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)picBox_uc_StudentPhoto).BeginInit();
             SuspendLayout();
@@ -52,6 +54,7 @@
             // groupBox_uc_StudentInfo
             // 
             groupBox_uc_StudentInfo.BackColor = Color.Transparent;
+            groupBox_uc_StudentInfo.Controls.Add(btn_ChangePhoto);
             groupBox_uc_StudentInfo.Controls.Add(lbl_uc_Line);
             groupBox_uc_StudentInfo.Controls.Add(txtBox_uc_Revised);
             groupBox_uc_StudentInfo.Controls.Add(lblRevised);
@@ -69,12 +72,26 @@
             groupBox_uc_StudentInfo.Controls.Add(lbl_Birthdate);
             groupBox_uc_StudentInfo.Controls.Add(lbl_Surname);
             groupBox_uc_StudentInfo.ForeColor = SystemColors.ButtonFace;
-            groupBox_uc_StudentInfo.Location = new Point(42, 13);
+            groupBox_uc_StudentInfo.Location = new Point(27, 15);
             groupBox_uc_StudentInfo.Name = "groupBox_uc_StudentInfo";
             groupBox_uc_StudentInfo.Size = new Size(598, 303);
-            groupBox_uc_StudentInfo.TabIndex = 6;
+            groupBox_uc_StudentInfo.TabIndex = 7;
             groupBox_uc_StudentInfo.TabStop = false;
             groupBox_uc_StudentInfo.Text = "Student Information";
+            // 
+            // btn_ChangePhoto
+            // 
+            btn_ChangePhoto.AutoSize = true;
+            btn_ChangePhoto.BackColor = Color.DimGray;
+            btn_ChangePhoto.FlatStyle = FlatStyle.Flat;
+            btn_ChangePhoto.ForeColor = Color.White;
+            btn_ChangePhoto.Location = new Point(49, 188);
+            btn_ChangePhoto.Name = "btn_ChangePhoto";
+            btn_ChangePhoto.Size = new Size(100, 27);
+            btn_ChangePhoto.TabIndex = 16;
+            btn_ChangePhoto.Text = "Change Photo?";
+            btn_ChangePhoto.UseVisualStyleBackColor = false;
+            btn_ChangePhoto.Click += btn_ChangePhoto_Click;
             // 
             // lbl_uc_Line
             // 
@@ -248,16 +265,20 @@
             lbl_Surname.TabIndex = 2;
             lbl_Surname.Text = "Surname:";
             // 
-            // StudentData
+            // opf_ChangePhoto
+            // 
+            opf_ChangePhoto.FileName = "openFileDialog1";
+            // 
+            // StudentProfileSettings
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.Transparent;
             BorderStyle = BorderStyle.FixedSingle;
             Controls.Add(groupBox_uc_StudentInfo);
-            Name = "StudentData";
-            Size = new Size(652, 335);
-            Load += StudentData_Load;
+            Name = "StudentProfileSettings";
+            Size = new Size(652, 333);
+            Load += StudentProfileSettings_Load;
             groupBox_uc_StudentInfo.ResumeLayout(false);
             groupBox_uc_StudentInfo.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)picBox_uc_StudentPhoto).EndInit();
@@ -283,5 +304,7 @@
         private Label lbl_Name;
         private Label lbl_Birthdate;
         private Label lbl_Surname;
+        private Button btn_ChangePhoto;
+        private OpenFileDialog opf_ChangePhoto;
     }
 }

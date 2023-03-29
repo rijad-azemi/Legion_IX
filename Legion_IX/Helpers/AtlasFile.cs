@@ -1,55 +1,51 @@
-﻿using MongoDB.Bson;
-using MongoDB.Bson.Serialization.Attributes;
-using MongoDB.Libmongocrypt;
+﻿using Legion_IX.DB;
+using MongoDB.Bson;
 using System;
-using System.CodeDom;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Legion_IX.DB
+namespace Legion_IX.Helpers
 {
-    public class PDF_File
+    public class AtlasFile
     {
         public ObjectId? _id { get; set; }
         public string NameOfFile { get; set; }
         public string FileType { get; set; }
 
-        [BsonRepresentation(BsonType.Binary)]
-        public byte[]? pdfData { get; set; }
-
-        public PDF_File()
+        public AtlasFile()
         {
             //Id = null; // ===> Avoid this, because MongoDB already takes care of this by itself.
-                         //      However, if you send it as null, it will be stored on the server as such. Bad choice.
+            //      However, if you send it as null, it will be stored on the server as such. Bad choice.
             NameOfFile = string.Empty;
             FileType = string.Empty;
-            pdfData = null;
         }
 
-        public PDF_File(ObjectId id, string nameOfFile, string fileType, byte[] PDFdata)
+        public AtlasFile(ObjectId id, string nameOfFile, string fileType)
         {
             _id = id;
             NameOfFile = nameOfFile;
             FileType = fileType;
-            pdfData = PDFdata;
         }
 
-        public PDF_File(PDF_File document)
+        public AtlasFile(PDF_File document)
         {
             _id = document._id;
             NameOfFile = document.NameOfFile;
             FileType = document.FileType;
-            pdfData = document.pdfData;
         }
 
-        public PDF_File(in BsonDocument document)
+        public AtlasFile(in BsonDocument document)
         {
             _id = (ObjectId)document.GetValue("_id");
             NameOfFile = (string)document.GetValue("NameOfFile");
             FileType = (string)document.GetValue("FileType");
         }
+
+        public ObjectId? GetID() => this._id;
+        public string GetNameOfFile() => this.NameOfFile;
+        public string GetFileType() => this.FileType;
 
         public override string ToString()
         {

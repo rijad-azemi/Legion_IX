@@ -1,5 +1,8 @@
 ﻿using Legion_IX.DB;
+using Legion_IX.Helpers;
+using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
+using Microsoft.IdentityModel.Tokens;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
@@ -10,14 +13,18 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Data.SQLite;
 using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Windows.Forms.Design;
+using System.Windows.Forms.VisualStyles;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace Legion_IX.User_Controls
 {
@@ -27,6 +34,7 @@ namespace Legion_IX.User_Controls
 
         // Browser directory for opening PDF Files
         static string? ChromeLocation = frmLoginScreen.GetBrowserPathFromSQL();
+        static string? WinRarLocation = GetWinrarPathFromSQL();
 
         // Variable that hold the chosen options from `comboBox_Subjects` as string (obviously)
         public string? ChosenSubject { get; set; }
@@ -40,8 +48,11 @@ namespace Legion_IX.User_Controls
         // PDF file
         PDF_File? pdf;
 
+        // RAR file
+        RAR_File? rar;
+
         // Basically information describing the files stored on Atlas associated with Student
-        List<PDF_File> files;
+        List<AtlasFile> files;
 
         #endregion Global vars
 
@@ -58,7 +69,8 @@ namespace Legion_IX.User_Controls
             this.Hide();
 
             // Calling the method for registering my own class to MongoDB (rules?) I must look into this further...
-            RegisteringClassMap();
+            RegisteringClassMap_PDF();
+            RegisteringClassMap_RAR();
 
             // Basically method in which I assigned variables and it's values
             PreppingGlobalVarsForUse();
@@ -72,8 +84,8 @@ namespace Legion_IX.User_Controls
             #endregion Not needed now
         }
 
-        // Registering 
-        private void RegisteringClassMap()
+        // Registering `PDF_File` to support MongoDB Bson serialisation
+        private void RegisteringClassMap_PDF()
         {
 
             if (BsonClassMap.TryRegisterClassMap<PDF_File>(cm => cm.AutoMap()))
@@ -99,6 +111,17 @@ namespace Legion_IX.User_Controls
             #endregion SecondTry
         }
 
+        // Registering `RAR_File` to support MongoDB Bson serialisation
+        private void RegisteringClassMap_RAR()
+        {
+            if (BsonClassMap.TryRegisterClassMap<RAR_File>(cm => cm.AutoMap()))
+                return;
+
+            else
+                MessageBox.Show("Failed!", "Class RAR_File NOT Registered", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+        }
+
+        // Assigning data/instances to Global Variables
         private void PreppingGlobalVarsForUse()
         {
             string DataBase_byStudyYear = theStudent.StudyYear.Replace(" ", "");
@@ -109,22 +132,13 @@ namespace Legion_IX.User_Controls
 
             // Creating instance
             pdf = new PDF_File();
-            files = new List<PDF_File>();
+            rar = new RAR_File();
+            files = new List<AtlasFile>();
 
             // Disabling adding autoColumns from `DataSource()`
             dgv_Files.AutoGenerateColumns = false;
             dgv_Files.DataSource = null;
         }
-
-        #region FirstTesting Phases, not important
-
-        // Shows UC in view
-        public void ShowMe() => this.Visible = true;
-
-        // Hides UC from view
-        public void HideMe() => this.Visible = false;
-
-        #endregion FirstTesting Phases, not important
 
         // Adding `Subject` collections from AtlasDB to comboBox
         public void AddSubjectsToComboBox()
@@ -138,36 +152,80 @@ namespace Legion_IX.User_Controls
         {
             if (CheckForChosenSubject())
             {
+                string opf_ChooseDocumentFilter = "PDF files (*.pdf)|*.pdf|RAR files (*.rar)|*.rar";
 
-                // Creating a Filter for `OpenFileDialog`
-                opf_ChooseDocument.Filter = "PDF files (*.pdf)|*.pdf";
+                await InsertFile(opf_ChooseDocumentFilter);
+            }
+        }
 
-                // Continue if chosen file
-                if (opf_ChooseDocument.ShowDialog() == DialogResult.OK)
+        // Inserts File into collection chosen from `comboBox Subjects`
+        private async Task InsertFile(string filter)
+        {
+            // Creating a Filter for `OpenFileDialog`
+            opf_ChooseDocument.Filter = filter;
+
+            // Continue if chosen file
+            if (opf_ChooseDocument.ShowDialog() == DialogResult.OK)
+            {
+
+                if (Path.GetExtension(opf_ChooseDocument.FileName) == ".pdf")
                 {
-                    // Creating an instance of the Object to insert
-                    PDF_File toInsert = new PDF_File(
 
-                        new ObjectId(),
+                    await toInsert_PDF(
                         Path.GetFileName(opf_ChooseDocument.FileName),
+                        Path.GetExtension(opf_ChooseDocument.FileName),
                         File.ReadAllBytes(opf_ChooseDocument.FileName)
-
                         );
 
-                    // Serialising the `PDF_File` object as `BsonDocument`
-                    BsonDocument converted = toInsert.ToBsonDocument();
-
-                    // Inserting serialised document
-                    await theStudent.StudentDBConnection.Client.GetDatabase(SubjectsStudyYear).GetCollection<BsonDocument>(ChosenSubject).InsertOneAsync(converted);
-
-                    // Showing confirmation message
-                    MessageBox.Show("Uploaded", "All went fine!", MessageBoxButtons.OK);
-
-                    // Refreshing the `DataGridView`
-                    GetAvailableDocuments();
                 }
 
+                else if (Path.GetExtension(opf_ChooseDocument.FileName) == ".rar")
+                {
+
+                    await toInsert_RAR(
+                        Path.GetFileName(opf_ChooseDocument.FileName),
+                        Path.GetExtension(opf_ChooseDocument.FileName),
+                        File.ReadAllBytes(opf_ChooseDocument.FileName)
+                        );
+                }
+
+                else
+                {
+                    MessageBox.Show("Unsuported File Selected!", "Supported Files: .pdf | .rar", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+
+                // Showing confirmation message
+                MessageBox.Show("Uploaded", "All went fine!", MessageBoxButtons.OK);
+
+                // Refreshing the `DataGridView`
+                GetAvailableDocuments();
+
             }
+        }
+
+        // Method that inserts a `PDF_File` into Atlas based on information from `opf_ChooseDocument` in `btn_UploadPdf_Click` method event
+        private async Task toInsert_PDF(string fileName, string extension, byte[] data)
+        {
+            PDF_File toInsert = new PDF_File(new ObjectId(), fileName, extension, data);
+
+
+            // Serialising the `PDF_File` object as `BsonDocument`
+            BsonDocument converted = toInsert.ToBsonDocument();
+
+            // Inserting serialised document
+            await theStudent.StudentDBConnection.Client.GetDatabase(SubjectsStudyYear).GetCollection<BsonDocument>(ChosenSubject).InsertOneAsync(converted);
+        }
+
+        // Method that inserts a `RAR_File` into Atlas based on information from `opf_ChooseDocument` in `btn_UploadPdf_Click` method event
+        private async Task toInsert_RAR(string fileName, string extension, byte[] data)
+        {
+            RAR_File toInsert = new RAR_File(new ObjectId(), fileName, extension, data);
+
+            // Serialising the `PDF_File` object as `BsonDocument`
+            BsonDocument converted = toInsert.ToBsonDocument();
+
+            // Inserting serialised document
+            await theStudent.StudentDBConnection.Client.GetDatabase(SubjectsStudyYear).GetCollection<BsonDocument>(ChosenSubject).InsertOneAsync(converted);
         }
 
         #region Button used for testing
@@ -213,7 +271,11 @@ namespace Legion_IX.User_Controls
                 // Pipileni for retreiving only `NameOfFile` field from Atlas
                 List<BsonDocument> pipeline = new List<BsonDocument>() // I just want you to remember that you spent more than 10 hours because of this code below. //
                 {
-                    new BsonDocument("$project", new BsonDocument("NameOfFile", 1))
+                    new BsonDocument("$project", new BsonDocument
+                    {
+                        {"NameOfFile", 1},
+                        {"FileType", 1}
+                    })
                 };
 
                 IAsyncCursor<BsonDocument> theAvailableDocs =
@@ -225,9 +287,16 @@ namespace Legion_IX.User_Controls
 
                 foreach (BsonDocument document in theAvailableDocs.ToList())
                 {
+                    if (document.GetValue("FileType") == ".pdf")
+                        files.Add(new AtlasFile(in document));
+
+                    else if (document.GetValue("FileType") == ".rar")
+                        files.Add(new AtlasFile(in document));
+
+                    #region reminder comment
                     // Check if the List already contains the `PDF_File` that you are trying to add
                     // No need, I learned that can be slower, just create new list if the previous one was filled
-                    files.Add(new PDF_File(in document));
+                    #endregion reminder comment
                 }
 
                 // Assigning the List of collections to `DataGridView` source
@@ -242,22 +311,44 @@ namespace Legion_IX.User_Controls
             if (dgv_Files.Columns[e.ColumnIndex] is DataGridViewButtonColumn && e.RowIndex >= 0)
             {
                 // Getting the `_id` and `NameOfFile` property from the object in the Cell
-                ObjectId theDocID = ((dgv_Files.Rows[e.RowIndex].DataBoundItem as PDF_File)?._id) ?? ObjectId.Empty;
-                string theDocName = (dgv_Files.Rows[e.RowIndex].DataBoundItem as PDF_File)?.NameOfFile ?? string.Empty;
+                ObjectId theDocID = (dgv_Files.Rows[e.RowIndex].DataBoundItem as AtlasFile)?.GetID() ?? ObjectId.Empty;
+                string theDocName = (dgv_Files.Rows[e.RowIndex].DataBoundItem as AtlasFile)?.GetNameOfFile() ?? string.Empty;
+                string theExtension = (dgv_Files.Rows[e.RowIndex].DataBoundItem as AtlasFile)?.GetFileType() ?? string.Empty;
 
-                // Getting the PDF
-                pdf = await GetFile(theDocID, theDocName);
-
-                // Check to see if `GetFile()` method has returned null
-                if (pdf != null)
+                if (theExtension == ".pdf")
                 {
-                    // Creating teporary filepath for the PDF to be stored for later viewing
-                    string tempFilePath = Path.GetTempFileName();
+                    await PDF_File_WriteToFileAndOpen(theDocID, theDocName, theExtension);
+                }
 
-                    // Writing the PDF to that file
-                    if (pdf.pdfData != null)
+                else if (theExtension == ".rar")
+                {
+                    await RAR_File_WriteToFileAndOpen(theDocID, theDocName, theExtension);
+                }
+
+            }
+        }
+
+        // Writes binary data to a temporary file and opens for viewing
+        private async Task PDF_File_WriteToFileAndOpen(ObjectId theDocID, string theDocName, string theExtension)
+        {
+            // Getting the PDF
+            pdf = await GetFile_PDF(theDocID, theDocName, theExtension);
+
+            // Check to see if `GetFile()` method has returned null
+            if (pdf != null)
+            {
+                // Creating teporary filepath for the PDF to be stored for later viewing
+                string tempFilePath = Path.GetTempFileName();
+
+                // Writing the PDF to that file
+                if (pdf.pdfData != null && !ChromeLocation.IsNullOrEmpty())
+                {
+
+                    try
                     {
+
                         File.WriteAllBytes(tempFilePath, pdf.pdfData);
+
                         // Creating a Process for starting the Browser
                         ProcessStartInfo psi = new ProcessStartInfo();
                         psi.FileName = ChromeLocation;
@@ -265,30 +356,114 @@ namespace Legion_IX.User_Controls
 
                         // Starting the browser with PDF binary Data to read
                         Process.Start(psi);
+
                     }
 
-                    else
-                        MessageBox.Show("Problem encountered", "At `dgv_Files_CellContentClick()` `pdf.pdfData` was null!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    catch (Exception)
+                    {
+                        MessageBox.Show("Failed to open Preview! Make sure you assigned the correct directory to browser of your choice in settings.",
+                                        "--- Failed to Open preview ---",
+                                        MessageBoxButtons.OK,
+                                        MessageBoxIcon.Exclamation
+                                        );
+                    }
+
                 }
+
+                else
+                    MessageBox.Show("Problem encountered", "At `dgv_Files_CellContentClick()` `pdf.pdfData` was null!", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
-        // Getting the chosen PDF file via Server-Side filtering
-        private async Task<PDF_File> GetFile(ObjectId theDocID, string theDocName)
+        private async Task RAR_File_WriteToFileAndOpen(ObjectId theDocID, string theDocName, string theExtension)
         {
-            if (CheckForChosenSubject() && theDocID != ObjectId.Empty && theDocName != null)
+            // Getting the RAR
+            rar = await GetFile_RAR(theDocID, theDocName, theExtension);
+
+            // Check to see if `GetFile()` method has returned null
+            if (rar != null)
+            {
+                // Creating teporary filepath for the RAR to be stored for later viewing
+                string tempFilePath = Path.GetTempFileName();
+
+                // Writing the PDF to that file
+                if (rar.rarData != null && CheckIfWinrarDirectoryAssigned())
+                {
+
+                    try
+                    {
+
+                        File.WriteAllBytes(tempFilePath, rar.rarData);
+
+                        // Creating a Process for starting the Browser
+                        ProcessStartInfo psi = new ProcessStartInfo();
+                        psi.FileName = WinRarLocation;
+                        psi.Arguments = tempFilePath;
+
+                        // Starting the browser with PDF binary Data to read
+                        Process.Start(psi);
+
+                    }
+                    catch (Exception)
+                    {
+
+                        MessageBox.Show("Failed to open Preview! Make sure you assigned the correct directory to `WinRAR.exe` in settings.",
+                                        "--- Failed to Open preview ---",
+                                        MessageBoxButtons.OK,
+                                        MessageBoxIcon.Exclamation
+                                        );
+
+                    }
+
+                }
+
+                else
+                    MessageBox.Show("Problem encountered", "At `dgv_Files_CellContentClick()` `rar.rarData` was null!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private bool CheckIfWinrarDirectoryAssigned()
+        {
+            if (WinRarLocation.IsNullOrEmpty() || Path.GetFileName(WinRarLocation) != "WinRAR.exe") // You cannot check if it's null! It must be a directory! Spotted immediately...bravo Rijad!
+            {
+                opf_ChooseDocument.Filter = "Executable files (*.exe)|*.exe";
+
+                if (opf_ChooseDocument.ShowDialog() == DialogResult.OK)
+                {
+                    Update_Add_BrowserToSQL(opf_ChooseDocument.FileName);
+
+                    WinRarLocation = GetWinrarPathFromSQL();
+
+                    if (Path.GetFileName(WinRarLocation) != "WinRAR.exe")
+                        return false;
+
+                    return true;
+                }
+
+                return false;
+            }
+
+            else
+                return true;
+        }
+
+        // Getting the chosen PDF file via Server-Side filtering
+        private async Task<PDF_File> GetFile_PDF(ObjectId theDocID, string theDocName, string theExtension)
+        {
+            if (CheckForChosenSubject() && theDocID != ObjectId.Empty && theDocName != null && theExtension != null)
             {
 
                 // Creating the pipeline for Server-Side filtering
                 List<BsonDocument> pipeline = new List<BsonDocument>()
                     {
                         new BsonDocument( "$match" , new BsonDocument("_id", theDocID)),
-                        new BsonDocument( "$match" , new BsonDocument("NameOfFile", theDocName))
+                        new BsonDocument( "$match" , new BsonDocument("NameOfFile", theDocName)),
+                        new BsonDocument( "$match" , new BsonDocument("FileType", theExtension))
                     };
 
                 // Getting the filtered document
                 IAsyncCursor<BsonDocument> theDoc = await
-                    theStudent.StudentDBConnection.Client.GetDatabase("Subjects").GetCollection<BsonDocument>(ChosenSubject).AggregateAsync<BsonDocument>(pipeline);
+                    theStudent.StudentDBConnection.Client.GetDatabase(SubjectsStudyYear).GetCollection<BsonDocument>(ChosenSubject).AggregateAsync<BsonDocument>(pipeline);
 
                 BsonDocument extracted = theDoc.FirstOrDefault();
                 PDF_File newFile = BsonSerializer.Deserialize<PDF_File>(extracted);
@@ -299,6 +474,35 @@ namespace Legion_IX.User_Controls
             }
 
             return new PDF_File();
+        }
+
+        // Getting the chosen PDF file via Server-Side filtering
+        private async Task<RAR_File> GetFile_RAR(ObjectId theDocID, string theDocName, string theExtension)
+        {
+            if (CheckForChosenSubject() && theDocID != ObjectId.Empty && theDocName != null && theExtension != null)
+            {
+
+                // Creating the pipeline for Server-Side filtering
+                List<BsonDocument> pipeline = new List<BsonDocument>()
+                    {
+                        new BsonDocument( "$match" , new BsonDocument("_id", theDocID)),
+                        new BsonDocument( "$match" , new BsonDocument("NameOfFile", theDocName)),
+                        new BsonDocument( "$match" , new BsonDocument("FileType", theExtension))
+                    };
+
+                // Getting the filtered document
+                IAsyncCursor<BsonDocument> theDoc = await
+                    theStudent.StudentDBConnection.Client.GetDatabase(SubjectsStudyYear).GetCollection<BsonDocument>(ChosenSubject).AggregateAsync<BsonDocument>(pipeline);
+
+                BsonDocument extracted = theDoc.FirstOrDefault();
+                RAR_File newFile = BsonSerializer.Deserialize<RAR_File>(extracted);
+
+                // Returning Finished Proccessed document
+                return new RAR_File(newFile);
+
+            }
+
+            return new RAR_File();
         }
 
         // Load Data to `DataGridView`
@@ -360,6 +564,65 @@ namespace Legion_IX.User_Controls
             return true;
         }
 
+        // Adds the Winrar Directory to SQL `table_WinrarDirectory`
+        private static void Update_Add_BrowserToSQL(string path)
+        {
+            string updateQuery = "UPDATE table_WinrarDirectory SET WinrarDirectory = @NewPath";
+            string access = MySQLcustomConnection.myConnection;
+
+            using (SQLiteConnection line = new SQLiteConnection(access))
+            {
+                line.Open();
+
+                using (SQLiteCommand execute = new SQLiteCommand(updateQuery, line))
+                {
+                    execute.Parameters.AddWithValue("@NewPath", path);
+                    execute.ExecuteNonQuery();
+                }
+
+            }
+        }
+
+        // Get Winrar Directory from SQL
+        private static string? GetWinrarPathFromSQL()
+        {
+            string SQLaccess = MySQLcustomConnection.myConnection;
+            string command = "SELECT WinrarDirectory FROM table_WinrarDirectory LIMIT 1;";
+            string? directoryFromSQL = null;
+
+            using (SQLiteConnection line = new SQLiteConnection(SQLaccess))
+            {
+                line.Open();
+
+                using (SQLiteCommand instruction = new SQLiteCommand(command, line))
+                {
+
+                    using (SQLiteDataReader reader = instruction.ExecuteReader())
+                    {
+
+                        if (reader.Read())
+                        {
+                            directoryFromSQL = reader.GetString(0);
+                        }
+
+                    }
+
+                }
+
+            }
+
+            return directoryFromSQL;
+        }
+
+        #region FirstTesting Phases, not important
+
+        // Shows UC in view
+        public void ShowMe() => this.Visible = true;
+
+        // Hides UC from view
+        public void HideMe() => this.Visible = false;
+
+        #endregion FirstTesting Phases, not important
     }
 }
 
