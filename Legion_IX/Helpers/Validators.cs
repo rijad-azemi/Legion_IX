@@ -8,11 +8,11 @@ using System.Threading.Tasks;
 
 namespace Legion_IX.Helpers
 {
-    internal class Validators
+    public class Validators
     {
         public bool ValidateEmail(string email)
         {
-            string pattern = @"^(\w+[a-z]{3,})\.(\w+[a-z]{3,})@edu.fit.ba";
+            string pattern = @"^(\w+[a-z]{2,})\.(\w+[a-z]{2,})@edu.fit.ba";
             return Regex.IsMatch(email, pattern);
         }
 

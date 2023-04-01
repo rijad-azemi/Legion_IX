@@ -37,6 +37,8 @@
             btn_Profile = new Button();
             btn_ProfileSettings = new Button();
             studentProfileSettings1 = new User_Controls.StudentProfileSettings();
+            btn_DownloadedDocs = new Button();
+            downloadedDocs1 = new User_Controls.DownloadedDocs();
             SuspendLayout();
             // 
             // button_LogOut
@@ -120,7 +122,7 @@
             btn_ProfileSettings.FlatAppearance.BorderSize = 0;
             btn_ProfileSettings.FlatStyle = FlatStyle.Flat;
             btn_ProfileSettings.ForeColor = SystemColors.ButtonFace;
-            btn_ProfileSettings.Location = new Point(12, 102);
+            btn_ProfileSettings.Location = new Point(12, 173);
             btn_ProfileSettings.Name = "btn_ProfileSettings";
             btn_ProfileSettings.Size = new Size(96, 25);
             btn_ProfileSettings.TabIndex = 14;
@@ -130,10 +132,36 @@
             // 
             // studentProfileSettings1
             // 
+            studentProfileSettings1.BackColor = Color.Transparent;
+            studentProfileSettings1.BorderStyle = BorderStyle.FixedSingle;
             studentProfileSettings1.Location = new Point(303, 264);
             studentProfileSettings1.Name = "studentProfileSettings1";
             studentProfileSettings1.Size = new Size(150, 150);
             studentProfileSettings1.TabIndex = 15;
+            // 
+            // btn_DownloadedDocs
+            // 
+            btn_DownloadedDocs.AutoSize = true;
+            btn_DownloadedDocs.BackColor = Color.DimGray;
+            btn_DownloadedDocs.FlatAppearance.BorderSize = 0;
+            btn_DownloadedDocs.FlatStyle = FlatStyle.Flat;
+            btn_DownloadedDocs.ForeColor = SystemColors.ButtonFace;
+            btn_DownloadedDocs.Location = new Point(12, 102);
+            btn_DownloadedDocs.Name = "btn_DownloadedDocs";
+            btn_DownloadedDocs.Size = new Size(88, 25);
+            btn_DownloadedDocs.TabIndex = 16;
+            btn_DownloadedDocs.Text = "Downloaded";
+            btn_DownloadedDocs.UseVisualStyleBackColor = false;
+            btn_DownloadedDocs.Click += btn_DownloadedDocs_Click;
+            // 
+            // downloadedDocs1
+            // 
+            downloadedDocs1.BackColor = Color.Transparent;
+            downloadedDocs1.BorderStyle = BorderStyle.FixedSingle;
+            downloadedDocs1.Location = new Point(286, 290);
+            downloadedDocs1.Name = "downloadedDocs1";
+            downloadedDocs1.Size = new Size(308, 207);
+            downloadedDocs1.TabIndex = 17;
             // 
             // frmStudentProfile
             // 
@@ -141,6 +169,8 @@
             AutoScaleMode = AutoScaleMode.Font;
             BackgroundImage = (Image)resources.GetObject("$this.BackgroundImage");
             ClientSize = new Size(900, 534);
+            Controls.Add(downloadedDocs1);
+            Controls.Add(btn_DownloadedDocs);
             Controls.Add(studentProfileSettings1);
             Controls.Add(btn_ProfileSettings);
             Controls.Add(btn_Profile);
@@ -165,5 +195,7 @@
         private Button btn_Profile;
         private Button btn_ProfileSettings;
         private User_Controls.StudentProfileSettings studentProfileSettings1;
+        private Button btn_DownloadedDocs;
+        private User_Controls.DownloadedDocs downloadedDocs1;
     }
 }

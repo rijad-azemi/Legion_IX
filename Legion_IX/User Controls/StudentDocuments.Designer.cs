@@ -33,11 +33,13 @@
             opf_ChooseDocument = new OpenFileDialog();
             btn_GetMe = new Button();
             dgv_Files = new DataGridView();
-            NameOfFile = new DataGridViewTextBoxColumn();
-            FileType = new DataGridViewTextBoxColumn();
-            Open = new DataGridViewButtonColumn();
             btn_Refresh = new Button();
             lbl_StatusMessage = new Label();
+            NameOfFile = new DataGridViewTextBoxColumn();
+            FileType = new DataGridViewTextBoxColumn();
+            TimeStamp_Created = new DataGridViewTextBoxColumn();
+            Open = new DataGridViewButtonColumn();
+            Download = new DataGridViewButtonColumn();
             ((System.ComponentModel.ISupportInitialize)dgv_Files).BeginInit();
             SuspendLayout();
             // 
@@ -80,7 +82,7 @@
             dgv_Files.AllowUserToAddRows = false;
             dgv_Files.AllowUserToDeleteRows = false;
             dgv_Files.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dgv_Files.Columns.AddRange(new DataGridViewColumn[] { NameOfFile, FileType, Open });
+            dgv_Files.Columns.AddRange(new DataGridViewColumn[] { NameOfFile, FileType, TimeStamp_Created, Open, Download });
             dgv_Files.Location = new Point(164, 3);
             dgv_Files.Name = "dgv_Files";
             dgv_Files.ReadOnly = true;
@@ -89,33 +91,6 @@
             dgv_Files.Size = new Size(487, 300);
             dgv_Files.TabIndex = 3;
             dgv_Files.CellContentClick += dgv_Files_CellContentClick;
-            // 
-            // NameOfFile
-            // 
-            NameOfFile.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-            NameOfFile.DataPropertyName = "NameOfFile";
-            NameOfFile.HeaderText = "File Name";
-            NameOfFile.Name = "NameOfFile";
-            NameOfFile.ReadOnly = true;
-            NameOfFile.Resizable = DataGridViewTriState.False;
-            // 
-            // FileType
-            // 
-            FileType.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-            FileType.DataPropertyName = "FileType";
-            FileType.HeaderText = "File Type";
-            FileType.Name = "FileType";
-            FileType.ReadOnly = true;
-            FileType.Resizable = DataGridViewTriState.False;
-            // 
-            // Open
-            // 
-            Open.HeaderText = "Open";
-            Open.Name = "Open";
-            Open.ReadOnly = true;
-            Open.Resizable = DataGridViewTriState.False;
-            Open.Text = "Open";
-            Open.UseColumnTextForButtonValue = true;
             // 
             // btn_Refresh
             // 
@@ -136,6 +111,53 @@
             lbl_StatusMessage.Size = new Size(155, 28);
             lbl_StatusMessage.TabIndex = 6;
             // 
+            // NameOfFile
+            // 
+            NameOfFile.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            NameOfFile.DataPropertyName = "NameOfFile";
+            NameOfFile.HeaderText = "File Name";
+            NameOfFile.Name = "NameOfFile";
+            NameOfFile.ReadOnly = true;
+            NameOfFile.Resizable = DataGridViewTriState.False;
+            // 
+            // FileType
+            // 
+            FileType.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            FileType.DataPropertyName = "FileType";
+            FileType.HeaderText = "File Type";
+            FileType.Name = "FileType";
+            FileType.ReadOnly = true;
+            FileType.Resizable = DataGridViewTriState.False;
+            // 
+            // TimeStamp_Created
+            // 
+            TimeStamp_Created.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            TimeStamp_Created.DataPropertyName = "TimeStamp_Creation";
+            TimeStamp_Created.HeaderText = "Created";
+            TimeStamp_Created.Name = "TimeStamp_Created";
+            TimeStamp_Created.ReadOnly = true;
+            TimeStamp_Created.Resizable = DataGridViewTriState.False;
+            // 
+            // Open
+            // 
+            Open.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            Open.HeaderText = "Open";
+            Open.Name = "Open";
+            Open.ReadOnly = true;
+            Open.Resizable = DataGridViewTriState.False;
+            Open.Text = "Open Preview";
+            Open.UseColumnTextForButtonValue = true;
+            // 
+            // Download
+            // 
+            Download.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            Download.HeaderText = "Download";
+            Download.Name = "Download";
+            Download.ReadOnly = true;
+            Download.Resizable = DataGridViewTriState.False;
+            Download.Text = "Download";
+            Download.UseColumnTextForButtonValue = true;
+            // 
             // StudentDocuments
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -149,7 +171,7 @@
             Controls.Add(btn_UploadPdf);
             Controls.Add(comboBox_Subjects);
             Name = "StudentDocuments";
-            Size = new Size(691, 335);
+            Size = new Size(654, 470);
             Load += StudentDocuments_Load;
             ((System.ComponentModel.ISupportInitialize)dgv_Files).EndInit();
             ResumeLayout(false);
@@ -166,6 +188,8 @@
         private Label lbl_StatusMessage;
         private DataGridViewTextBoxColumn NameOfFile;
         private DataGridViewTextBoxColumn FileType;
+        private DataGridViewTextBoxColumn TimeStamp_Created;
         private DataGridViewButtonColumn Open;
+        private DataGridViewButtonColumn Download;
     }
 }

@@ -28,7 +28,9 @@
         /// </summary>
         private void InitializeComponent()
         {
+            components = new System.ComponentModel.Container();
             groupBox_uc_StudentInfo = new GroupBox();
+            btn_ChangeEmail = new Button();
             btn_ChangePhoto = new Button();
             lbl_uc_Line = new Label();
             txtBox_uc_Revised = new TextBox();
@@ -47,13 +49,18 @@
             lbl_Birthdate = new Label();
             lbl_Surname = new Label();
             opf_ChangePhoto = new OpenFileDialog();
+            btn_SaveChanges = new Button();
+            err_EmailFormat = new ErrorProvider(components);
+            btn_DiscardChanges = new Button();
             groupBox_uc_StudentInfo.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)picBox_uc_StudentPhoto).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)err_EmailFormat).BeginInit();
             SuspendLayout();
             // 
             // groupBox_uc_StudentInfo
             // 
             groupBox_uc_StudentInfo.BackColor = Color.Transparent;
+            groupBox_uc_StudentInfo.Controls.Add(btn_ChangeEmail);
             groupBox_uc_StudentInfo.Controls.Add(btn_ChangePhoto);
             groupBox_uc_StudentInfo.Controls.Add(lbl_uc_Line);
             groupBox_uc_StudentInfo.Controls.Add(txtBox_uc_Revised);
@@ -78,6 +85,20 @@
             groupBox_uc_StudentInfo.TabIndex = 7;
             groupBox_uc_StudentInfo.TabStop = false;
             groupBox_uc_StudentInfo.Text = "Student Information";
+            // 
+            // btn_ChangeEmail
+            // 
+            btn_ChangeEmail.BackColor = Color.DimGray;
+            btn_ChangeEmail.FlatStyle = FlatStyle.Flat;
+            btn_ChangeEmail.Font = new Font("Segoe UI", 7F, FontStyle.Regular, GraphicsUnit.Point);
+            btn_ChangeEmail.ForeColor = Color.White;
+            btn_ChangeEmail.Location = new Point(495, 95);
+            btn_ChangeEmail.Name = "btn_ChangeEmail";
+            btn_ChangeEmail.Size = new Size(79, 23);
+            btn_ChangeEmail.TabIndex = 9;
+            btn_ChangeEmail.Text = "Change Email";
+            btn_ChangeEmail.UseVisualStyleBackColor = false;
+            btn_ChangeEmail.Click += btn_ChangeEmail_Click;
             // 
             // btn_ChangePhoto
             // 
@@ -132,6 +153,7 @@
             txtBox_uc_Email.Size = new Size(132, 23);
             txtBox_uc_Email.TabIndex = 12;
             txtBox_uc_Email.TextAlign = HorizontalAlignment.Center;
+            txtBox_uc_Email.TextChanged += txtBox_uc_Email_TextChanged;
             // 
             // lblEmail
             // 
@@ -269,20 +291,56 @@
             // 
             opf_ChangePhoto.FileName = "openFileDialog1";
             // 
+            // btn_SaveChanges
+            // 
+            btn_SaveChanges.AutoSize = true;
+            btn_SaveChanges.BackColor = Color.DimGray;
+            btn_SaveChanges.FlatStyle = FlatStyle.Flat;
+            btn_SaveChanges.ForeColor = Color.White;
+            btn_SaveChanges.Location = new Point(554, 440);
+            btn_SaveChanges.Name = "btn_SaveChanges";
+            btn_SaveChanges.Size = new Size(97, 27);
+            btn_SaveChanges.TabIndex = 8;
+            btn_SaveChanges.Text = "Save Changes";
+            btn_SaveChanges.UseVisualStyleBackColor = false;
+            btn_SaveChanges.Click += btn_SaveChanges_Click;
+            // 
+            // err_EmailFormat
+            // 
+            err_EmailFormat.ContainerControl = this;
+            // 
+            // btn_DiscardChanges
+            // 
+            btn_DiscardChanges.AutoSize = true;
+            btn_DiscardChanges.BackColor = Color.DimGray;
+            btn_DiscardChanges.FlatStyle = FlatStyle.Flat;
+            btn_DiscardChanges.ForeColor = Color.White;
+            btn_DiscardChanges.Location = new Point(522, 324);
+            btn_DiscardChanges.Name = "btn_DiscardChanges";
+            btn_DiscardChanges.Size = new Size(107, 27);
+            btn_DiscardChanges.TabIndex = 9;
+            btn_DiscardChanges.Text = "Discard Changes";
+            btn_DiscardChanges.UseVisualStyleBackColor = false;
+            btn_DiscardChanges.Click += btn_DiscardChanges_Click;
+            // 
             // StudentProfileSettings
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.Transparent;
             BorderStyle = BorderStyle.FixedSingle;
+            Controls.Add(btn_DiscardChanges);
+            Controls.Add(btn_SaveChanges);
             Controls.Add(groupBox_uc_StudentInfo);
             Name = "StudentProfileSettings";
-            Size = new Size(652, 333);
+            Size = new Size(654, 470);
             Load += StudentProfileSettings_Load;
             groupBox_uc_StudentInfo.ResumeLayout(false);
             groupBox_uc_StudentInfo.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)picBox_uc_StudentPhoto).EndInit();
+            ((System.ComponentModel.ISupportInitialize)err_EmailFormat).EndInit();
             ResumeLayout(false);
+            PerformLayout();
         }
 
         #endregion
@@ -306,5 +364,9 @@
         private Label lbl_Surname;
         private Button btn_ChangePhoto;
         private OpenFileDialog opf_ChangePhoto;
+        private Button btn_SaveChanges;
+        private Button btn_ChangeEmail;
+        private ErrorProvider err_EmailFormat;
+        private Button btn_DiscardChanges;
     }
 }

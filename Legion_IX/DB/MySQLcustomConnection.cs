@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Legion_IX.Helpers;
+using Microsoft.EntityFrameworkCore;
 using MongoDB.Bson;
 using System;
 using System.Collections.Generic;
@@ -19,6 +20,7 @@ namespace Legion_IX.DB
         {
         }
 
+
         public static string GetSQL_Directory()
         {
             string projectDirectory = Directory.GetCurrentDirectory();
@@ -34,13 +36,29 @@ namespace Legion_IX.DB
             return projectDirectory;
         }
 
+
         // This method gets automatically called on application startup and connects the already existing SQLite `.db` file to the app
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder.UseSqlite(myConnection);
         }
 
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<PDF_File>().ToTable("table_PDFFiles");
+            modelBuilder.Entity<RAR_File>().ToTable("table_RARFiles");
+            //modelBuilder.Entity<AtlasFile>().ToTable("table")
+
+            //modelBuilder.Entity<RAR_File>().ToTable("table_RARFiles");
+        }
+
+
         public DbSet<UserSettings> table_UserSettings{ get; set; }
+
+        public DbSet<PDF_File> pdf_Files { get; set; }
+        public DbSet<RAR_File> rar_Files { get; set; }
+        //public DbSet<AtlasFile> atlas_Files { get; set; }
     }
 
     // Class for User Settings

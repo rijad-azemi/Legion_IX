@@ -27,14 +27,17 @@ namespace Legion_IX
     {
         #region Global Variables
 
+        static frmStudentProfile? theProfile;
+
         static Student? student;
         static Helpers.Validators vali = new Helpers.Validators();
 
-        public bool loggedOut { get; set; } = false;
+        //public bool loggedOut { get; set; } = false;
 
         MySQLcustomConnection connection = new MySQLcustomConnection();
 
         #endregion Global Variables
+
 
         public frmLoginScreen()
         {
@@ -44,65 +47,33 @@ namespace Legion_IX
 
         }
 
+
         private void frmLoginScreen_Load(object sender, EventArgs e)
         {
             // Initializing it's instance upon Form Load
             student = new Student();
 
             NetworkAvailability(sender, e);
-
-            if (loggedOut)
-            {
-                lblAccNotFound.Text = "--- You have logged out ---";
-                int blinkTimes = 3;
-
-                Thread blinker = new Thread(new ThreadStart(() => displayLogoutMessage(blinkTimes)));
-                blinker.Start();
-            }
         }
+
 
         // Button LOGIN click event
         private async void button_Login_Click(object sender, EventArgs e)
         {
             if(NetworkListener.IsConnectedToNet())
             {
-
-                textBox_email.Text = "sead.azemi@edu.fit.ba";
-                textBox_password.Text = "undp123";
-
-                // Reseting the text field of the warning label just in case
-                lblAccNotFound.Text = "";
-
-                // Checks if inputs are valid, and returns immediatelty if not
-                if (!CheckIfNullOrEmpty() && !CheckIfValid())
-                    return;
-
-                // Recieving results from `ServerSideFilter_EmailPassword()`
-                IAsyncCursor<BsonDocument>? serverSideFilterResult = await student.ServerSideFilter_EmailPassword(textBox_email.Text, textBox_password.Text);
-
                 // Converts said results to `List<BsonDocument>`
-                List<BsonDocument>? matchingAccounts = serverSideFilterResult.ToList();
-                int matchAccountIndex = 0;
+                IAsyncCursor<BsonDocument>? result = await GetMatchesFromAtlas();
+
+                List<BsonDocument>? matchingAccounts = result?.ToList() ?? null;
+
+                // Represents the index of a matching account from the `List<BsonDocument>`
+                int matchAccountIndex = 0; // (Passed by reference because methods `Checkpoint` and `LoginSuccessful` must have it synced)
 
                 // Calls checkpoint to enstablish veracity and displays appropriate message
-                if (Checkpoint(ref matchingAccounts, ref matchAccountIndex))
-                {
-
-                    // Saving logged student to send to displaying form
-                    BsonDocument loggedStudent = new BsonDocument(matchingAccounts[matchAccountIndex]);
-
-                    // Creating the instance of the form
-                    frmStudentProfile frmStudentProfile = new frmStudentProfile(ref loggedStudent);
-
-                    // Hiding current
-                    this.Hide();
-
-                    // Showing the profile form
-                    frmStudentProfile.ShowDialog();
-
-                    //Closing this one
-                    this.Close();
-                }
+                if (matchingAccounts != null && Checkpoint(in matchingAccounts, ref matchAccountIndex))
+                    
+                    LoginSuccessful(in matchingAccounts, in matchAccountIndex);
 
                 else
                     lblAccNotFound.Text = "--- ACCOUNT NOT FOUND ---";
@@ -113,9 +84,7 @@ namespace Legion_IX
             {
                 lblAccNotFound.Text = "--- You are OFFLINE => !Cannot LOGIN! ---";
 
-                int blinkTimes = 4;
-
-                Thread blinkNoInternet_Message = new Thread(new ThreadStart( () => InformUserNoInternet(blinkTimes) ));
+                Start_InformUserNoInternetThread();
             }
 
             #region Checkpoint
@@ -127,15 +96,52 @@ namespace Legion_IX
             #endregion Checkpoint
         }
 
+
+        private void LoginSuccessful(in List<BsonDocument> matchingAccounts, in int matchAccountIndex)
+        {
+            // Hiding current
+            this.Hide();
+
+            // Saving logged student to send to displaying form
+            BsonDocument loggedStudent = new BsonDocument(matchingAccounts[matchAccountIndex]);
+
+            // Creating the instance of the form
+            frmStudentProfile StudentProfile = new frmStudentProfile(ref loggedStudent);
+
+            // Performs a check to see if the `frmStudentProfile` was logged out of or closed, and reacts accordingly
+            CheckAndDoIf_LoggedOut_Or_Closed(in StudentProfile);
+
+            // Clearing Login input fields
+            ClearFormTextBoxes();
+        }
+
+
+        // Search and get Matching accounts based on login inputs
+        private async Task<IAsyncCursor<BsonDocument>>? GetMatchesFromAtlas()
+        {
+            // Reseting the text field of the warning label just in case
+            lblAccNotFound.Text = "";
+
+            // Checks if inputs are valid, and returns immediatelty if not
+            if (!CheckIfNullOrEmpty() && !CheckIfValid())
+                return null;
+
+            // Recieving results from `ServerSideFilter_EmailPassword()`
+            IAsyncCursor<BsonDocument>? serverSideFilterResult = await student.ServerSideFilter_EmailPassword(textBox_email.Text, textBox_password.Text);
+
+            return serverSideFilterResult;
+        }
+        
+
         // Checks for mattching accounts in Atlas based on login indo provided
-        private bool Checkpoint(ref List<BsonDocument> Accounts, ref int index)
+        private bool Checkpoint(in List<BsonDocument> Accounts, ref int index)
         {
             // If `Accounts.Count` is higher or equal to 1, means `ServerSideFilter_EmailPassword()` returned matching account
             if (Accounts.Count >= 1)
             {
 
                 // Could have added another if statement to return true immediately if one document is detected; Would make code more...
-                // unredable, so won't implement
+                                                                                                     // unredable, so won't implement
 
                 // `Accounts` might hold more than one document, so iterating to check 
                 for (int i = 0; i < Accounts.Count; i++)
@@ -157,6 +163,7 @@ namespace Legion_IX
             return false;
         }
 
+
         // Key down event for the form
         private void textBox_EmailPassword_KeyDown(object sender, KeyEventArgs e)
         {
@@ -168,6 +175,7 @@ namespace Legion_IX
 
             }
         }
+
 
         // Checks if NullOrEmpty()
         private bool CheckIfNullOrEmpty()
@@ -194,6 +202,7 @@ namespace Legion_IX
             return true;
         }
 
+
         // Checks if Email and Password typed is valid in format
         private bool CheckIfValid()
         {
@@ -218,6 +227,7 @@ namespace Legion_IX
             // Returns true if all is good
             return true;
         }
+
 
         // DLWMS link (opens in browser)
         private void linkLabel_DLWMSweb_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
@@ -273,6 +283,7 @@ namespace Legion_IX
             }
         }
 
+
         // Check Box ShowPassword
         private void checkBox_ShowPassword_CheckedChanged(object sender, EventArgs e)
         {
@@ -282,6 +293,7 @@ namespace Legion_IX
             else
                 textBox_password.UseSystemPasswordChar = true;
         }
+
 
         // Network availability detector
         private void NetworkAvailability(object sender, EventArgs e)
@@ -307,6 +319,48 @@ namespace Legion_IX
 
         }
 
+
+        // This method is called to check if either the `frmStudentProfile` instance was logged out of or closed, and reacts accordingly
+        private void CheckAndDoIf_LoggedOut_Or_Closed(in frmStudentProfile profileForm)
+        {
+
+            try
+            {
+                if (profileForm.ShowDialog() == DialogResult.OK)
+                {
+                    //Show this form
+                    this.Show();
+
+                    // Inform user of Logout
+                    Start_LogoutBlinkingThread(true);
+                }
+
+                else
+                    //Closing this one
+                    this.Close();
+            }
+            catch(Exception ex)
+            {
+                MessageBox.Show(ex.Message, ex.Message);
+            }
+
+        }
+
+
+        // Creates a thread for blinking LOGOUT message
+        private void Start_LogoutBlinkingThread(bool loggedOut)
+        {
+            if (loggedOut)
+            {
+                lblAccNotFound.Text = "--- You have logged out ---";
+                int blinkTimes = 3;
+
+                Thread blinker = new Thread(new ThreadStart(() => displayLogoutMessage(blinkTimes)));
+                blinker.Start();
+            }
+        }
+
+
         // Gets called when logging out and displays a blinking message informing the user
         public void displayLogoutMessage(int blinkTimes) // Test the following idea, make the method STATIC!
         {
@@ -324,6 +378,17 @@ namespace Legion_IX
             this.Invoke((Action)(() => lblAccNotFound.Text = ""));
         }
 
+
+        // Creates and starts a thread for blinking No internet message
+        private void Start_InformUserNoInternetThread()
+        {
+            int blinkTimes = 4;
+
+            Thread blinkNoInternet_Message = new Thread(new ThreadStart(() => InformUserNoInternet(blinkTimes)));
+        }
+
+
+        // Blinking message informing User that access to the internet has ceased
         public void InformUserNoInternet(int blinkTimes)
         {
             for (int i = 0; i < blinkTimes; i++)
@@ -339,6 +404,7 @@ namespace Legion_IX
             // Invoking action for a control on it's original created thread to prevent cross threading exception
             this.Invoke((Action)(() => lblAccNotFound.Text = ""));
         }
+
 
         // Updates the browser record path to SQL DataBase
         public static void Update_Add_BrowserToSQL(string path)
@@ -368,6 +434,7 @@ namespace Legion_IX
             }
 
         }
+
 
         // Retrieve browser `.exe` file from SQL => returns null if field in SQL table is null
         public static string? GetBrowserPathFromSQL()
@@ -409,6 +476,14 @@ namespace Legion_IX
             }
 
             return null;
+        }
+
+
+        // Clearing Login input fields
+        private void ClearFormTextBoxes()
+        {
+            textBox_email.Text = "";
+            textBox_password.Text = "";
         }
     }
 }

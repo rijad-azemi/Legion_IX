@@ -8,7 +8,7 @@ namespace Legion_IX
     {
         #region UserControl size parameters
         public int Width { get; set; } = 654;
-        public int Height { get; set; } = 335;
+        public int Height { get; set; } = 470;
         public int X_Axis { get; set; } = 234;
         public int Y_Axis { get; set; } = 12;
         #endregion UserControl size parameters
@@ -26,20 +26,14 @@ namespace Legion_IX
 
         #endregion Global Variables
 
+
         public frmStudentProfile(ref BsonDocument loggedStudent)
         {
-            #region Extracting Student From Bson
-
-            BsonDocument studentBson = new BsonDocument(loggedStudent);
-            theStudent = theStudent.GetStudentFromBson(ref studentBson);
-
-            #endregion Extracting Student From Bson
-
-            // Subscribes the `NetworkAvailability` method to `NetworkChange` class
-            NetworkListener.NetworkAvailabilityChanged += NetworkAvailability_frmStudentProfile;
+            ForDefaultConstructor(ref loggedStudent);
 
             InitializeComponent();
         }
+
 
         private void frmStudentProfile_Load(object sender, EventArgs e)
         {
@@ -55,6 +49,23 @@ namespace Legion_IX
             NetworkAvailability_frmStudentProfile(sender, e);
         }
 
+
+        private void ForDefaultConstructor(ref BsonDocument loggedStudent)
+        {
+
+            #region Extracting Student From Bson
+
+            BsonDocument studentBson = new BsonDocument(loggedStudent);
+            theStudent = theStudent.GetStudentFromBson(ref studentBson);
+
+            #endregion Extracting Student From Bson
+
+            // Subscribes the `NetworkAvailability` method to `NetworkChange` class
+            NetworkListener.NetworkAvailabilityChanged += NetworkAvailability_frmStudentProfile;
+
+        }
+
+
         // User Control location and size
         private void SetUserControlSizeAndLocation(UserControl uc)
         {
@@ -63,13 +74,16 @@ namespace Legion_IX
             uc.Location = new Point(X_Axis, Y_Axis);
         }
 
+
         // Set size and location to all `User Controls`
         private void SetLocationSizeToAll_UC()
         {
             SetUserControlSizeAndLocation(studentData1);
             SetUserControlSizeAndLocation(studentDocuments1);
             SetUserControlSizeAndLocation(studentProfileSettings1);
+            SetUserControlSizeAndLocation(downloadedDocs1);
         }
+
 
         // Shows current(studentdata1) UserControl
         private void ShowCurrent_UserControl()
@@ -82,25 +96,31 @@ namespace Legion_IX
             currentOpen.Show();
         }
 
+
         // Log Out button event
         private void button_LogOut_Click(object sender, EventArgs e)
         {
-            // Creating again the instance of the login form
-            frmLoginScreen backToTlogIn = new frmLoginScreen();
-            backToTlogIn.loggedOut = true;
-
-            // Hide current from view
-            this.Hide();
-
-            // Show the form
-            backToTlogIn.ShowDialog();
-
-            // This message will be displayed onto the 'lblAccNotFound'
-            //backToTlogIn.displayLogoutMessage("--- You have been logged out ---");
-
-            // Closing current form
+            this.DialogResult = DialogResult.OK;
             this.Close();
+            #region maybeLater
+            /*            // Creating again the instance of the login form
+                        frmLoginScreen backToTlogIn = new frmLoginScreen();
+                        backToTlogIn.loggedOut = true;
+
+                        // Hide current from view
+                        this.Hide();
+
+                        // Show the form
+                        backToTlogIn.ShowDialog();
+
+                        // This message will be displayed onto the 'lblAccNotFound'
+                        //backToTlogIn.displayLogoutMessage("--- You have been logged out ---");
+
+                        // Closing current form
+                        this.Close();*/
+            #endregion maybeLater
         }
+
 
         // Profile button event
         private void btn_Profile_Click(object sender, EventArgs e)
@@ -123,6 +143,7 @@ namespace Legion_IX
             }
         }
 
+
         // Documents button event
         private void btn_Documents_Click(object sender, EventArgs e)
         {
@@ -142,6 +163,28 @@ namespace Legion_IX
                 UC_Clicked();
             }
         }
+
+
+        // DownloadedDocs button event
+        private void btn_DownloadedDocs_Click(object sender, EventArgs e)
+        {
+            if(currentButton.Name != btn_DownloadedDocs.Name)
+            {
+                UC_Unclicked();
+
+                // Hiding current UserControl
+                currentOpen.Hide();
+
+                // Assigning appropriate UC to `currentOpen` and showing it
+                currentOpen = downloadedDocs1;
+                currentOpen.Show();
+
+                // Assining this button as current
+                currentButton = btn_DownloadedDocs;
+                UC_Clicked();
+            }
+        }
+
 
         // ProfileSettings button event
         private void btn_ProfileSettings_Click(object sender, EventArgs e)
@@ -163,6 +206,7 @@ namespace Legion_IX
             }
         }
 
+
         // Changes `currentButton` clicked BackColor and ForeColor when Clicked
         private void UC_Clicked()
         {
@@ -171,12 +215,14 @@ namespace Legion_IX
 
         }
 
+
         // Changes `currentButton` clicked BackColor and ForeColor Unclicked (hilarious, I know)
         private void UC_Unclicked() // The name is hilarious, I know...
         {
             currentButton.BackColor = Color.DimGray;
             currentButton.ForeColor = Color.White;
         }
+
 
         // Network availability detector
         private void NetworkAvailability_frmStudentProfile(object sender, EventArgs e)
@@ -201,5 +247,7 @@ namespace Legion_IX
             }
 
         }
+
+
     }
 }

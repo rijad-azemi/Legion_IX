@@ -1,3 +1,4 @@
+
 *Connect "Legion_IX" to MongoDB Atlas Database
 *Put my Project on Github and make chnages from there accordingly
 
@@ -54,7 +55,7 @@ CTRL + F12 to enter assembly, cool as shit.
 
 
 Size For User Control: Width = 654;
-                       Height = 335;
+                       Height = 470;
 
 Location For User Control: X = 234;
                            Y = 12;
@@ -73,3 +74,6 @@ Location For User Control: X = 234;
 -Modified some UI elements
 -Connected SQLite database to APP (Now chosen default browser directory get's saved and reused when opening `.pdf` previews)
 -
+
+
+- Fixed Opening and closing forms
