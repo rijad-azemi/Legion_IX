@@ -4,6 +4,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+using Legion_IX.Users;
 using Microsoft.IdentityModel.Tokens;
 using MongoDB;
 using MongoDB.Bson;
@@ -14,8 +15,15 @@ namespace Legion_IX.DB
 {
     public class AtlasDB
     {
-        //const string DBconnectionLink = "mongodb+srv://rijadazemi:Karate1227@cluster0.m9qqpen.mongodb.net/?retryWrites=true&w=majority";
         const string DBconnectionLink = "mongodb+srv://AppUser777:itsMarioo@cluster0.m9qqpen.mongodb.net/?retryWrites=true&w=majority";
+
+
+        internal readonly string AtlasDB_FacultyPersonell = "FacultyPersonell";
+        internal readonly string AtlasCollection_Student = "Student";
+        internal readonly string AtlasCollection_Professor = "Professor";
+        internal readonly string AtlasCollection_StudentService = "Students Service Staff";
+
+
         public MongoClient Client { get; set; } // Client for connection to the Cluster containing Databases
         public List<string> DataBaseNames { get; set; } // List of all existing Database names
         public IMongoDatabase Database { get; set; } // Interface representing one Database of a Cluster

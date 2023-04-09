@@ -1,4 +1,5 @@
-﻿using Legion_IX.DB;
+﻿using Legion_IX.DataFiles;
+using Legion_IX.DB;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using System;

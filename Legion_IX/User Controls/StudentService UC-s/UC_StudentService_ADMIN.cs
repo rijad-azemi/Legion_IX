@@ -1,0 +1,36 @@
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+
+namespace Legion_IX.User_Controls.StudentService_UC_s
+{
+    internal partial class UC_StudentService_ADMIN : UserControl
+    {
+        public UC_StudentService_ADMIN()
+        {
+            InitializeComponent();
+
+            txtBox_StudentEmail.Text = ".@edu.fit.ba";
+
+            AddOptionsToComboBox();
+        }
+
+        private void StudentService_ADMIN_Load(object sender, EventArgs e)
+        {
+
+        }
+
+        private void btn_AssignProfSubjects_Click(object sender, EventArgs e)
+        {
+            //this.Hide();
+            professorsSubjects1.Show();
+        }
+
+    }
+}

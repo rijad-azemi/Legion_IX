@@ -73,7 +73,9 @@ Location For User Control: X = 234;
 
 -Modified some UI elements
 -Connected SQLite database to APP (Now chosen default browser directory get's saved and reused when opening `.pdf` previews)
--
 
 
-- Fixed Opening and closing forms
+
+			*(Fix) Cancellation token at `StudentDocuments` User Control
+			*(Test) Adding default browser and WinRAR directory.
+			*(Add) Change Password

@@ -4,18 +4,21 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Net.NetworkInformation;
+using MongoDB.Driver;
 
 namespace Legion_IX.Helpers
 {
     internal class NetworkListener
     {
+        internal static string AtlasClusterConn_String = "mongodb+srv://AppUser777:itsMarioo@cluster0.m9qqpen.mongodb.net/?retryWrites=true&w=majority";
+
         public static bool IsConnectedToNet()
         {
 
             if (NetworkInterface.GetIsNetworkAvailable())
             {
 
-                foreach (var ni in NetworkInterface.GetAllNetworkInterfaces())
+                foreach (NetworkInterface ni in NetworkInterface.GetAllNetworkInterfaces())
                 {
                     if (ni.OperationalStatus == OperationalStatus.Up)
                     {
@@ -23,6 +26,19 @@ namespace Legion_IX.Helpers
                         if ((ni.NetworkInterfaceType != NetworkInterfaceType.Tunnel) &&
                             (ni.NetworkInterfaceType != NetworkInterfaceType.Loopback))
                         {
+
+                            /*                            Ping checkIfClusterUp = new Ping();
+
+                                                        try
+                                                        {
+                                                            PingReply clusterPingReply = checkIfClusterUp.Send(new Uri(AtlasClusterConn_String).Host);
+                                                            return (clusterPingReply.Status == IPStatus.Success);
+                                                        }
+
+                                                        catch (Exception ex_statusFailed)
+                                                        {
+                                                            MessageBox.Show("Failed to ping Atlas Cluster! Check `URI`!", ex_statusFailed.Message, MessageBoxButtons.OK);
+                                                        }*/
 
                             IPInterfaceProperties properties = ni.GetIPProperties();
 

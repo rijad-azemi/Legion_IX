@@ -1,4 +1,5 @@
-﻿using Legion_IX.Helpers;
+﻿using Legion_IX.DataFiles;
+using Legion_IX.Helpers;
 using Microsoft.EntityFrameworkCore;
 using MongoDB.Bson;
 using System;

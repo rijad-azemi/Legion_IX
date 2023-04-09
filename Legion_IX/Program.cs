@@ -14,7 +14,7 @@ namespace Legion_IX
             // see https://aka.ms/applicationconfiguration.
             ApplicationConfiguration.Initialize();
 
-            Form formToShow = new frmLoginScreen();
+            Form formToShow = new frm_LoginScreen();
 
             Application.Run(formToShow);
         }
