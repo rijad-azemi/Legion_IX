@@ -31,7 +31,7 @@ namespace Legion_IX.ProjectForms
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(frm_StudentServiceADMIN));
-            studentService_admin1 = new User_Controls.StudentService_UC_s.UC_StudentService_ADMIN();
+            studentService_admin1 = new UC_StudentService_ADMIN();
             txtBox_NetworkStatus = new TextBox();
             button_LogOut = new Button();
             SuspendLayout();
@@ -80,9 +80,10 @@ namespace Legion_IX.ProjectForms
             Controls.Add(txtBox_NetworkStatus);
             Controls.Add(button_LogOut);
             Controls.Add(studentService_admin1);
-            //Controls.Add(studentService_admin1.professorsSubjects1);
             Name = "frm_StudentServiceADMIN";
+            StartPosition = FormStartPosition.CenterScreen;
             Text = "frm_StudentServiceADMIN";
+            Load += frm_StudentServiceADMIN_Load;
             ResumeLayout(false);
             PerformLayout();
         }

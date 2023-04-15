@@ -590,7 +590,7 @@ namespace Legion_IX.User_Controls
         private bool CheckIfWinrarDirectoryAssigned()
         {
 
-            if (Default_WinRAR_Directory.CheckIfWinRAR_dirSet())
+            if (!Default_WinRAR_Directory.CheckIfWinRAR_dirSet())
             {
                 opf_ChooseDocument.Filter = "Executable files (*.exe)|*.exe";
 
@@ -644,22 +644,18 @@ namespace Legion_IX.User_Controls
                 Action Lambdi = () =>
                 {
 
-                    this.Invoke(() => lbl_StatusMessage.Text = "You Must Choose a Subject.");
-
                     for (int i = 0; i < 3; i++)
                     {
 
                         this.Invoke(() =>
                         {
                             comboBox_Subjects.ForeColor = Color.Red;
-                            lbl_StatusMessage.ForeColor = Color.Red;
                         });
 
                         Thread.Sleep(300);
 
                         this.Invoke(() =>
                         {
-                            lbl_StatusMessage.ForeColor = Color.White;
                             comboBox_Subjects.ForeColor = Color.Black;
                         });
 
@@ -668,8 +664,6 @@ namespace Legion_IX.User_Controls
                     }
 
                     this.Invoke(() => comboBox_Subjects.ForeColor = Color.Black);
-
-                    this.Invoke(() => lbl_StatusMessage.Text = "");
 
                 };
 

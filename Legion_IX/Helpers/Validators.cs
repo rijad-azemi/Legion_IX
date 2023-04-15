@@ -21,5 +21,10 @@ namespace Legion_IX.Helpers
             string pattern = @"(^(?=.+[A-Za-z]){5,}(?=.+\d){3,})";
             return Regex.IsMatch(password, pattern);
         }
+
+        internal static bool Validate_ServicerAssignedSubjectsToProfessor(int checkedItems)
+        {
+            return (checkedItems <= 0)? true : false;
+        }
     }
 }

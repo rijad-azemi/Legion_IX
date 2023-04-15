@@ -105,7 +105,11 @@ namespace Legion_IX.Helpers
             filterAnd_Add_RAR_Files.Join();
 
             listToFill = new List<AtlasFile>(PassThisOver);
+
+            // Recycle the list
+            PassThisOver.Clear();
         }
+
 
         public static void Add_PDFs_ToList(string ChosenSubject)
         {
@@ -120,6 +124,7 @@ namespace Legion_IX.Helpers
                     PassThisOver.Add(GetAtlasFileFrom_PDF(pdf));
                 }
             }
+
         }
 
 

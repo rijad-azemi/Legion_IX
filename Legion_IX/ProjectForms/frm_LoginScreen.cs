@@ -35,6 +35,7 @@ namespace Legion_IX
 
         public frm_LoginScreen()
         {
+
             InitializeComponent();
 
             this.FormClosing += SignalCancellationToken;
@@ -42,6 +43,7 @@ namespace Legion_IX
             NetworkListener.NetworkAvailabilityChanged += NetworkAvailability;
 
         }
+
 
         private void SignalCancellationToken(object? sender, FormClosingEventArgs e)
         {
@@ -58,11 +60,15 @@ namespace Legion_IX
         // Button LOGIN click event
         private async void button_Login_Click(object sender, EventArgs e)
         {
-            /*textBox_email.Text = "rijad.azemi@edu.fit.ba";
-            textBox_password.Text = "rijadazemi2000";*/
+            textBox_email.Text = "rijad.azemi@edu.fit.ba";
+            textBox_password.Text = "rijadazemi2000";
 
-            textBox_email.Text = "lejla.jazvin@edu.fit.ba";
-            textBox_password.Text = "lejlajazvin88000";
+            /*            textBox_email.Text = "lejla.jazvin@edu.fit.ba";
+                        textBox_password.Text = "lejlajazvin88000";*/
+
+            /*            textBox_email.Text = "denis.music@edu.fit.ba";
+                        textBox_password.Text = "denismusic3";*/
+
 
             if (NetworkListener.IsConnectedToNet())
             {
@@ -137,7 +143,6 @@ namespace Legion_IX
 
                 case LogInAs.StudentService:
                     {
-
                         // Performs a check to see if the `frm_ProfessorProfile` was logged out of or closed, and reacts accordingly
                         frm_StudentServiceADMIN StudentServicer = new frm_StudentServiceADMIN();
 

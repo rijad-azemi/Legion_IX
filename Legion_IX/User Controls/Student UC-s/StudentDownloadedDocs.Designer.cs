@@ -28,29 +28,21 @@
         /// </summary>
         private void InitializeComponent()
         {
-            lbl_StatusMessage = new Label();
             btn_Refresh = new Button();
             dgv_Files = new DataGridView();
             NameOfFile = new DataGridViewTextBoxColumn();
             FileType = new DataGridViewTextBoxColumn();
             TimeStamp_Creation = new DataGridViewTextBoxColumn();
             Open = new DataGridViewButtonColumn();
+            Export = new DataGridViewButtonColumn();
             comboBox_Subjects = new ComboBox();
+            saveFileDialog_ExportDocument = new SaveFileDialog();
             ((System.ComponentModel.ISupportInitialize)dgv_Files).BeginInit();
             SuspendLayout();
             // 
-            // lbl_StatusMessage
-            // 
-            lbl_StatusMessage.Font = new Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point);
-            lbl_StatusMessage.ForeColor = SystemColors.ButtonFace;
-            lbl_StatusMessage.Location = new Point(5, 3);
-            lbl_StatusMessage.Name = "lbl_StatusMessage";
-            lbl_StatusMessage.Size = new Size(155, 28);
-            lbl_StatusMessage.TabIndex = 12;
-            // 
             // btn_Refresh
             // 
-            btn_Refresh.Location = new Point(578, 309);
+            btn_Refresh.Location = new Point(578, 350);
             btn_Refresh.Name = "btn_Refresh";
             btn_Refresh.Size = new Size(75, 23);
             btn_Refresh.TabIndex = 11;
@@ -63,13 +55,13 @@
             dgv_Files.AllowUserToAddRows = false;
             dgv_Files.AllowUserToDeleteRows = false;
             dgv_Files.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dgv_Files.Columns.AddRange(new DataGridViewColumn[] { NameOfFile, FileType, TimeStamp_Creation, Open });
-            dgv_Files.Location = new Point(166, 3);
+            dgv_Files.Columns.AddRange(new DataGridViewColumn[] { NameOfFile, FileType, TimeStamp_Creation, Open, Export });
+            dgv_Files.Location = new Point(5, 44);
             dgv_Files.Name = "dgv_Files";
             dgv_Files.ReadOnly = true;
             dgv_Files.RowHeadersVisible = false;
             dgv_Files.RowTemplate.Height = 25;
-            dgv_Files.Size = new Size(487, 300);
+            dgv_Files.Size = new Size(648, 300);
             dgv_Files.TabIndex = 10;
             dgv_Files.CellContentClick += dgv_Files_CellContentClick;
             // 
@@ -109,13 +101,21 @@
             Open.Text = "Open";
             Open.UseColumnTextForButtonValue = true;
             // 
+            // Export
+            // 
+            Export.HeaderText = "Export";
+            Export.Name = "Export";
+            Export.ReadOnly = true;
+            Export.Text = "Export";
+            Export.UseColumnTextForButtonValue = true;
+            // 
             // comboBox_Subjects
             // 
             comboBox_Subjects.DropDownStyle = ComboBoxStyle.DropDownList;
             comboBox_Subjects.FormattingEnabled = true;
-            comboBox_Subjects.Location = new Point(5, 44);
+            comboBox_Subjects.Location = new Point(5, 3);
             comboBox_Subjects.Name = "comboBox_Subjects";
-            comboBox_Subjects.Size = new Size(155, 23);
+            comboBox_Subjects.Size = new Size(172, 23);
             comboBox_Subjects.TabIndex = 7;
             comboBox_Subjects.SelectedIndexChanged += comboBox_Subjects_SelectedIndexChanged;
             // 
@@ -125,7 +125,6 @@
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.Transparent;
             BorderStyle = BorderStyle.FixedSingle;
-            Controls.Add(lbl_StatusMessage);
             Controls.Add(btn_Refresh);
             Controls.Add(dgv_Files);
             Controls.Add(comboBox_Subjects);
@@ -137,8 +136,6 @@
         }
 
         #endregion
-
-        private Label lbl_StatusMessage;
         private Button btn_Refresh;
         private DataGridView dgv_Files;
         private ComboBox comboBox_Subjects;
@@ -146,5 +143,7 @@
         private DataGridViewTextBoxColumn FileType;
         private DataGridViewTextBoxColumn TimeStamp_Creation;
         private DataGridViewButtonColumn Open;
+        private DataGridViewButtonColumn Export;
+        private SaveFileDialog saveFileDialog_ExportDocument;
     }
 }

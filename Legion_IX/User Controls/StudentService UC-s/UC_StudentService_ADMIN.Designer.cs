@@ -57,11 +57,13 @@
             pictureBox_fitLogo = new PictureBox();
             openFileDialog_SetStudentPhoto = new OpenFileDialog();
             openFileDialog_SetProffPhoto = new OpenFileDialog();
-            err_EmailFormat = new ErrorProvider(components);
-            err_PasswordFormat = new ErrorProvider(components);
+            err_StudentEmailFormat = new ErrorProvider(components);
+            err_StudentPasswordFormat = new ErrorProvider(components);
             pictureBox2 = new PictureBox();
             groupBox4 = new GroupBox();
-            btn_AssignProfSubjects = new Button();
+            label6 = new Label();
+            chkListBox_Subjects = new CheckedListBox();
+            comboBox_StudyYearProfessor = new ComboBox();
             label8 = new Label();
             dtTimePicker_ProffBirthdate = new DateTimePicker();
             label9 = new Label();
@@ -80,24 +82,32 @@
             btn_LoadProffPhoto = new Button();
             label1 = new Label();
             groupBox2 = new GroupBox();
-            professorsSubjects1 = new ProfessorsSubjects();
+            err_ProfessorSubjectsNotAssigned = new ErrorProvider(components);
+            err_ProfessorEmailFormat = new ErrorProvider(components);
+            err_ProfessorPasswordFormat = new ErrorProvider(components);
+            btn_ActiveProfessors = new Button();
+            btn_ActiveStudents = new Button();
             groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)picBox_StudentPhoto).BeginInit();
             groupBox_LoginInfo.SuspendLayout();
             groupBox_StudentData.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)pictureBox_fitLogo).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)err_EmailFormat).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)err_PasswordFormat).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)err_StudentEmailFormat).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)err_StudentPasswordFormat).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBox2).BeginInit();
             groupBox4.SuspendLayout();
             groupBox3.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)picBox_ProffPhoto).BeginInit();
             groupBox2.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)err_ProfessorSubjectsNotAssigned).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)err_ProfessorEmailFormat).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)err_ProfessorPasswordFormat).BeginInit();
             SuspendLayout();
             // 
             // groupBox1
             // 
             groupBox1.BackColor = Color.Transparent;
+            groupBox1.Controls.Add(btn_ActiveStudents);
             groupBox1.Controls.Add(lbl_SeperatorLine);
             groupBox1.Controls.Add(btn_LoadStudPhoto);
             groupBox1.Controls.Add(picBox_StudentPhoto);
@@ -110,7 +120,7 @@
             groupBox1.ForeColor = Color.Blue;
             groupBox1.Location = new Point(3, 3);
             groupBox1.Name = "groupBox1";
-            groupBox1.Size = new Size(653, 478);
+            groupBox1.Size = new Size(653, 578);
             groupBox1.TabIndex = 0;
             groupBox1.TabStop = false;
             groupBox1.Text = "Add Student";
@@ -135,6 +145,7 @@
             // picBox_StudentPhoto
             // 
             picBox_StudentPhoto.BorderStyle = BorderStyle.FixedSingle;
+            picBox_StudentPhoto.Image = (Image)resources.GetObject("picBox_StudentPhoto.Image");
             picBox_StudentPhoto.Location = new Point(6, 222);
             picBox_StudentPhoto.Name = "picBox_StudentPhoto";
             picBox_StudentPhoto.Size = new Size(218, 187);
@@ -145,7 +156,7 @@
             // lbl_University
             // 
             lbl_University.Font = new Font("Lucida Fax", 12F, FontStyle.Bold, GraphicsUnit.Point);
-            lbl_University.ForeColor = SystemColors.ActiveCaptionText;
+            lbl_University.ForeColor = SystemColors.ButtonFace;
             lbl_University.Location = new Point(188, 22);
             lbl_University.Name = "lbl_University";
             lbl_University.Size = new Size(482, 84);
@@ -285,7 +296,6 @@
             comboBox_StudyYear.Name = "comboBox_StudyYear";
             comboBox_StudyYear.Size = new Size(155, 23);
             comboBox_StudyYear.TabIndex = 6;
-            comboBox_StudyYear.Text = "- - - - - - - - - - - - - - - - - - - -";
             // 
             // lbl_Birthdate
             // 
@@ -329,6 +339,7 @@
             txtBox_StudentSurname.Name = "txtBox_StudentSurname";
             txtBox_StudentSurname.Size = new Size(302, 23);
             txtBox_StudentSurname.TabIndex = 1;
+            txtBox_StudentSurname.TextChanged += txtBox_StudentSurname_TextChanged;
             // 
             // txtBox_StudentName
             // 
@@ -337,6 +348,7 @@
             txtBox_StudentName.Name = "txtBox_StudentName";
             txtBox_StudentName.Size = new Size(302, 23);
             txtBox_StudentName.TabIndex = 0;
+            txtBox_StudentName.TextChanged += txtBox_StudentName_TextChanged;
             // 
             // pictureBox_fitLogo
             // 
@@ -356,13 +368,13 @@
             // 
             openFileDialog_SetProffPhoto.FileName = "openFileDialog1";
             // 
-            // err_EmailFormat
+            // err_StudentEmailFormat
             // 
-            err_EmailFormat.ContainerControl = this;
+            err_StudentEmailFormat.ContainerControl = this;
             // 
-            // err_PasswordFormat
+            // err_StudentPasswordFormat
             // 
-            err_PasswordFormat.ContainerControl = this;
+            err_StudentPasswordFormat.ContainerControl = this;
             // 
             // pictureBox2
             // 
@@ -376,7 +388,9 @@
             // 
             // groupBox4
             // 
-            groupBox4.Controls.Add(btn_AssignProfSubjects);
+            groupBox4.Controls.Add(label6);
+            groupBox4.Controls.Add(chkListBox_Subjects);
+            groupBox4.Controls.Add(comboBox_StudyYearProfessor);
             groupBox4.Controls.Add(label8);
             groupBox4.Controls.Add(dtTimePicker_ProffBirthdate);
             groupBox4.Controls.Add(label9);
@@ -386,25 +400,38 @@
             groupBox4.ForeColor = SystemColors.ButtonHighlight;
             groupBox4.Location = new Point(230, 109);
             groupBox4.Name = "groupBox4";
-            groupBox4.Size = new Size(416, 178);
+            groupBox4.Size = new Size(416, 322);
             groupBox4.TabIndex = 9;
             groupBox4.TabStop = false;
             groupBox4.Text = "Proffesor Data";
             // 
-            // btn_AssignProfSubjects
+            // label6
             // 
-            btn_AssignProfSubjects.AutoSize = true;
-            btn_AssignProfSubjects.BackColor = Color.DimGray;
-            btn_AssignProfSubjects.FlatAppearance.BorderSize = 0;
-            btn_AssignProfSubjects.FlatStyle = FlatStyle.Flat;
-            btn_AssignProfSubjects.ForeColor = SystemColors.ButtonFace;
-            btn_AssignProfSubjects.Location = new Point(293, 139);
-            btn_AssignProfSubjects.Name = "btn_AssignProfSubjects";
-            btn_AssignProfSubjects.Size = new Size(99, 25);
-            btn_AssignProfSubjects.TabIndex = 19;
-            btn_AssignProfSubjects.Text = "Assign Subjects";
-            btn_AssignProfSubjects.UseVisualStyleBackColor = false;
-            btn_AssignProfSubjects.Click += btn_AssignProfSubjects_Click;
+            label6.AutoSize = true;
+            label6.Location = new Point(1, 142);
+            label6.Name = "label6";
+            label6.Size = new Size(73, 15);
+            label6.TabIndex = 8;
+            label6.Text = "Faculty Year:";
+            // 
+            // chkListBox_Subjects
+            // 
+            chkListBox_Subjects.CheckOnClick = true;
+            chkListBox_Subjects.FormattingEnabled = true;
+            chkListBox_Subjects.Location = new Point(206, 140);
+            chkListBox_Subjects.Name = "chkListBox_Subjects";
+            chkListBox_Subjects.Size = new Size(176, 184);
+            chkListBox_Subjects.TabIndex = 7;
+            // 
+            // comboBox_StudyYearProfessor
+            // 
+            comboBox_StudyYearProfessor.DropDownStyle = ComboBoxStyle.DropDownList;
+            comboBox_StudyYearProfessor.FormattingEnabled = true;
+            comboBox_StudyYearProfessor.Location = new Point(79, 139);
+            comboBox_StudyYearProfessor.Name = "comboBox_StudyYearProfessor";
+            comboBox_StudyYearProfessor.Size = new Size(121, 23);
+            comboBox_StudyYearProfessor.TabIndex = 6;
+            comboBox_StudyYearProfessor.SelectedIndexChanged += comboBox_YearForSubjects_SelectedIndexChanged;
             // 
             // label8
             // 
@@ -467,7 +494,7 @@
             groupBox3.Controls.Add(txtBox_ProffPassword);
             groupBox3.Controls.Add(txtBox_ProffEmail);
             groupBox3.ForeColor = SystemColors.ButtonFace;
-            groupBox3.Location = new Point(230, 293);
+            groupBox3.Location = new Point(231, 428);
             groupBox3.Name = "groupBox3";
             groupBox3.Size = new Size(416, 144);
             groupBox3.TabIndex = 10;
@@ -545,6 +572,7 @@
             // picBox_ProffPhoto
             // 
             picBox_ProffPhoto.BorderStyle = BorderStyle.FixedSingle;
+            picBox_ProffPhoto.Image = (Image)resources.GetObject("picBox_ProffPhoto.Image");
             picBox_ProffPhoto.Location = new Point(6, 222);
             picBox_ProffPhoto.Name = "picBox_ProffPhoto";
             picBox_ProffPhoto.Size = new Size(218, 187);
@@ -573,6 +601,7 @@
             // groupBox2
             // 
             groupBox2.BackColor = Color.Transparent;
+            groupBox2.Controls.Add(btn_ActiveProfessors);
             groupBox2.Controls.Add(label1);
             groupBox2.Controls.Add(btn_LoadProffPhoto);
             groupBox2.Controls.Add(picBox_ProffPhoto);
@@ -585,21 +614,52 @@
             groupBox2.ForeColor = Color.FromArgb(192, 0, 0);
             groupBox2.Location = new Point(761, 3);
             groupBox2.Name = "groupBox2";
-            groupBox2.Size = new Size(653, 478);
+            groupBox2.Size = new Size(653, 578);
             groupBox2.TabIndex = 1;
             groupBox2.TabStop = false;
             groupBox2.Text = "Add Proffesor";
             // 
-            // professorsSubjects1
+            // err_ProfessorSubjectsNotAssigned
             // 
-            professorsSubjects1.BackColor = Color.Black;
-            professorsSubjects1.BackgroundImage = (Image)resources.GetObject("professorsSubjects1.BackgroundImage");
-            professorsSubjects1.BackgroundImageLayout = ImageLayout.Center;
-            professorsSubjects1.BorderStyle = BorderStyle.FixedSingle;
-            professorsSubjects1.Location = new Point(526, 116);
-            professorsSubjects1.Name = "professorsSubjects1";
-            professorsSubjects1.Size = new Size(1018, 426);
-            professorsSubjects1.TabIndex = 2;
+            err_ProfessorSubjectsNotAssigned.ContainerControl = this;
+            // 
+            // err_ProfessorEmailFormat
+            // 
+            err_ProfessorEmailFormat.ContainerControl = this;
+            // 
+            // err_ProfessorPasswordFormat
+            // 
+            err_ProfessorPasswordFormat.ContainerControl = this;
+            // 
+            // btn_ActiveProfessors
+            // 
+            btn_ActiveProfessors.AutoSize = true;
+            btn_ActiveProfessors.BackColor = Color.DimGray;
+            btn_ActiveProfessors.FlatAppearance.BorderSize = 0;
+            btn_ActiveProfessors.FlatStyle = FlatStyle.Flat;
+            btn_ActiveProfessors.ForeColor = SystemColors.ButtonFace;
+            btn_ActiveProfessors.Location = new Point(6, 547);
+            btn_ActiveProfessors.Margin = new Padding(3, 2, 3, 2);
+            btn_ActiveProfessors.Name = "btn_ActiveProfessors";
+            btn_ActiveProfessors.Size = new Size(135, 25);
+            btn_ActiveProfessors.TabIndex = 11;
+            btn_ActiveProfessors.Text = "View Active Professors";
+            btn_ActiveProfessors.UseVisualStyleBackColor = false;
+            // 
+            // btn_ActiveStudents
+            // 
+            btn_ActiveStudents.AutoSize = true;
+            btn_ActiveStudents.BackColor = Color.DimGray;
+            btn_ActiveStudents.FlatAppearance.BorderSize = 0;
+            btn_ActiveStudents.FlatStyle = FlatStyle.Flat;
+            btn_ActiveStudents.ForeColor = SystemColors.ButtonFace;
+            btn_ActiveStudents.Location = new Point(6, 548);
+            btn_ActiveStudents.Margin = new Padding(3, 2, 3, 2);
+            btn_ActiveStudents.Name = "btn_ActiveStudents";
+            btn_ActiveStudents.Size = new Size(127, 25);
+            btn_ActiveStudents.TabIndex = 16;
+            btn_ActiveStudents.Text = "View Active Students";
+            btn_ActiveStudents.UseVisualStyleBackColor = false;
             // 
             // UC_StudentService_ADMIN
             // 
@@ -607,21 +667,21 @@
             AutoScaleMode = AutoScaleMode.Font;
             BackgroundImage = (Image)resources.GetObject("$this.BackgroundImage");
             BackgroundImageLayout = ImageLayout.Stretch;
-            Controls.Add(professorsSubjects1);
             Controls.Add(groupBox2);
             Controls.Add(groupBox1);
             Name = "UC_StudentService_ADMIN";
             Size = new Size(1425, 584);
             Load += StudentService_ADMIN_Load;
             groupBox1.ResumeLayout(false);
+            groupBox1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)picBox_StudentPhoto).EndInit();
             groupBox_LoginInfo.ResumeLayout(false);
             groupBox_LoginInfo.PerformLayout();
             groupBox_StudentData.ResumeLayout(false);
             groupBox_StudentData.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)pictureBox_fitLogo).EndInit();
-            ((System.ComponentModel.ISupportInitialize)err_EmailFormat).EndInit();
-            ((System.ComponentModel.ISupportInitialize)err_PasswordFormat).EndInit();
+            ((System.ComponentModel.ISupportInitialize)err_StudentEmailFormat).EndInit();
+            ((System.ComponentModel.ISupportInitialize)err_StudentPasswordFormat).EndInit();
             ((System.ComponentModel.ISupportInitialize)pictureBox2).EndInit();
             groupBox4.ResumeLayout(false);
             groupBox4.PerformLayout();
@@ -629,6 +689,10 @@
             groupBox3.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)picBox_ProffPhoto).EndInit();
             groupBox2.ResumeLayout(false);
+            groupBox2.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)err_ProfessorSubjectsNotAssigned).EndInit();
+            ((System.ComponentModel.ISupportInitialize)err_ProfessorEmailFormat).EndInit();
+            ((System.ComponentModel.ISupportInitialize)err_ProfessorPasswordFormat).EndInit();
             ResumeLayout(false);
         }
 
@@ -661,8 +725,8 @@
         internal PictureBox pictureBox_fitLogo;
         internal OpenFileDialog openFileDialog_SetStudentPhoto;
         internal OpenFileDialog openFileDialog_SetProffPhoto;
-        internal ErrorProvider err_EmailFormat;
-        internal ErrorProvider err_PasswordFormat;
+        internal ErrorProvider err_StudentEmailFormat;
+        internal ErrorProvider err_StudentPasswordFormat;
         internal GroupBox groupBox2;
         internal Label label1;
         internal Button btn_LoadProffPhoto;
@@ -676,7 +740,6 @@
         internal TextBox txtBox_ProffPassword;
         internal TextBox txtBox_ProffEmail;
         internal GroupBox groupBox4;
-        private Button btn_AssignProfSubjects;
         internal Label label8;
         internal DateTimePicker dtTimePicker_ProffBirthdate;
         internal Label label9;
@@ -684,6 +747,14 @@
         internal TextBox txtBox_ProffSurname;
         internal TextBox txtBox_ProffName;
         internal PictureBox pictureBox2;
-        internal ProfessorsSubjects professorsSubjects1;
+        private ComboBox comboBox_StudyYearProfessor;
+        private CheckedListBox chkListBox_Subjects;
+        internal Label label6;
+        private ErrorProvider err_ProfessorSubjectsNotAssigned;
+        internal ErrorProvider err_ProfessorEmailFormat;
+        internal ErrorProvider err_ProfessorPasswordFormat;
+        private Button btn_ActiveStudents;
+        private Button btn_ActiveProfessors;
+        //internal AssignSubjectsToProfessor professorsSubjects1; // I have excluded this for the time being
     }
 }

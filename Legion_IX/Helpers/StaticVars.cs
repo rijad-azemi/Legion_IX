@@ -33,12 +33,13 @@ namespace Legion_IX.Helpers
     internal abstract class Default_BrowserDirectory
     {
         internal static string? DefaultBrowser { get; set; } = GetDefaultBrowserFrom_SQL();
-        internal static string SQL_DBConnection { get; } = MySQLcustomConnection.myConnection;
+        internal static string SQL_DBConnection { get => MySQLcustomConnection.myConnection; }
 
 
         // Gets the dafault browser from SQL database
         internal static string? GetDefaultBrowserFrom_SQL()
         {
+
             string queryCommand = "SELECT DefaultBrowserPath FROM table_DefaultBrowser LIMIT 1;";
 
             string? defaultBrowserDirectory = null;
@@ -72,7 +73,8 @@ namespace Legion_IX.Helpers
 
             catch (Exception ex)
             {
-                MessageBox.Show("Would you like to add a default browser manually?", ex.Message, MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                //MessageBox.Show("Would you like to add a default browser manually?", ex.Message, MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                MessageBox.Show(ex.Message, ex.Message, MessageBoxButtons.YesNo, MessageBoxIcon.Question);
             }
 
             return defaultBrowserDirectory;
@@ -127,7 +129,7 @@ namespace Legion_IX.Helpers
 
     internal abstract class Default_WinRAR_Directory
     {
-        internal static string? WinRAR_Directory { get; set; } = GetWinRAR_dir_From_SQL();
+        internal static string? WinRAR_Directory { get => GetWinRAR_dir_From_SQL(); set { } }
         
 
         // Gets WinRAR directory from SQL database

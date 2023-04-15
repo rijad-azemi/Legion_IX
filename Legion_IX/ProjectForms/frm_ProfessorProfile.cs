@@ -46,11 +46,31 @@ namespace Legion_IX.ProjectForms
 
         private void frm_ProfessorProfile_Load(object sender, EventArgs e)
         {
+            btn_Documents.Hide();
+            btn_DownloadedDocs.Hide();
+            btn_ProfileSettings.Hide();
+
+            professorData1.GetDataFrom_frmProfessorProfile();
+
             // Setting size and location to all `User Controls`
             SetLocationSizeToAll_UC();
 
             // Calling the method to detect and display Network change
             NetworkAvailability_frmProfessorProfile(sender, e);
+
+            ShowCurrent_UserControl();
+        }
+
+
+        // Shows current(professor1) UserControl
+        private void ShowCurrent_UserControl()
+        {
+            // Assigning current button, open Control and showing it
+            currentButton = btn_Profile;
+            UC_Clicked();
+
+            currentOpen = professorData1;
+            currentOpen.Show();
         }
 
 
@@ -66,7 +86,7 @@ namespace Legion_IX.ProjectForms
         // Set size and location to all `User Controls`
         private void SetLocationSizeToAll_UC()
         {
-            SetUserControlSizeAndLocation(userControlProf1);
+            SetUserControlSizeAndLocation(professorData1);
         }
 
 
@@ -94,5 +114,50 @@ namespace Legion_IX.ProjectForms
 
         }
 
+
+        // Profile button event
+        private void btn_Profile_Click(object sender, EventArgs e)
+        {
+            if (currentButton.Name != btn_Profile.Name)
+            {
+                UC_Unclicked();
+
+                // Hiding current UserControl
+                currentOpen.Hide();
+
+                // Assigning appropriate UC to `currentOpen` and showing it
+                currentOpen = professorData1;
+                currentOpen.Show();
+
+                // Assigning this button as current
+                currentButton = btn_Profile;
+
+                UC_Clicked();
+            }
+        }
+
+
+        // Changes `currentButton` clicked BackColor and ForeColor when Clicked
+        private void UC_Clicked()
+        {
+            currentButton.BackColor = Color.White;
+            currentButton.ForeColor = Color.Black;
+        }
+
+
+        // Changes `currentButton` clicked BackColor and ForeColor Unclicked (hilarious, I know)
+        private void UC_Unclicked() // The name is hilarious, I know...
+        {
+            currentButton.BackColor = Color.DimGray;
+            currentButton.ForeColor = Color.White;
+        }
+
+
+        private void button_LogOut_Click(object sender, EventArgs e)
+        {
+            this.DialogResult = DialogResult.OK;
+
+            this.Close();
+        }
     }
 }

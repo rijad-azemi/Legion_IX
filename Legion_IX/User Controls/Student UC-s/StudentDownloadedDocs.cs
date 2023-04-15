@@ -79,6 +79,9 @@ namespace Legion_IX.User_Controls
 
         private void GetAvailableDocuments()
         {
+            if (Downloadedfiles != null && Downloadedfiles.Count == 0)
+                Downloadedfiles.Clear();
+
             // Only continues if something an option has been chosen from `comboBox_Subjects`
             if (CheckForChosenSubject())
             {
@@ -115,20 +118,51 @@ namespace Legion_IX.User_Controls
                 if ((dgv_Files.Columns[e.ColumnIndex] as DataGridViewButtonColumn)?.Text == "Open")
                 {
 
-                    AtlasFile selectedPDF_File = (dgv_Files.Rows[e.RowIndex].DataBoundItem as AtlasFile) ?? new AtlasFile();
+                    AtlasFile selected_File = (dgv_Files.Rows[e.RowIndex].DataBoundItem as AtlasFile) ?? new AtlasFile();
 
-                    bool? whatExtensionAmI = GetClickedFileExtension(in selectedPDF_File);
+                    bool? whatExtensionAmI = GetClickedFileExtension(in selected_File);
 
                     if (whatExtensionAmI != null && (bool)whatExtensionAmI)
                     {
-                        OpenPDF_File(in selectedPDF_File);
+                        OpenPDF_File(in selected_File);
                     }
 
                     else if (whatExtensionAmI != null && !(bool)whatExtensionAmI)
                     {
-                        OpenRAR_File(in selectedPDF_File);
+                        OpenRAR_File(in selected_File);
                     }
 
+                }
+
+                else if ((dgv_Files.Columns[e.ColumnIndex] as DataGridViewButtonColumn)?.Text == "Export")
+                {
+                    AtlasFile selected_File = (dgv_Files.Rows[e.RowIndex].DataBoundItem as AtlasFile) ?? new AtlasFile();
+
+                    string whichSQLtable = (GetClickedFileExtension(selected_File) == true)? "PDF" : "RAR";
+
+                    saveFileDialog_ExportDocument.Filter = $"(*{selected_File.FileType})|*{selected_File.FileType}";
+                    saveFileDialog_ExportDocument.FileName = selected_File.NameOfFile;
+
+                    if(saveFileDialog_ExportDocument.ShowDialog() == DialogResult.OK)
+                    {
+
+                        string queryCommand = $"SELECT BinData FROM table_{whichSQLtable}Files WHERE AtlasObjectId = '{selected_File._id.ToString()}'";
+                        byte[] binData;
+
+                        using (SQLiteConnection line = new SQLiteConnection(MySQLcustomConnection.myConnection))
+                        {
+
+                            line.Open();
+
+                            using (SQLiteCommand command = new SQLiteCommand(queryCommand, line))
+                            {
+                                binData = (byte[])(command.ExecuteScalar());
+                            }
+
+                        }
+
+                        File.WriteAllBytes(saveFileDialog_ExportDocument.FileName, binData);
+                    }
                 }
 
             }
@@ -219,21 +253,18 @@ namespace Legion_IX.User_Controls
                 #region I know the code is a mess, but I wanted to practise delegates and lambda functions
                 Action Lambdi = () =>
                 {
-                    this.Invoke(() => lbl_StatusMessage.Text = "You Must Choose a Subject.");
 
                     for (int i = 0; i < 3; i++)
                     {
                         this.Invoke(() =>
                         {
                             comboBox_Subjects.ForeColor = Color.Red;
-                            lbl_StatusMessage.ForeColor = Color.Red;
                         });
 
                         Thread.Sleep(300);
 
                         this.Invoke(() =>
                         {
-                            lbl_StatusMessage.ForeColor = Color.White;
                             comboBox_Subjects.ForeColor = Color.Black;
                         });
 
@@ -241,7 +272,6 @@ namespace Legion_IX.User_Controls
                     }
 
                     this.Invoke(() => comboBox_Subjects.ForeColor = Color.Black);
-                    this.Invoke(() => lbl_StatusMessage.Text = "");
                 };
                 #endregion I know the code is a mess, but I wanted to practise delegates and lambda functions
 

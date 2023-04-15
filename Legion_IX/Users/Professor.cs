@@ -20,6 +20,7 @@ namespace Legion_IX.Users
         internal Image? _Image { get; set; }
         internal string? Password { get; set; }
         internal string Email { get; set; }
+        internal BsonArray Subjects_Teaching { get; set; }
 
         #region Data for Atlas connection
 
@@ -39,10 +40,12 @@ namespace Legion_IX.Users
 
             Password = null;
             Email = "";
+
+            Subjects_Teaching = new BsonArray();
         }
 
 
-        internal Professor(string name, string surname, DateTime? birthdate, Image image, string? password, string email)
+        internal Professor(string name, string surname, DateTime? birthdate, Image image, string? password, string email, BsonArray subjects_teaching)
         {
             Name = name;
             Surname = surname;
@@ -50,6 +53,8 @@ namespace Legion_IX.Users
             _Image = image;
             Password = password;
             Email = email;
+
+            Subjects_Teaching = subjects_teaching;
         }
 
 
@@ -67,7 +72,9 @@ namespace Legion_IX.Users
                     {"email", Email},
                     {"password", Password},
 
-                    {"image", new BsonBinaryData(ImageHelper.FromImageToByte(_Image))}
+                    {"image", new BsonBinaryData(ImageHelper.FromImageToByte(_Image))},
+
+                    {"subjects_teaching", new BsonArray(Subjects_Teaching) }
 
                 };
 
@@ -110,6 +117,8 @@ namespace Legion_IX.Users
             Password = null;
 
             Email = theProfessor.GetValue("email").ToString() ?? "N/A";
+
+            Subjects_Teaching = (BsonArray)theProfessor.GetValue("subjects_teaching");
         }
     }
 }

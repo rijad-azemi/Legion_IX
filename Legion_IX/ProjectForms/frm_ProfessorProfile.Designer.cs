@@ -29,7 +29,7 @@
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(frm_ProfessorProfile));
-            userControlProf1 = new User_Controls.Professor_UC_s.UserControlProf();
+            professorData1 = new User_Controls.Professor_UC_s.ProfessorData();
             txtBox_NetworkStatus = new TextBox();
             button_LogOut = new Button();
             btn_DownloadedDocs = new Button();
@@ -38,12 +38,14 @@
             btn_Documents = new Button();
             SuspendLayout();
             // 
-            // userControlProf1
+            // professorData1
             // 
-            userControlProf1.Location = new Point(215, 26);
-            userControlProf1.Name = "userControlProf1";
-            userControlProf1.Size = new Size(664, 304);
-            userControlProf1.TabIndex = 0;
+            professorData1.BackColor = Color.Transparent;
+            professorData1.BorderStyle = BorderStyle.FixedSingle;
+            professorData1.Location = new Point(215, 26);
+            professorData1.Name = "professorData1";
+            professorData1.Size = new Size(664, 304);
+            professorData1.TabIndex = 0;
             // 
             // txtBox_NetworkStatus
             // 
@@ -68,6 +70,7 @@
             button_LogOut.TabIndex = 10;
             button_LogOut.Text = "Log Out";
             button_LogOut.UseVisualStyleBackColor = false;
+            button_LogOut.Click += button_LogOut_Click;
             // 
             // btn_DownloadedDocs
             // 
@@ -110,6 +113,7 @@
             btn_Profile.TabIndex = 18;
             btn_Profile.Text = "Profile";
             btn_Profile.UseVisualStyleBackColor = false;
+            btn_Profile.Click += btn_Profile_Click;
             // 
             // btn_Documents
             // 
@@ -138,8 +142,9 @@
             Controls.Add(btn_Documents);
             Controls.Add(txtBox_NetworkStatus);
             Controls.Add(button_LogOut);
-            Controls.Add(userControlProf1);
+            Controls.Add(professorData1);
             Name = "frm_ProfessorProfile";
+            StartPosition = FormStartPosition.CenterScreen;
             Text = "frm_ProfessorProfile";
             Load += frm_ProfessorProfile_Load;
             ResumeLayout(false);
@@ -148,7 +153,7 @@
 
         #endregion
 
-        private User_Controls.Professor_UC_s.UserControlProf userControlProf1;
+        private User_Controls.Professor_UC_s.ProfessorData professorData1;
         private TextBox txtBox_NetworkStatus;
         private Button button_LogOut;
         private Button btn_DownloadedDocs;
