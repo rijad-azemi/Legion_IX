@@ -75,9 +75,9 @@ namespace Legion_IX.User_Controls
 
             catch (Exception ex)
             {
-                string expectedMessageIfRegistered = "An item with the same key has already been added. Key: Legion_IX.DB.PDF_File";
+                string expectedMessageIfRegistered = "An item with the same key has already been added. Key: Legion_IX.DataFiles.PDF_File";
 
-                if (ex is System.ArgumentException && ex.Message == expectedMessageIfRegistered)
+                if (ex is System.ArgumentException && (ex as System.ArgumentException).Message == expectedMessageIfRegistered)
                     return;
 
                 MessageBox.Show("Failed!", "Class PDF_File NOT Registered", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
@@ -126,7 +126,7 @@ namespace Legion_IX.User_Controls
 
             catch (Exception ex)
             {
-                string expectedMessageIfRegistered = "An item with the same key has already been added. Key: Legion_IX.DB.RAR_File";
+                string expectedMessageIfRegistered = "An item with the same key has already been added. Key: Legion_IX.DataFiles.RAR_File";
 
                 if (ex is System.ArgumentException && ex.Message == expectedMessageIfRegistered)
                     return;
@@ -356,6 +356,11 @@ namespace Legion_IX.User_Controls
             if (CheckForChosenSubject())
             {
                 // Pipileni for retreiving only `NameOfFile` field from Atlas
+                //   ^^
+                //   ||
+                //   ||
+                // hahahHAHAHAHA
+
                 List<BsonDocument> pipeline = new List<BsonDocument>() // I just want you to remember that you spent more than 10 hours because of this code below. //
                 {
                     new BsonDocument("$project", new BsonDocument
@@ -472,6 +477,7 @@ namespace Legion_IX.User_Controls
         }
 
 
+        // Method that checks whether the clicked cell button was either `Open Preview` or `Download`
         private string? OpenOrDownloadButton(DataGridViewCellEventArgs e)
         {
             if (e?.RowIndex >= 0 && dgv_Files?.Columns[e.ColumnIndex] is DataGridViewButtonColumn)

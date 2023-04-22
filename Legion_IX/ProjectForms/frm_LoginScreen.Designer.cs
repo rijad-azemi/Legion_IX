@@ -126,6 +126,8 @@
             // 
             // err_EmailPassword
             // 
+            err_EmailPassword.BlinkRate = 400;
+            err_EmailPassword.BlinkStyle = ErrorBlinkStyle.NeverBlink;
             err_EmailPassword.ContainerControl = this;
             // 
             // checkBox_ShowPassword
@@ -146,9 +148,9 @@
             lblAccNotFound.BackColor = Color.Transparent;
             lblAccNotFound.Font = new Font("Segoe UI", 11F, FontStyle.Bold, GraphicsUnit.Point);
             lblAccNotFound.ForeColor = Color.Red;
-            lblAccNotFound.Location = new Point(282, 146);
+            lblAccNotFound.Location = new Point(232, 146);
             lblAccNotFound.Name = "lblAccNotFound";
-            lblAccNotFound.Size = new Size(215, 23);
+            lblAccNotFound.Size = new Size(325, 23);
             lblAccNotFound.TabIndex = 7;
             lblAccNotFound.TextAlign = ContentAlignment.MiddleCenter;
             // 

@@ -60,5 +60,11 @@ namespace Legion_IX.ProjectForms
             }
 
         }
+
+
+        private void btn_ViewActiveProfessors_Click(object sender, EventArgs e)
+        {
+            uc_ActiveProfessors1.Show();
+        }
     }
 }

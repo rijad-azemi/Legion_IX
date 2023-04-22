@@ -10,6 +10,7 @@ using MongoDB.Driver;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Configuration;
 using System.Data;
 using System.Data.SQLite;
 using System.Diagnostics;
@@ -38,16 +39,11 @@ namespace Legion_IX
 
             InitializeComponent();
 
+            // Subscribing the `SignalCancellationToken` method in an event of the form closing
             this.FormClosing += SignalCancellationToken;
 
             NetworkListener.NetworkAvailabilityChanged += NetworkAvailability;
 
-        }
-
-
-        private void SignalCancellationToken(object? sender, FormClosingEventArgs e)
-        {
-            RequestCancel.killProccess.Cancel();
         }
 
 
@@ -57,14 +53,23 @@ namespace Legion_IX
         }
 
 
+        // Method that will signal a static, global `CancellationToken` that the form is closing and the `Task` should be cancelled
+        private void SignalCancellationToken(object? sender, FormClosingEventArgs e)
+        {
+            RequestCancel.killProccess.Cancel();
+        }
+
+
         // Button LOGIN click event
         private async void button_Login_Click(object sender, EventArgs e)
         {
-            textBox_email.Text = "rijad.azemi@edu.fit.ba";
-            textBox_password.Text = "rijadazemi2000";
+            /*            textBox_email.Text = "rijad.azemi@edu.fit.ba";
+                        textBox_password.Text = "rijadazemi2000";*/
 
-            /*            textBox_email.Text = "lejla.jazvin@edu.fit.ba";
-                        textBox_password.Text = "lejlajazvin88000";*/
+
+            textBox_email.Text = "lejla.jazvin@edu.fit.ba";
+            textBox_password.Text = "lejlajazvin88000";
+
 
             /*            textBox_email.Text = "denis.music@edu.fit.ba";
                         textBox_password.Text = "denismusic3";*/
@@ -72,6 +77,12 @@ namespace Legion_IX
 
             if (NetworkListener.IsConnectedToNet())
             {
+                if (clicked_LogInAs == null) { Start_ChooseLoginTypeThread(); return; }
+
+                else if (!CheckIfNullOrEmpty()) { Start_InformUserToFillInAllFieldsThread(); return; }
+
+
+
                 // Converts said results to `List<BsonDocument>`
                 IAsyncCursor<BsonDocument> result = await GetMatchesFromAtlas();
 
@@ -80,31 +91,16 @@ namespace Legion_IX
                 // Represents the index of a matching account from the `List<BsonDocument>`
                 int matchAccountIndex = 0; // (Passed by reference because methods `Checkpoint` and `LoginSuccessful` must have it synced)
 
-                // Calls checkpoint to enstablish veracity and displays appropriate message
-                if (matchingAccounts != null && Checkpoint(in matchingAccounts, ref matchAccountIndex))
+                // Calling a method to enstablish veracity and displays appropriate message
+                if (matchingAccounts != null && CheckForMatchingAccounts(in matchingAccounts, ref matchAccountIndex))
                     LoginSuccessful(in matchingAccounts, in matchAccountIndex);
 
-                else if (!CheckIfNullOrEmpty())
-                    lblAccNotFound.Text = "--- Please fill in all fields ---";
-
                 else
-                    lblAccNotFound.Text = "--- Account not found ---";
+                    Start_AccountNotFoundThread();
             }
 
             else
-            {
-                lblAccNotFound.Text = "--- No Internet Access ---";
-
                 Start_InformUserNoInternetThread();
-            }
-
-            #region Checkpoint
-            /*if (Checkpoint(ref matchingAccounts))
-                MessageBox.Show("Login Successful!", "Operation completed successfully!", MessageBoxButtons.OK);
-
-            else
-                MessageBox.Show("Login Failed!", "Operation has failed!", MessageBoxButtons.OK);*/
-            #endregion Checkpoint
         }
 
 
@@ -170,26 +166,27 @@ namespace Legion_IX
         }
 
 
+        // Calls the ServerSideFilter method based on the login type of user
         private async Task<IAsyncCursor<BsonDocument>> AggregateByLogInChoice()
         {
+            AtlasDB connectionToAtlas = new AtlasDB();
+
             switch (chosenLoginType)
             {
-                case LogInAs.Student: return await ServerSideFilter_Student_EmailPassword(textBox_email.Text, textBox_password.Text);
+                case LogInAs.Student: return await ServerSideFilter_Generic(connectionToAtlas, connectionToAtlas.AtlasDB_FacultyPersonell, connectionToAtlas.AtlasCollection_Student, textBox_email.Text, textBox_password.Text);
 
-                case LogInAs.Professor: return await ServerSideFilter_Professor_EmailPassword(textBox_email.Text, textBox_password.Text);
+                case LogInAs.Professor: return await ServerSideFilter_Generic(connectionToAtlas, connectionToAtlas.AtlasDB_FacultyPersonell, connectionToAtlas.AtlasCollection_Professor, textBox_email.Text, textBox_password.Text);
 
-                case LogInAs.StudentService: return await ServerSideFilter_StudentService_EmailPassword(textBox_email.Text, textBox_password.Text);
+                case LogInAs.StudentService: return await ServerSideFilter_Generic(connectionToAtlas, connectionToAtlas.AtlasDB_FacultyPersonell, connectionToAtlas.AtlasCollection_StudentService, textBox_email.Text, textBox_password.Text);
 
                 default: return null;
             }
         }
 
 
-        // Server Side filtering for Student
-        private async Task<IAsyncCursor<BsonDocument>> ServerSideFilter_Student_EmailPassword(string email, string password)
+        // Generic method for filtering the collection based on the login inputs
+        private async Task<IAsyncCursor<BsonDocument>> ServerSideFilter_Generic(AtlasDB connectionToAtlas, string targetDB, string targetCollection, string email, string password)
         {
-            AtlasDB connectionToAtlas = new AtlasDB();
-
             List<BsonDocument> pipeline = new List<BsonDocument>()
             {
                 new BsonDocument("$match", new BsonDocument("email", email)),
@@ -199,52 +196,8 @@ namespace Legion_IX
             // Aggregating the pipeline
             IAsyncCursor<BsonDocument>? foundAccounts = await
                     connectionToAtlas.Client.
-                                        GetDatabase(connectionToAtlas.AtlasDB_FacultyPersonell).
-                                        GetCollection<BsonDocument>(connectionToAtlas.AtlasCollection_Student).
-                                        AggregateAsync<BsonDocument>(pipeline);
-
-            return foundAccounts;
-        }
-
-
-        // Server Side filtering for Professor
-        private async Task<IAsyncCursor<BsonDocument>> ServerSideFilter_Professor_EmailPassword(string email, string password)
-        {
-            AtlasDB connectionToAtlas = new AtlasDB();
-
-            List<BsonDocument> pipeline = new List<BsonDocument>()
-            {
-                new BsonDocument("$match", new BsonDocument("email", email)),
-                new BsonDocument("$match", new BsonDocument("password", password))
-            };
-
-            // Aggregating the pipeline
-            IAsyncCursor<BsonDocument>? foundAccounts = await
-                connectionToAtlas.Client.
-                                        GetDatabase(connectionToAtlas.AtlasDB_FacultyPersonell).
-                                        GetCollection<BsonDocument>(connectionToAtlas.AtlasCollection_Professor).
-                                        AggregateAsync<BsonDocument>(pipeline);
-
-            return foundAccounts;
-        }
-
-
-        // Server Side filtering for Professor
-        private async Task<IAsyncCursor<BsonDocument>> ServerSideFilter_StudentService_EmailPassword(string email, string password)
-        {
-            AtlasDB connectionToAtlas = new AtlasDB();
-
-            List<BsonDocument> pipeline = new List<BsonDocument>()
-            {
-                new BsonDocument("$match", new BsonDocument("email", email)),
-                new BsonDocument("$match", new BsonDocument("password", password))
-            };
-
-            // Aggregating the pipeline
-            IAsyncCursor<BsonDocument>? foundAccounts = await
-                connectionToAtlas.Client.
-                                        GetDatabase(connectionToAtlas.AtlasDB_FacultyPersonell).
-                                        GetCollection<BsonDocument>(connectionToAtlas.AtlasCollection_StudentService).
+                                        GetDatabase(targetDB).
+                                        GetCollection<BsonDocument>(targetCollection).
                                         AggregateAsync<BsonDocument>(pipeline);
 
             return foundAccounts;
@@ -252,14 +205,14 @@ namespace Legion_IX
 
 
         // Checks for mattching accounts in Atlas based on login indo provided
-        private bool Checkpoint(in List<BsonDocument> Accounts, ref int index)
+        private bool CheckForMatchingAccounts(in List<BsonDocument> Accounts, ref int index)
         {
+            // If only one account is found, it is automatically the correct one, so no need to itterate true
+            if (Accounts.Count == 1) return true;
+
             // If `Accounts.Count` is higher or equal to 1, means `ServerSideFilter_EmailPassword()` returned matching account
             if (Accounts.Count >= 1)
             {
-
-                // Could have added another if statement to return true immediately if one document is detected; Would make code more...
-                // unredable, so won't implement
 
                 // `Accounts` might hold more than one document, so iterating to check 
                 for (int i = 0; i < Accounts.Count; i++)
@@ -275,6 +228,7 @@ namespace Legion_IX
 
                 // Returns `false` if none are found
                 return false;
+
             }
 
             // Returns `false` if `ServerSideFilter_EmailPassword()` found no matches
@@ -497,74 +451,102 @@ namespace Legion_IX
         {
             if (loggedOut)
             {
-                lblAccNotFound.Text = "--- You have logged out ---";
-                int blinkTimes = 3;
+                string displayMessage = "--- You have logged out ---";
+                int blinkTimes = 4;
 
-                CancellationTokenSource requestCancellation = new CancellationTokenSource();
-                CancellationToken token = requestCancellation.Token;
+                Color firstBlink = Color.White;
+                Color secondBlink = Color.Green;
 
-                Thread blinker = new Thread(new ThreadStart(() => displayLogoutMessage(blinkTimes, token)));
+                Thread blinker = new Thread(new ThreadStart(() => BlinkingMessage_Generic(displayMessage, blinkTimes, firstBlink, secondBlink)));
                 blinker.Start();
             }
         }
 
 
-        // Gets called when logging out and displays a blinking message informing the user
-        public void displayLogoutMessage(int blinkTimes, CancellationToken killProccessToken) // Test the following idea, make the method STATIC!
-        {
-            for (int i = 0; i < blinkTimes; i++)
-            {
-
-                if (RequestCancel.killProccess.IsCancellationRequested)
-                    return;
-
-                lblAccNotFound.ForeColor = Color.Green;
-                Thread.Sleep(400);
-
-                lblAccNotFound.ForeColor = Color.White;
-                Thread.Sleep(400);
-
-            }
-
-
-            lblAccNotFound.ForeColor = Color.White;
-
-            //if (!this.IsDisposed)
-
-
-            // Invoking action for a control on it's original created thread to prevent cross threading exception
-            this.Invoke((Action)(() => lblAccNotFound.Text = ""));
-        }
-
-
-        // Creates and starts a thread for blinking No internet message
+        // Creates and starts a thread for blinking `No internet` message
         private void Start_InformUserNoInternetThread()
         {
+            string displayMessage = "--- No internet connection ---";
             int blinkTimes = 4;
 
-            Thread blinkNoInternet_Message = new Thread(new ThreadStart(() => InformUserNoInternet(blinkTimes)));
+            Color firstBlink = Color.Red;
+            Color secondBlink = Color.White;
+
+            Thread blinkNoInternet_Message = new Thread(new ThreadStart(() => BlinkingMessage_Generic(displayMessage, blinkTimes, firstBlink, secondBlink)));
+            blinkNoInternet_Message.Start();
         }
 
 
-        // Blinking message informing User that access to the internet has ceased
-        public void InformUserNoInternet(int blinkTimes)
+        // Creates and starts a thread for blinking `Fill in all fields` message
+        private void Start_InformUserToFillInAllFieldsThread()
         {
+            string displayMessage = "--- Please fill in all fields ---";
+            int blinkTimes = 4;
+
+            Color firstBlink = Color.Red;
+            Color secondBlink = Color.White;
+
+            Thread blinkFillAllFieldsMessage = new Thread(new ThreadStart(() => BlinkingMessage_Generic(displayMessage, blinkTimes, firstBlink, secondBlink)));
+            blinkFillAllFieldsMessage.Start();
+        }
+
+
+        // Creates and starts a thread for blinking `Account not found` message
+        private void Start_AccountNotFoundThread()
+        {
+            string displayMessage = "--- Account not found ---";
+            int blinkTimes = 4;
+
+            Color firstBlink = Color.Yellow;
+            Color secondBlink = Color.White;
+
+            Thread blinkAccountNotFound_Message = new Thread(new ThreadStart(() => BlinkingMessage_Generic(displayMessage, blinkTimes, firstBlink, secondBlink)));
+            blinkAccountNotFound_Message.Start();
+        }
+
+
+        // Creates and starts a thread for blinking `Choose login type` message
+        private void Start_ChooseLoginTypeThread()
+        {
+            string displayMessage = "--- Please choose a login type ---";
+            int blinkTimes = 4;
+
+            Color firstBlink = Color.Yellow;
+            Color secondBlink = Color.White;
+
+            Thread blinkChooseLoginType_Message = new Thread(new ThreadStart(() => BlinkingMessage_Generic(displayMessage, blinkTimes, firstBlink, secondBlink)));
+            blinkChooseLoginType_Message.Start();
+        }
+
+
+        // Generic method for blinking a message
+        private void BlinkingMessage_Generic(string message, int blinkTimes, Color firstBlink, Color secondBlink)
+        {
+            this.Invoke(new Action(() => { lblAccNotFound.Text = message; }));
+
             for (int i = 0; i < blinkTimes; i++)
             {
 
-                if (RequestCancel.killProccess.IsCancellationRequested)
-                    return;
+                if (RequestCancel.killProccess.IsCancellationRequested) return;
 
-                lblAccNotFound.ForeColor = Color.Red;
+                lblAccNotFound.ForeColor = firstBlink;
                 Thread.Sleep(400);
 
-                lblAccNotFound.ForeColor = Color.White;
+                if (RequestCancel.killProccess.IsCancellationRequested) return;
+
+                lblAccNotFound.ForeColor = secondBlink;
                 Thread.Sleep(400);
+
+                if (RequestCancel.killProccess.IsCancellationRequested) return;
+
             }
-            lblAccNotFound.ForeColor = Color.White;
 
-            // Invoking action for a control on it's original created thread to prevent cross threading exception
-            this.Invoke((Action)(() => lblAccNotFound.Text = ""));
+            if (!RequestCancel.killProccess.IsCancellationRequested)
+                lblAccNotFound.ForeColor = Color.White;
+
+            if (!RequestCancel.killProccess.IsCancellationRequested)
+                // Invoking action for a control on it's original created thread to prevent cross threading exception
+                this.Invoke((Action)(() => lblAccNotFound.Text = ""));
         }
 
 
@@ -576,14 +558,14 @@ namespace Legion_IX
         }
 
 
-        // Reference to clicked buttons
-        private Button? clicked_LogInAs = null;
+        private Button? clicked_LogInAs = null; /* Reference to clicked buttons */
+
 
         // Button Login Student option
         private void btn_LogAsStudent_Click(object sender, EventArgs e)
         {
 
-            if(clicked_LogInAs == null || clicked_LogInAs.Name != btn_LogAsStudent.Name)
+            if (clicked_LogInAs == null || clicked_LogInAs.Name != btn_LogAsStudent.Name)
             {
 
                 ShowUnclicked();
@@ -631,18 +613,19 @@ namespace Legion_IX
 
             }
 
-            else if(clicked_LogInAs.Name == btn_LogAsStudentService.Name)
+            else if (clicked_LogInAs.Name == btn_LogAsStudentService.Name)
                 ShowClicked(in this.btn_LogAsStudentService, e);
 
         }
 
 
+        // Changes the appearance of the button to show taht it is clicked
         private void ShowClicked(in Button sender, EventArgs e)
         {
 
-            if(clicked_LogInAs != null && clicked_LogInAs.Name == sender.Name)
+            if (clicked_LogInAs != null && clicked_LogInAs.Name == sender.Name)
             {
-                
+
                 clicked_LogInAs.BackgroundImage = (Image)resources.GetObject("btn_LogAsStudent.BackgroundImage");
 
                 clicked_LogInAs.BackColor = Color.DimGray;
@@ -658,17 +641,18 @@ namespace Legion_IX
             clicked_LogInAs = sender;
 
             clicked_LogInAs.BackgroundImage = null;
-            
+
             clicked_LogInAs.ForeColor = Color.Black;
             clicked_LogInAs.BackColor = Color.White;
         }
 
 
+        // Changes the appearance of the button to show that it is unclicked
         System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(frm_LoginScreen));
         private void ShowUnclicked()
         {
 
-            if(clicked_LogInAs  != null)
+            if (clicked_LogInAs != null)
             {
 
                 clicked_LogInAs.BackgroundImage = (Image)resources.GetObject("btn_LogAsStudent.BackgroundImage");
@@ -682,75 +666,3 @@ namespace Legion_IX
     }
 
 }
-
-#region commentedCode
-/*TO hell with this
-//            var pipeline = new BsonArray
-//{
-//    BsonDocument.Parse("{ $match: { email: 'sead.azemi@edu.fit.ba', password: 'undp123' } }")
-//};
-
-
-//var pipeline = new BsonDocument[]
-//{
-//    new BsonDocument("$match",
-//    new BsonDocument
-//{
-//        {"email", "sead.azemi@edu.fit.ba"},
-//        {"password", "undp123"}
-//}
-//    )
-//};
-
-//var pipline2 = BsonArray
-
-//            new BsonArray
-//{
-//    new BsonDocument("$match",
-//    new BsonDocument("email", "sead.azemi@edu.fit.ba"))
-//};
-
-//var matchStage = BsonDocument.Parse
-//    (
-//    @"{ $match: { email: {$eq: 'sead.azemi@edu.fit.ba'}, password: {$eq: 'undp123' } } }"
-//    );
-//var pipeline = PipelineDefinitionBuilder<BsonDocument, BsonDocument>.Create(matchStage)
-
-//var foundAccount = await filterTest.Client.GetDatabase(database).GetCollection<BsonDocument>(collection).AggregateAsync<BsonDocument>(pipeline);
-
-//txtBox_DisplayDocument.Text = foundAccount.ToString();
-
-
-var pipeline = new BsonDocument[]
-{
-new BsonDocument("$match",
-new BsonDocument
-{
-{"email", "sead.azemi@edu.fit.ba"},
-{"password", "undp123"}
-})
-};
-            //if (firstDocument != null)
-//{
-//    foreach (var field in firstDocument.ToJson()) 
-//    {
-//        txtBox_DisplayDocument.Text += field.ToString();
-//    }
-//}
-
-            //var studyYear = firstDocument.GetValue("studyYear");
-//var revised = firstDocument.GetValue("revised");
-//var index = firstDocument.GetValue("index");
-//txtBox_DisplayDocument.Text = $"{studyYear+Environment.NewLine+revised+Environment.NewLine+index}";
-
-            //var firstDocument = await foundAccount.FirstOrDefaultAsync();
-
-//if (textBox_email.Text == firstDocument.GetValue("email")
-//    && textBox_password.Text == firstDocument.GetValue("password"))
-//{
-//    MessageBox.Show("Login Successful", "Success!", MessageBoxButtons.OK);
-//}
-//else
-//    MessageBox.Show("Account not found!", "Failed", MessageBoxButtons.OK);
-*/
-#endregion commentedCode

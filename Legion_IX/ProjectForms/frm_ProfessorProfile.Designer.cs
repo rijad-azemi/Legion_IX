@@ -36,6 +36,7 @@
             btn_ProfileSettings = new Button();
             btn_Profile = new Button();
             btn_Documents = new Button();
+            professorDocuments1 = new User_Controls.Professor_UC_s.ProfessorDocuments();
             SuspendLayout();
             // 
             // professorData1
@@ -128,6 +129,16 @@
             btn_Documents.TabIndex = 17;
             btn_Documents.Text = "Documents";
             btn_Documents.UseVisualStyleBackColor = false;
+            btn_Documents.Click += btn_Documents_Click;
+            // 
+            // professorDocuments1
+            // 
+            professorDocuments1.BackColor = Color.Transparent;
+            professorDocuments1.BorderStyle = BorderStyle.FixedSingle;
+            professorDocuments1.Location = new Point(192, 28);
+            professorDocuments1.Name = "professorDocuments1";
+            professorDocuments1.Size = new Size(652, 468);
+            professorDocuments1.TabIndex = 21;
             // 
             // frm_ProfessorProfile
             // 
@@ -136,6 +147,7 @@
             BackgroundImage = (Image)resources.GetObject("$this.BackgroundImage");
             BackgroundImageLayout = ImageLayout.Stretch;
             ClientSize = new Size(900, 535);
+            Controls.Add(professorDocuments1);
             Controls.Add(btn_DownloadedDocs);
             Controls.Add(btn_ProfileSettings);
             Controls.Add(btn_Profile);
@@ -160,5 +172,6 @@
         private Button btn_ProfileSettings;
         private Button btn_Profile;
         private Button btn_Documents;
+        private User_Controls.Professor_UC_s.ProfessorDocuments professorDocuments1;
     }
 }

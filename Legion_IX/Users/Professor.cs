@@ -13,7 +13,10 @@ namespace Legion_IX.Users
     internal class Professor
     {
         internal const bool Admin = true;
+        internal bool Active { get; set; } = true;
+        internal bool LoggedIn { get; set; }
 
+        internal ObjectId _id { get; set; }
         internal string Name { get; set; }
         internal string Surname { get; set; }
         internal DateTime? Birthdate { get; set; }
@@ -21,6 +24,7 @@ namespace Legion_IX.Users
         internal string? Password { get; set; }
         internal string Email { get; set; }
         internal BsonArray Subjects_Teaching { get; set; }
+        //internal List<string?> Subjects_Teaching { get; set; }
 
         #region Data for Atlas connection
 
@@ -40,8 +44,6 @@ namespace Legion_IX.Users
 
             Password = null;
             Email = "";
-
-            Subjects_Teaching = new BsonArray();
         }
 
 
@@ -54,7 +56,7 @@ namespace Legion_IX.Users
             Password = password;
             Email = email;
 
-            Subjects_Teaching = subjects_teaching;
+            Subjects_Teaching = new BsonArray(subjects_teaching);
         }
 
 
@@ -73,6 +75,8 @@ namespace Legion_IX.Users
                     {"password", Password},
 
                     {"image", new BsonBinaryData(ImageHelper.FromImageToByte(_Image))},
+
+                    {"active", Active },
 
                     {"subjects_teaching", new BsonArray(Subjects_Teaching) }
 
@@ -106,6 +110,7 @@ namespace Legion_IX.Users
         // Gets the data for Professor from BsonDocument
         internal void GetProfessorFromBson(in BsonDocument theProfessor)
         {
+
             Name = theProfessor.GetValue("name").ToString() ?? "N/A";
 
             Surname = theProfessor.GetValue("surname").ToString() ?? "N/A";
@@ -118,7 +123,12 @@ namespace Legion_IX.Users
 
             Email = theProfessor.GetValue("email").ToString() ?? "N/A";
 
-            Subjects_Teaching = (BsonArray)theProfessor.GetValue("subjects_teaching");
+            //Subjects_Teaching = (BsonArray)theProfessor.GetValue("subjects_teaching");
+
+            Subjects_Teaching = new BsonArray((BsonArray)theProfessor.GetValue("subjects_teaching"));
+
+            //  The line of code I wrote below is really cool in a way so I'll just keep it. `Subjects_Teaching` was `List<string>` once.
+            //  ?.AsQueryable().Select(element => element.ToString()).ToList() ?? new List<string?>();
         }
     }
 }

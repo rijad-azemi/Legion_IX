@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.Drawing.Design;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -44,12 +45,14 @@ namespace Legion_IX.ProjectForms
         }
 
 
+        // Form load event
         private void frm_ProfessorProfile_Load(object sender, EventArgs e)
         {
-            btn_Documents.Hide();
+            //btn_Documents.Hide();
             btn_DownloadedDocs.Hide();
             btn_ProfileSettings.Hide();
 
+            // Getting data from `frmProfessorProfile` and passing it to `ProfessorData` UserControl
             professorData1.GetDataFrom_frmProfessorProfile();
 
             // Setting size and location to all `User Controls`
@@ -74,19 +77,20 @@ namespace Legion_IX.ProjectForms
         }
 
 
+        // Set size and location to all `User Controls`
+        private void SetLocationSizeToAll_UC()
+        {
+            SetUserControlSizeAndLocation(professorData1);
+            SetUserControlSizeAndLocation(professorDocuments1);
+        }
+
+
         // User Control location and size
         private void SetUserControlSizeAndLocation(UserControl uc)
         {
             uc.Width = Width;
             uc.Height = Height;
             uc.Location = new Point(X_Axis, Y_Axis);
-        }
-
-
-        // Set size and location to all `User Controls`
-        private void SetLocationSizeToAll_UC()
-        {
-            SetUserControlSizeAndLocation(professorData1);
         }
 
 
@@ -137,6 +141,26 @@ namespace Legion_IX.ProjectForms
         }
 
 
+        // Documents button event
+        private void btn_Documents_Click(object sender, EventArgs e)
+        {
+            if(currentButton.Name != btn_Documents.Name)
+            {
+                UC_Unclicked();
+
+                // Hiding current UserControl
+                currentOpen.Hide();
+
+                // Assigning appropriate UC to `currentOpen` and showing it
+                currentOpen = professorDocuments1;
+                currentOpen.Show();
+
+                // Assigning this button as current
+                currentButton = btn_Documents;
+            }
+        }
+
+
         // Changes `currentButton` clicked BackColor and ForeColor when Clicked
         private void UC_Clicked()
         {
@@ -159,5 +183,6 @@ namespace Legion_IX.ProjectForms
 
             this.Close();
         }
+
     }
 }
