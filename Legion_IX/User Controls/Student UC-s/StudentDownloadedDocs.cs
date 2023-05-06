@@ -1,4 +1,5 @@
 ﻿using Azure;
+using Legion_IX.DataFiles;
 using Legion_IX.DB;
 using Legion_IX.Helpers;
 using Microsoft.AspNetCore.Http;
@@ -241,7 +242,9 @@ namespace Legion_IX.User_Controls
         private void LoadToDataGridView()
         {
             dgv_Files.DataSource = null;
-            dgv_Files.DataSource = Downloadedfiles;
+
+            if (Downloadedfiles.Count > 0)
+                dgv_Files.DataSource = Downloadedfiles;
         }
 
 

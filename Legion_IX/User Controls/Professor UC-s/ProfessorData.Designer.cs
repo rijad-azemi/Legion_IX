@@ -29,6 +29,7 @@
         private void InitializeComponent()
         {
             groupBox_uc_ProfessorInfo = new GroupBox();
+            lbl_SubjectsTeaching = new Label();
             lbl_uc_Line = new Label();
             txtBox_uc_Email = new TextBox();
             lblEmail = new Label();
@@ -39,8 +40,7 @@
             lbl_Name = new Label();
             lbl_Birthdate = new Label();
             lbl_Surname = new Label();
-            listBox_SubjectsTeaching = new ListBox();
-            lbl_SubjectsTeaching = new Label();
+            listBox_ProfessorSubjects = new ListBox();
             groupBox_uc_ProfessorInfo.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)picBox_uc_ProfessorPhoto).BeginInit();
             SuspendLayout();
@@ -48,8 +48,8 @@
             // groupBox_uc_ProfessorInfo
             // 
             groupBox_uc_ProfessorInfo.BackColor = Color.Transparent;
+            groupBox_uc_ProfessorInfo.Controls.Add(listBox_ProfessorSubjects);
             groupBox_uc_ProfessorInfo.Controls.Add(lbl_SubjectsTeaching);
-            groupBox_uc_ProfessorInfo.Controls.Add(listBox_SubjectsTeaching);
             groupBox_uc_ProfessorInfo.Controls.Add(lbl_uc_Line);
             groupBox_uc_ProfessorInfo.Controls.Add(txtBox_uc_Email);
             groupBox_uc_ProfessorInfo.Controls.Add(lblEmail);
@@ -67,6 +67,18 @@
             groupBox_uc_ProfessorInfo.TabIndex = 7;
             groupBox_uc_ProfessorInfo.TabStop = false;
             groupBox_uc_ProfessorInfo.Text = "Student Information";
+            // 
+            // lbl_SubjectsTeaching
+            // 
+            lbl_SubjectsTeaching.AutoSize = true;
+            lbl_SubjectsTeaching.BackColor = Color.Transparent;
+            lbl_SubjectsTeaching.Font = new Font("Segoe UI", 12F, FontStyle.Regular, GraphicsUnit.Point);
+            lbl_SubjectsTeaching.ForeColor = SystemColors.Control;
+            lbl_SubjectsTeaching.Location = new Point(246, 176);
+            lbl_SubjectsTeaching.Name = "lbl_SubjectsTeaching";
+            lbl_SubjectsTeaching.Size = new Size(105, 21);
+            lbl_SubjectsTeaching.TabIndex = 17;
+            lbl_SubjectsTeaching.Text = "Your subjects:";
             // 
             // lbl_uc_Line
             // 
@@ -174,35 +186,23 @@
             lbl_Surname.TabIndex = 2;
             lbl_Surname.Text = "Surname:";
             // 
-            // listBox_SubjectsTeaching
+            // listBox_ProfessorSubjects
             // 
-            listBox_SubjectsTeaching.FormattingEnabled = true;
-            listBox_SubjectsTeaching.ItemHeight = 15;
-            listBox_SubjectsTeaching.Location = new Point(357, 176);
-            listBox_SubjectsTeaching.Name = "listBox_SubjectsTeaching";
-            listBox_SubjectsTeaching.Size = new Size(190, 124);
-            listBox_SubjectsTeaching.TabIndex = 16;
+            listBox_ProfessorSubjects.FormattingEnabled = true;
+            listBox_ProfessorSubjects.ItemHeight = 15;
+            listBox_ProfessorSubjects.Location = new Point(357, 176);
+            listBox_ProfessorSubjects.Name = "listBox_ProfessorSubjects";
+            listBox_ProfessorSubjects.Size = new Size(132, 109);
+            listBox_ProfessorSubjects.TabIndex = 18;
             // 
-            // lbl_SubjectsTeaching
-            // 
-            lbl_SubjectsTeaching.AutoSize = true;
-            lbl_SubjectsTeaching.BackColor = Color.Transparent;
-            lbl_SubjectsTeaching.Font = new Font("Segoe UI", 12F, FontStyle.Regular, GraphicsUnit.Point);
-            lbl_SubjectsTeaching.ForeColor = SystemColors.Control;
-            lbl_SubjectsTeaching.Location = new Point(246, 176);
-            lbl_SubjectsTeaching.Name = "lbl_SubjectsTeaching";
-            lbl_SubjectsTeaching.Size = new Size(105, 21);
-            lbl_SubjectsTeaching.TabIndex = 17;
-            lbl_SubjectsTeaching.Text = "Your subjects:";
-            // 
-            // UserControlProf
+            // ProfessorData
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.Transparent;
             BorderStyle = BorderStyle.FixedSingle;
             Controls.Add(groupBox_uc_ProfessorInfo);
-            Name = "UserControlProf";
+            Name = "ProfessorData";
             Size = new Size(654, 470);
             Load += UserControlProf_Load;
             groupBox_uc_ProfessorInfo.ResumeLayout(false);
@@ -224,7 +224,7 @@
         private Label lbl_Name;
         private Label lbl_Birthdate;
         private Label lbl_Surname;
-        private ListBox listBox_SubjectsTeaching;
         private Label lbl_SubjectsTeaching;
+        private ListBox listBox_ProfessorSubjects;
     }
 }

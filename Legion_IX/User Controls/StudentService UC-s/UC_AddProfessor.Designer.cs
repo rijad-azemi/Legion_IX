@@ -103,6 +103,7 @@
             btn_LoadProffPhoto.TabIndex = 14;
             btn_LoadProffPhoto.Text = "LoadPhoto";
             btn_LoadProffPhoto.UseVisualStyleBackColor = true;
+            btn_LoadProffPhoto.Click += btn_LoadProffPhoto_Click;
             // 
             // picBox_ProffPhoto
             // 
@@ -118,7 +119,7 @@
             // label3
             // 
             label3.Font = new Font("Lucida Fax", 12F, FontStyle.Bold, GraphicsUnit.Point);
-            label3.ForeColor = SystemColors.ActiveCaptionText;
+            label3.ForeColor = Color.White;
             label3.Location = new Point(188, 22);
             label3.Name = "label3";
             label3.Size = new Size(482, 84);
@@ -168,7 +169,7 @@
             // label4
             // 
             label4.AutoSize = true;
-            label4.ForeColor = SystemColors.ActiveCaptionText;
+            label4.ForeColor = Color.White;
             label4.Location = new Point(12, 54);
             label4.Name = "label4";
             label4.Size = new Size(60, 15);
@@ -178,7 +179,7 @@
             // label5
             // 
             label5.AutoSize = true;
-            label5.ForeColor = SystemColors.ActiveCaptionText;
+            label5.ForeColor = Color.White;
             label5.Location = new Point(33, 25);
             label5.Name = "label5";
             label5.Size = new Size(39, 15);

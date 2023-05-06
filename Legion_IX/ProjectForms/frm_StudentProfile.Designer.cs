@@ -183,6 +183,7 @@ namespace Legion_IX
             Controls.Add(studentDownloadedDocs1);
             Name = "frm_StudentProfile";
             StartPosition = FormStartPosition.CenterScreen;
+            Text = "Student Profile";
             Load += frmStudentProfile_Load;
             ResumeLayout(false);
             PerformLayout();

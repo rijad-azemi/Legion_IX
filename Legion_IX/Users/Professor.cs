@@ -2,7 +2,9 @@
 using Legion_IX.Helpers;
 using MongoDB.Bson;
 using MongoDB.Driver;
+using Newtonsoft.Json;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -14,7 +16,7 @@ namespace Legion_IX.Users
     {
         internal const bool Admin = true;
         internal bool Active { get; set; } = true;
-        internal bool LoggedIn { get; set; }
+        internal bool LoggedIn { get; set; } = false;
 
         internal ObjectId _id { get; set; }
         internal string Name { get; set; }
@@ -23,8 +25,7 @@ namespace Legion_IX.Users
         internal Image? _Image { get; set; }
         internal string? Password { get; set; }
         internal string Email { get; set; }
-        internal BsonArray Subjects_Teaching { get; set; }
-        //internal List<string?> Subjects_Teaching { get; set; }
+        public Dictionary<string, List<string>> SubjectsTeaching { get; set; }
 
         #region Data for Atlas connection
 
@@ -36,6 +37,7 @@ namespace Legion_IX.Users
         #endregion Data for Atlas connection
 
 
+        // Default Constructor
         internal Professor()
         {
             Name = "";
@@ -44,10 +46,13 @@ namespace Legion_IX.Users
 
             Password = null;
             Email = "";
+
+            SubjectsTeaching = new Dictionary<string, List<string>>();
         }
 
 
-        internal Professor(string name, string surname, DateTime? birthdate, Image image, string? password, string email, BsonArray subjects_teaching)
+        // UserDefined Constructor
+        internal Professor(string name, string surname, DateTime? birthdate, Image image, string? password, string email, Dictionary<string, List<string>> subjectsTeaching)
         {
             Name = name;
             Surname = surname;
@@ -56,10 +61,11 @@ namespace Legion_IX.Users
             Password = password;
             Email = email;
 
-            Subjects_Teaching = new BsonArray(subjects_teaching);
+            SubjectsTeaching = subjectsTeaching;
         }
 
 
+        // Accessed by an instance of Professor class, creates a BsonDocument and uploads the said document to Atlas
         internal bool CreateAndUpload()
         {
             // TRY
@@ -78,7 +84,9 @@ namespace Legion_IX.Users
 
                     {"active", Active },
 
-                    {"subjects_teaching", new BsonArray(Subjects_Teaching) }
+                    {"loggedIn", LoggedIn },
+
+                    {"subjects_teaching", Get_SubjectsAsBsonArray() /* Returns a BsonArray converted from a Dictionary<string, List<strin>> */ }
 
                 };
 
@@ -110,6 +118,7 @@ namespace Legion_IX.Users
         // Gets the data for Professor from BsonDocument
         internal void GetProfessorFromBson(in BsonDocument theProfessor)
         {
+            _id = (ObjectId)theProfessor.GetValue("_id");
 
             Name = theProfessor.GetValue("name").ToString() ?? "N/A";
 
@@ -123,12 +132,88 @@ namespace Legion_IX.Users
 
             Email = theProfessor.GetValue("email").ToString() ?? "N/A";
 
-            //Subjects_Teaching = (BsonArray)theProfessor.GetValue("subjects_teaching");
+            BsonArray _BsonArraySubjects= new BsonArray((BsonArray)theProfessor.GetValue("subjects_teaching"));
+            SubjectsTeaching = Get_SubjectsFromBsonArray(_BsonArraySubjects);
 
-            Subjects_Teaching = new BsonArray((BsonArray)theProfessor.GetValue("subjects_teaching"));
+            Active = (bool)theProfessor.GetValue("active");
 
             //  The line of code I wrote below is really cool in a way so I'll just keep it. `Subjects_Teaching` was `List<string>` once.
-            //  ?.AsQueryable().Select(element => element.ToString()).ToList() ?? new List<string?>();
+                            //  ?.AsQueryable().Select(element => element.ToString()).ToList() ?? new List<string?>();  //
+        }
+
+
+        internal Dictionary<string, List<string>> Get_SubjectsFromBsonArray(in BsonArray _BsonArraySubjects)
+        {
+            Dictionary<string, List<string>> dictionary = new Dictionary<string, List<string>>();
+
+            for (int i = 0; i < _BsonArraySubjects.Count; i++)
+            {
+
+                if (_BsonArraySubjects[i] is BsonString)
+                    dictionary.Add((string)_BsonArraySubjects[i], new List<string>());
+
+                else if (_BsonArraySubjects[i] is BsonArray)
+                {
+
+                    for (int j = 0; j < (_BsonArraySubjects[i] as BsonArray).Count; j++)
+                        dictionary[dictionary.Last().Key].Add((string)_BsonArraySubjects[i][j]);
+
+                }
+
+            }
+
+            return dictionary;
+        }
+
+
+        internal BsonArray Get_SubjectsAsBsonArray()
+        {
+            BsonArray bsonArray_Years = new BsonArray();
+
+            foreach(string key in SubjectsTeaching.Keys)
+            {
+                bsonArray_Years.Add(key);
+
+                BsonArray bsonArray_Subjects = new BsonArray();
+
+                for (int j = 0; j < SubjectsTeaching[key].Count; j++)
+                    bsonArray_Subjects.Add(SubjectsTeaching[key][j]);
+
+                bsonArray_Years.Add(bsonArray_Subjects);
+
+            }
+
+            return bsonArray_Years;
+        }
+
+
+        // When Professors account get's logged in, the `loggedIn` field on Atlas is updated to `true`
+        internal void UpdateProfessor_LoggedIn_Field_toLoggedIn()
+        {
+            FilterDefinition<BsonDocument> filterToProfessor = Builders<BsonDocument>.Filter.Eq("_id", _id);
+
+            UpdateDefinition<BsonDocument> update_loggedIn = Builders<BsonDocument>.Update.Set("loggedIn", true);
+
+            ProfessorAtlasAccess.Client.
+                GetDatabase(ProfessorAtlasAccess.AtlasDB_FacultyPersonell).
+                GetCollection<BsonDocument>(ProfessorAtlasAccess.AtlasCollection_Professor).
+                UpdateOne(filterToProfessor, update_loggedIn);
+
+            LoggedIn = true;
+        }
+
+
+        // When Professors account get's logged out, the `loggedIn` field on Atlas is updated to `false`
+        internal void UpdateProfessor_LoggedIn_Field_toLoggedOut()
+        {
+            FilterDefinition<BsonDocument> filterToProfessor = Builders<BsonDocument>.Filter.Eq("_id", _id);
+
+            UpdateDefinition<BsonDocument> update_loggedIn = Builders<BsonDocument>.Update.Set("loggedIn", false);
+
+            ProfessorAtlasAccess.Client.
+                GetDatabase(ProfessorAtlasAccess.AtlasDB_FacultyPersonell).
+                GetCollection<BsonDocument>(ProfessorAtlasAccess.AtlasCollection_Professor).
+                UpdateOne(filterToProfessor, update_loggedIn);
         }
     }
 }

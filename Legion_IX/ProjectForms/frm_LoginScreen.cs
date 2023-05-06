@@ -3,6 +3,7 @@ using Legion_IX.DB;
 using Legion_IX.Helpers;
 using Legion_IX.ProjectForms;
 using Legion_IX.Properties;
+using Legion_IX.Users;
 using Microsoft.Data.SqlClient;
 using Microsoft.IdentityModel.Tokens;
 using MongoDB.Bson;
@@ -30,6 +31,12 @@ namespace Legion_IX
 {
     public partial class frm_LoginScreen : Form
     {
+        internal void StudentLogIn() { textBox_email.Text = "rijad.azemi@edu.fit.ba"; textBox_password.Text = "rijadazemi2000"; }
+        internal void ProfessorLogIn() { textBox_email.Text = "denis.music@edu.fit.ba"; textBox_password.Text = "denismusic123"; }
+        internal void ProfessorLogIn1() { textBox_email.Text = "tester.project@edu.fit.ba"; textBox_password.Text = "tester123"; }
+        internal void ServiceLogIn() { textBox_email.Text = "lejla.jazvin@edu.fit.ba"; textBox_password.Text = "lejlajazvin88000"; }
+
+
         private enum LogInAs { Student, Professor, StudentService }
         private LogInAs? chosenLoginType = null;
 
@@ -39,8 +46,8 @@ namespace Legion_IX
 
             InitializeComponent();
 
-            // Subscribing the `SignalCancellationToken` method in an event of the form closing
-            this.FormClosing += SignalCancellationToken;
+            // Subscribing the `SignalThe_CancellationToken` method in an event of the form closing
+            this.FormClosing += SignalThe_CancellationToken;
 
             NetworkListener.NetworkAvailabilityChanged += NetworkAvailability;
 
@@ -54,7 +61,7 @@ namespace Legion_IX
 
 
         // Method that will signal a static, global `CancellationToken` that the form is closing and the `Task` should be cancelled
-        private void SignalCancellationToken(object? sender, FormClosingEventArgs e)
+        private void SignalThe_CancellationToken(object? sender, FormClosingEventArgs e)
         {
             RequestCancel.killProccess.Cancel();
         }
@@ -63,25 +70,16 @@ namespace Legion_IX
         // Button LOGIN click event
         private async void button_Login_Click(object sender, EventArgs e)
         {
-            /*            textBox_email.Text = "rijad.azemi@edu.fit.ba";
-                        textBox_password.Text = "rijadazemi2000";*/
-
-
-            textBox_email.Text = "lejla.jazvin@edu.fit.ba";
-            textBox_password.Text = "lejlajazvin88000";
-
-
-            /*            textBox_email.Text = "denis.music@edu.fit.ba";
-                        textBox_password.Text = "denismusic3";*/
-
+            //StudentLogIn();
+            ProfessorLogIn();
+            //ProfessorLogIn1();
+            //ServiceLogIn();
 
             if (NetworkListener.IsConnectedToNet())
             {
-                if (clicked_LogInAs == null) { Start_ChooseLoginTypeThread(); return; }
+                if (clicked_LogInAs == null) { Start_ChooseLoginTypeTask(); return; }
 
-                else if (!CheckIfNullOrEmpty()) { Start_InformUserToFillInAllFieldsThread(); return; }
-
-
+                else if (!CheckIfNullOrEmpty()) { Start_InformUserToFillInAllFieldsTask(); return; }
 
                 // Converts said results to `List<BsonDocument>`
                 IAsyncCursor<BsonDocument> result = await GetMatchesFromAtlas();
@@ -92,15 +90,12 @@ namespace Legion_IX
                 int matchAccountIndex = 0; // (Passed by reference because methods `Checkpoint` and `LoginSuccessful` must have it synced)
 
                 // Calling a method to enstablish veracity and displays appropriate message
-                if (matchingAccounts != null && CheckForMatchingAccounts(in matchingAccounts, ref matchAccountIndex))
+                if (matchingAccounts != null && CheckForMatchingAccounts(in matchingAccounts, ref matchAccountIndex) && CheckIfMatchingAccountIsActive(in matchingAccounts, ref matchAccountIndex))
                     LoginSuccessful(in matchingAccounts, in matchAccountIndex);
-
-                else
-                    Start_AccountNotFoundThread();
             }
 
             else
-                Start_InformUserNoInternetThread();
+                Start_InformUserNoInternetTask();
         }
 
 
@@ -226,13 +221,33 @@ namespace Legion_IX
 
                 }
 
+                // If no matches are found, then the account does not exist so inform the user
+                Start_AccountNotFoundTask();
+
                 // Returns `false` if none are found
                 return false;
 
             }
 
+            // If no matches are found, then the account does not exist so inform the user
+            Start_AccountNotFoundTask();
+
             // Returns `false` if `ServerSideFilter_EmailPassword()` found no matches
             return false;
+        }
+
+
+        // Iterates through the list of Accounts as BsonDocuments and searches for the matching account in based on entered email and password
+        private bool CheckIfMatchingAccountIsActive(in List<BsonDocument> Accounts, ref int indexOfAccount)
+        {
+            if ((bool)Accounts[indexOfAccount].GetValue("active") == true)
+                return true;
+
+            else
+            {
+                Start_InformUserAccountHasBeenDisabledTask();
+                return false;
+            }
         }
 
 
@@ -252,31 +267,63 @@ namespace Legion_IX
         // Checks if NullOrEmpty()
         private bool CheckIfNullOrEmpty()
         {
-            // For BOTH
-            if (textBox_email.Text.IsNullOrEmpty() && textBox_password.Text.IsNullOrEmpty())
+            // For EMAIL
+            if (textBox_email.Text.IsNullOrEmpty())
             {
-                err_EmailPassword.SetError(textBox_email, "This field cannot be empty!");
-                err_EmailPassword.SetError(textBox_password, "This field cannot be empty!");
+                textBox_email.BackColor = Color.Red;
+                textBox_email.Text = " -- FIELD CANNOT BE EMPTY --";
 
-                return false;
+                textBox_email.Click += textBox_ClickedEvent_Generic;
             }
 
-            // For EMAIL
-            else if (textBox_email.Text.IsNullOrEmpty())
+            else
             {
-                err_EmailPassword.SetError(textBox_email, "This field cannot be empty!");
-                return false;
+                textBox_email.BackColor = Color.White;
+                textBox_email.Click -= textBox_ClickedEvent_Generic;
             }
 
             // For PASSWORD
-            else if (textBox_password.Text.IsNullOrEmpty())
+            if (textBox_password.Text.IsNullOrEmpty())
             {
-                err_EmailPassword.SetError(textBox_password, "This field cannot be empty!");
+                textBox_password.BackColor = Color.Red;
+
+                textBox_password.UseSystemPasswordChar = false;
+                textBox_password.Text = " -- FIELD CANNOT BE EMPTY --";
+
+                textBox_password.Click += textBox_ClickedEvent_Generic;
+
                 return false;
+            }
+
+            else
+            {
+                textBox_password.BackColor = Color.White;
+                textBox_password.Click -= textBox_ClickedEvent_Generic;
             }
 
             // Returns TRUE if all is good above
             return true;
+        }
+
+
+        // After the `textBox_email` and `textBox_password` were used to inform to user that they cannot be empty, this event is called to clear the textboxes when the user
+        // clicks on them signifying that they are ready to retype the login information
+        private void textBox_ClickedEvent_Generic(object? sender, EventArgs e)
+        {
+            System.Windows.Forms.TextBox txtBox = (System.Windows.Forms.TextBox)sender;
+
+            if(txtBox?.Name == textBox_email.Name)
+            {
+                textBox_email.Text = "";
+                textBox_email.BackColor = Color.White;
+            }
+
+            else if(txtBox?.Name == textBox_password.Name)
+            {
+                textBox_password.Text = "";
+                textBox_password.UseSystemPasswordChar = true;
+                textBox_password.BackColor = Color.White;
+            }
         }
 
 
@@ -286,7 +333,11 @@ namespace Legion_IX
             // Checks Email
             if (!MyValidators.ValidateEmail(textBox_email.Text))
             {
-                err_EmailPassword.SetError(textBox_email, "Invalid Format!");
+                
+                textBox_email.BackColor = Color.OrangeRed;
+                //textBox_email.Text = "Invalid Format!";
+                //textBox_email.ForeColor = Color.White;
+
                 return false;
             }
 
@@ -328,7 +379,7 @@ namespace Legion_IX
                     MessageBoxIcon.Information
                     );
 
-                // Validate dialog result
+                // Validate dialog fieldsEmpty
                 if (mshBoxResult == DialogResult.Yes)
                 {
                     ValidateDialog_SetBrowser_AndOpen();
@@ -412,16 +463,18 @@ namespace Legion_IX
                     this.Show();
 
                     // Inform user of Logout
-                    Start_LogoutBlinkingThread(true);
+                    Start_LogoutBlinkingTask(true);
                 }
 
                 else if (profileForm is frm_ProfessorProfile && profileForm.ShowDialog() == DialogResult.OK)
                 {
+                    LoggedInProfessor.theProf.UpdateProfessor_LoggedIn_Field_toLoggedOut();
+
                     //Show this form
                     this.Show();
 
                     // Inform user of Logout
-                    Start_LogoutBlinkingThread(true);
+                    Start_LogoutBlinkingTask(true);
                 }
 
                 else if (profileForm is frm_StudentServiceADMIN && profileForm.ShowDialog() == DialogResult.OK)
@@ -430,7 +483,7 @@ namespace Legion_IX
                     this.Show();
 
                     // Inform user of Logout
-                    Start_LogoutBlinkingThread(true);
+                    Start_LogoutBlinkingTask(true);
                 }
 
                 else
@@ -446,8 +499,8 @@ namespace Legion_IX
         }
 
 
-        // Creates a thread for blinking LOGOUT message
-        private void Start_LogoutBlinkingThread(bool loggedOut)
+        // Creates a Task for blinking LOGOUT message
+        private void Start_LogoutBlinkingTask(bool loggedOut)
         {
             if (loggedOut)
             {
@@ -457,14 +510,13 @@ namespace Legion_IX
                 Color firstBlink = Color.White;
                 Color secondBlink = Color.Green;
 
-                Thread blinker = new Thread(new ThreadStart(() => BlinkingMessage_Generic(displayMessage, blinkTimes, firstBlink, secondBlink)));
-                blinker.Start();
+                Task.Run(() => BlinkingMessage_Generic(displayMessage, blinkTimes, firstBlink, secondBlink));
             }
         }
 
 
-        // Creates and starts a thread for blinking `No internet` message
-        private void Start_InformUserNoInternetThread()
+        // Creates and starts a Task for blinking `No internet` message
+        private void Start_InformUserNoInternetTask()
         {
             string displayMessage = "--- No internet connection ---";
             int blinkTimes = 4;
@@ -472,13 +524,12 @@ namespace Legion_IX
             Color firstBlink = Color.Red;
             Color secondBlink = Color.White;
 
-            Thread blinkNoInternet_Message = new Thread(new ThreadStart(() => BlinkingMessage_Generic(displayMessage, blinkTimes, firstBlink, secondBlink)));
-            blinkNoInternet_Message.Start();
+            Task.Run(() => BlinkingMessage_Generic(displayMessage, blinkTimes, firstBlink, secondBlink));
         }
 
 
-        // Creates and starts a thread for blinking `Fill in all fields` message
-        private void Start_InformUserToFillInAllFieldsThread()
+        // Creates and starts a Task for blinking `Fill in all fields` message
+        private void Start_InformUserToFillInAllFieldsTask()
         {
             string displayMessage = "--- Please fill in all fields ---";
             int blinkTimes = 4;
@@ -486,13 +537,12 @@ namespace Legion_IX
             Color firstBlink = Color.Red;
             Color secondBlink = Color.White;
 
-            Thread blinkFillAllFieldsMessage = new Thread(new ThreadStart(() => BlinkingMessage_Generic(displayMessage, blinkTimes, firstBlink, secondBlink)));
-            blinkFillAllFieldsMessage.Start();
+            Task.Run(() => BlinkingMessage_Generic(displayMessage, blinkTimes, firstBlink, secondBlink));
         }
 
 
-        // Creates and starts a thread for blinking `Account not found` message
-        private void Start_AccountNotFoundThread()
+        // Creates and starts a Task for blinking `Account not found` message
+        private void Start_AccountNotFoundTask()
         {
             string displayMessage = "--- Account not found ---";
             int blinkTimes = 4;
@@ -500,13 +550,12 @@ namespace Legion_IX
             Color firstBlink = Color.Yellow;
             Color secondBlink = Color.White;
 
-            Thread blinkAccountNotFound_Message = new Thread(new ThreadStart(() => BlinkingMessage_Generic(displayMessage, blinkTimes, firstBlink, secondBlink)));
-            blinkAccountNotFound_Message.Start();
+            Task.Run(() => BlinkingMessage_Generic(displayMessage, blinkTimes, firstBlink, secondBlink));
         }
 
 
-        // Creates and starts a thread for blinking `Choose login type` message
-        private void Start_ChooseLoginTypeThread()
+        // Creates and starts a Task for blinking `Choose login type` message
+        private void Start_ChooseLoginTypeTask()
         {
             string displayMessage = "--- Please choose a login type ---";
             int blinkTimes = 4;
@@ -514,39 +563,53 @@ namespace Legion_IX
             Color firstBlink = Color.Yellow;
             Color secondBlink = Color.White;
 
-            Thread blinkChooseLoginType_Message = new Thread(new ThreadStart(() => BlinkingMessage_Generic(displayMessage, blinkTimes, firstBlink, secondBlink)));
-            blinkChooseLoginType_Message.Start();
+            Task.Run(() => BlinkingMessage_Generic(displayMessage, blinkTimes, firstBlink, secondBlink));
+        }
+
+
+        // Creates and starts a Task for blinking `Account has been disabled` message
+        private void Start_InformUserAccountHasBeenDisabledTask()
+        {
+            string displayMessage = "--- Your account has been REVOKED ---";
+            int blinkTimes = 8;
+
+            Color firstBlink = Color.Red;
+            Color secondBlink = Color.White;
+
+            Task.Run(() => BlinkingMessage_Generic(displayMessage, blinkTimes, firstBlink, secondBlink));
         }
 
 
         // Generic method for blinking a message
-        private void BlinkingMessage_Generic(string message, int blinkTimes, Color firstBlink, Color secondBlink)
+        private async Task BlinkingMessage_Generic(string message, int blinkTimes, Color firstBlink, Color secondBlink)
         {
-            this.Invoke(new Action(() => { lblAccNotFound.Text = message; }));
+            RequestCancel.killProccess.Token.ThrowIfCancellationRequested();
+            this.Invoke(() => { lblAccNotFound.Text = message; });
 
             for (int i = 0; i < blinkTimes; i++)
             {
-
-                if (RequestCancel.killProccess.IsCancellationRequested) return;
+                RequestCancel.killProccess.Token.ThrowIfCancellationRequested();
 
                 lblAccNotFound.ForeColor = firstBlink;
-                Thread.Sleep(400);
+                await Task.Delay(400);
 
-                if (RequestCancel.killProccess.IsCancellationRequested) return;
+                RequestCancel.killProccess.Token.ThrowIfCancellationRequested();
 
                 lblAccNotFound.ForeColor = secondBlink;
-                Thread.Sleep(400);
+                await Task.Delay(400);
 
-                if (RequestCancel.killProccess.IsCancellationRequested) return;
+                RequestCancel.killProccess.Token.ThrowIfCancellationRequested();
 
             }
 
-            if (!RequestCancel.killProccess.IsCancellationRequested)
-                lblAccNotFound.ForeColor = Color.White;
+            RequestCancel.killProccess.Token.ThrowIfCancellationRequested();
 
-            if (!RequestCancel.killProccess.IsCancellationRequested)
-                // Invoking action for a control on it's original created thread to prevent cross threading exception
-                this.Invoke((Action)(() => lblAccNotFound.Text = ""));
+            lblAccNotFound.ForeColor = Color.White;
+
+            RequestCancel.killProccess.Token.ThrowIfCancellationRequested();
+
+            // Invoking action for a control on it's original created thread to prevent cross threading exception
+            this.Invoke(() => lblAccNotFound.Text = "");
         }
 
 
@@ -662,6 +725,16 @@ namespace Legion_IX
 
             }
 
+        }
+
+
+        private void btn_StarTest_Click(object sender, EventArgs e)
+        {
+            AzureSignalR_Server signalR = new AzureSignalR_Server();
+
+            signalR.StartTheConnection();
+
+            signalR.InvokeHubMethod();
         }
     }
 

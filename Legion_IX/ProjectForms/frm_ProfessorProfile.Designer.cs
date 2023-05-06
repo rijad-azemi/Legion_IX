@@ -1,4 +1,6 @@
-﻿namespace Legion_IX.ProjectForms
+﻿using Legion_IX.User_Controls.Professor_UC_s;
+
+namespace Legion_IX.ProjectForms
 {
     partial class frm_ProfessorProfile
     {
@@ -29,24 +31,35 @@
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(frm_ProfessorProfile));
-            professorData1 = new User_Controls.Professor_UC_s.ProfessorData();
+            professorData1 = new ProfessorData();
+            professorDocuments1 = new ProfessorDocuments();
             txtBox_NetworkStatus = new TextBox();
             button_LogOut = new Button();
             btn_DownloadedDocs = new Button();
             btn_ProfileSettings = new Button();
             btn_Profile = new Button();
             btn_Documents = new Button();
-            professorDocuments1 = new User_Controls.Professor_UC_s.ProfessorDocuments();
             SuspendLayout();
             // 
             // professorData1
             // 
             professorData1.BackColor = Color.Transparent;
             professorData1.BorderStyle = BorderStyle.FixedSingle;
-            professorData1.Location = new Point(215, 26);
+            professorData1.Location = new Point(120, 26);
             professorData1.Name = "professorData1";
-            professorData1.Size = new Size(664, 304);
+            professorData1.Size = new Size(770, 304);
             professorData1.TabIndex = 0;
+            // 
+            // professorDocuments1
+            // 
+            professorDocuments1.BackColor = Color.Transparent;
+            professorDocuments1.BorderStyle = BorderStyle.FixedSingle;
+            professorDocuments1.ChosenSubject = null;
+            //professorDocuments1.ChosenSubjectYear = null;
+            professorDocuments1.Location = new Point(120, 28);
+            professorDocuments1.Name = "professorDocuments1";
+            professorDocuments1.Size = new Size(770, 468);
+            professorDocuments1.TabIndex = 21;
             // 
             // txtBox_NetworkStatus
             // 
@@ -131,22 +144,13 @@
             btn_Documents.UseVisualStyleBackColor = false;
             btn_Documents.Click += btn_Documents_Click;
             // 
-            // professorDocuments1
-            // 
-            professorDocuments1.BackColor = Color.Transparent;
-            professorDocuments1.BorderStyle = BorderStyle.FixedSingle;
-            professorDocuments1.Location = new Point(192, 28);
-            professorDocuments1.Name = "professorDocuments1";
-            professorDocuments1.Size = new Size(652, 468);
-            professorDocuments1.TabIndex = 21;
-            // 
             // frm_ProfessorProfile
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             BackgroundImage = (Image)resources.GetObject("$this.BackgroundImage");
             BackgroundImageLayout = ImageLayout.Stretch;
-            ClientSize = new Size(900, 535);
+            ClientSize = new Size(909, 535);
             Controls.Add(professorDocuments1);
             Controls.Add(btn_DownloadedDocs);
             Controls.Add(btn_ProfileSettings);
@@ -157,7 +161,7 @@
             Controls.Add(professorData1);
             Name = "frm_ProfessorProfile";
             StartPosition = FormStartPosition.CenterScreen;
-            Text = "frm_ProfessorProfile";
+            Text = "Professor Profile";
             Load += frm_ProfessorProfile_Load;
             ResumeLayout(false);
             PerformLayout();

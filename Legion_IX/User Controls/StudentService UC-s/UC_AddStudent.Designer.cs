@@ -103,6 +103,7 @@
             btn_LoadStudPhoto.TabIndex = 14;
             btn_LoadStudPhoto.Text = "LoadPhoto";
             btn_LoadStudPhoto.UseVisualStyleBackColor = true;
+            btn_LoadStudPhoto.Click += btn_LoadPhoto_Click;
             // 
             // picBox_StudentPhoto
             // 

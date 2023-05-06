@@ -28,7 +28,6 @@
         /// </summary>
         private void InitializeComponent()
         {
-            components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(frm_LoginScreen));
             lbl_email = new Label();
             lbl_password = new Label();
@@ -37,14 +36,13 @@
             linkLabel_DLWMSweb = new LinkLabel();
             button_Login = new Button();
             openFileDialog_searchForBrowser = new OpenFileDialog();
-            err_EmailPassword = new ErrorProvider(components);
             checkBox_ShowPassword = new CheckBox();
             lblAccNotFound = new Label();
             txtBox_NetworkStatus = new TextBox();
             btn_LogAsStudent = new Button();
             btn_LogAsProfessor = new Button();
             btn_LogAsStudentService = new Button();
-            ((System.ComponentModel.ISupportInitialize)err_EmailPassword).BeginInit();
+            btn_StarTest = new Button();
             SuspendLayout();
             // 
             // lbl_email
@@ -124,12 +122,6 @@
             // 
             openFileDialog_searchForBrowser.FileName = "Choose your browser";
             // 
-            // err_EmailPassword
-            // 
-            err_EmailPassword.BlinkRate = 400;
-            err_EmailPassword.BlinkStyle = ErrorBlinkStyle.NeverBlink;
-            err_EmailPassword.ContainerControl = this;
-            // 
             // checkBox_ShowPassword
             // 
             checkBox_ShowPassword.AutoSize = true;
@@ -208,12 +200,28 @@
             btn_LogAsStudentService.UseVisualStyleBackColor = false;
             btn_LogAsStudentService.Click += btn_LogAsStudentService_Click;
             // 
+            // btn_StarTest
+            // 
+            btn_StarTest.BackColor = Color.DimGray;
+            btn_StarTest.BackgroundImage = (Image)resources.GetObject("btn_StarTest.BackgroundImage");
+            btn_StarTest.FlatAppearance.BorderSize = 0;
+            btn_StarTest.FlatStyle = FlatStyle.Flat;
+            btn_StarTest.ForeColor = SystemColors.ButtonFace;
+            btn_StarTest.Location = new Point(282, 530);
+            btn_StarTest.Name = "btn_StarTest";
+            btn_StarTest.Size = new Size(175, 23);
+            btn_StarTest.TabIndex = 12;
+            btn_StarTest.Text = "?Azure SignalR Test?";
+            btn_StarTest.UseVisualStyleBackColor = false;
+            btn_StarTest.Click += btn_StarTest_Click;
+            // 
             // frm_LoginScreen
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             BackgroundImage = (Image)resources.GetObject("$this.BackgroundImage");
             ClientSize = new Size(714, 576);
+            Controls.Add(btn_StarTest);
             Controls.Add(btn_LogAsStudentService);
             Controls.Add(btn_LogAsProfessor);
             Controls.Add(btn_LogAsStudent);
@@ -230,9 +238,8 @@
             Name = "frm_LoginScreen";
             ShowIcon = false;
             StartPosition = FormStartPosition.CenterScreen;
-            Text = "frmLoginScreen";
+            Text = "Login";
             Load += frmLoginScreen_Load;
-            ((System.ComponentModel.ISupportInitialize)err_EmailPassword).EndInit();
             ResumeLayout(false);
             PerformLayout();
         }
@@ -246,12 +253,12 @@
         private LinkLabel linkLabel_DLWMSweb;
         private Button button_Login;
         private OpenFileDialog openFileDialog_searchForBrowser;
-        private ErrorProvider err_EmailPassword;
         private CheckBox checkBox_ShowPassword;
         private Label lblAccNotFound;
         private TextBox txtBox_NetworkStatus;
         private Button btn_LogAsStudentService;
         private Button btn_LogAsProfessor;
         private Button btn_LogAsStudent;
+        private Button btn_StarTest;
     }
 }

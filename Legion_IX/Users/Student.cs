@@ -15,6 +15,11 @@ namespace Legion_IX.Users
 {
     public class Student
     {
+        internal bool Active { get; set; } = true;
+        internal bool LoggedIn { get; set; } = false;
+
+
+        public ObjectId _id { get; set; }
         public string Name { get; set; }
         public string Surname { get; set; }
         public DateTime? Birthdate { get; set; }
@@ -101,6 +106,7 @@ namespace Legion_IX.Users
             {
                 var document = new BsonDocument
                 {
+
                     {"name", Name},
                     {"surname", Surname},
                     {"birthdate", Birthdate},
@@ -112,7 +118,11 @@ namespace Legion_IX.Users
                     {"index", Index},
                     {"revised", Revised},
 
-                    {"image", new BsonBinaryData(ImageHelper.FromImageToByte(_Image))}
+                    {"image", new BsonBinaryData(ImageHelper.FromImageToByte(_Image))},
+                    
+                    {"active", Active },
+                    {"loggedIn", LoggedIn }
+
                 };
 
                 AtlasDB access = new AtlasDB("FacultyPersonell", "Student");
@@ -143,6 +153,8 @@ namespace Legion_IX.Users
         // Gets the data for Student from BsonDocument
         internal void GetStudentFromBson(in BsonDocument theStudent)
         {
+            _id = (ObjectId)theStudent.GetValue("_id");
+
             Name = theStudent.GetValue("name").ToString() ?? "N/A";
 
             Surname = theStudent.GetValue("surname").ToString() ?? "N/A";
@@ -160,6 +172,38 @@ namespace Legion_IX.Users
             Email = theStudent.GetValue("email").ToString() ?? "N/A";
 
             Revised = (bool)theStudent.GetValue("revised");
+
+            Active = (bool)theStudent.GetValue("active");
+        }
+
+
+        internal void UpdateStudent_LoggedIn_Field_toLoggedIn()
+        {
+            FilterDefinition<BsonDocument> filterToStudent = Builders<BsonDocument>.Filter.Eq("_id", _id);
+
+            UpdateDefinition<BsonDocument> update_LoggedIn = Builders<BsonDocument>.Update.Set("loggedIn", true);
+
+            StudentDBConnection.Client.
+                GetDatabase(StudentDBConnection.AtlasDB_FacultyPersonell).
+                GetCollection<BsonDocument>(StudentDBConnection.AtlasCollection_Student).
+                UpdateOne(filterToStudent, update_LoggedIn);
+
+            LoggedIn = true;
+        }
+
+
+        internal void UpdateStudent_LoggedIn_Field_toLoggedOut()
+        {
+            FilterDefinition<BsonDocument> filterToStudent = Builders<BsonDocument>.Filter.Eq("_id", _id);
+
+            UpdateDefinition<BsonDocument> update_LoggedIn = Builders<BsonDocument>.Update.Set("loggedIn", false);
+
+            StudentDBConnection.Client.
+                GetDatabase(StudentDBConnection.AtlasDB_FacultyPersonell).
+                GetCollection<BsonDocument>(StudentDBConnection.AtlasCollection_Student).
+                UpdateOne(filterToStudent, update_LoggedIn);
+
+            LoggedIn = false;
         }
     }
 }

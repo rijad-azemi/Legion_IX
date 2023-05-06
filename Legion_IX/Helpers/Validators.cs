@@ -27,7 +27,7 @@ namespace Legion_IX.Helpers
             return (checkedItems <= 0)? true : false;
         }
 
-        internal static bool Validate_ServicerAssignedSubjectsToStudent_Dictionary(in Dictionary<int, List<string>> dicto)
+        internal static bool Validate_ServicerAssignedSubjectsToStudent_Dictionary(in Dictionary<string, List<string>> dicto)
         {
             foreach(List<string> item in dicto.Values)
             {

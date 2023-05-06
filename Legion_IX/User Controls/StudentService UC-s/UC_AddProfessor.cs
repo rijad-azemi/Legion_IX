@@ -1,6 +1,8 @@
-﻿using Legion_IX.DB;
+﻿using Amazon.Runtime.Internal.Transform;
+using Legion_IX.DB;
 using Legion_IX.Helpers;
 using Legion_IX.Users;
+using Microsoft.AspNetCore.Http;
 using Microsoft.IdentityModel.Tokens;
 using MongoDB.Bson;
 using MongoDB.Driver;
@@ -22,7 +24,7 @@ namespace Legion_IX.User_Controls.StudentService_UC_s
         // Instance that will provide the connection to Atlas
         private AtlasDB AtlasAccess = new AtlasDB();
         // ----------------------------------------- //
-        private Dictionary<int, List<string>> dictionary = new Dictionary<int, List<string>>();
+        private Dictionary<string, List<string>> dictionary = new Dictionary<string, List<string>>();
 
 
         public UC_AddProfessor()
@@ -60,7 +62,7 @@ namespace Legion_IX.User_Controls.StudentService_UC_s
             foreach (string option in options)
             {
                 comboBox_StudyYearProfessor.Items.Add(option);
-                dictionary.Add(i++, new List<string>());
+                dictionary.Add(option, new List<string>()); // !!!!!!!! !!!!!!!!!!!!!!!!!!!!!!! !!!!!!!!!!!!! //
             }
 
             comboBox_StudyYearProfessor.SelectedItem = comboBox_StudyYearProfessor.Items[0];
@@ -75,6 +77,7 @@ namespace Legion_IX.User_Controls.StudentService_UC_s
         }
 
 
+        // Gives check list box items based on selcted year; private variable below is used to prevent the event from firing when the method is called from another method
         private bool comingFrom_Give_chkListBox_SubjectsByYear_method = false;
         private void Give_chkListBox_SubjectsByYear()
         {
@@ -89,7 +92,7 @@ namespace Legion_IX.User_Controls.StudentService_UC_s
 
                 chkListBox_Subjects.Items.Add(theListFromAtlas[i]);
 
-                if (dictionary[comboBox_StudyYearProfessor.SelectedIndex].Contains(theListFromAtlas[i]))
+                if (dictionary[(string)comboBox_StudyYearProfessor.SelectedItem].Contains(theListFromAtlas[i]))
                 {
                     comingFrom_Give_chkListBox_SubjectsByYear_method = true;
 
@@ -111,10 +114,10 @@ namespace Legion_IX.User_Controls.StudentService_UC_s
 
                 //!dictionary[comboBox_StudyYearProfessor.SelectedIndex].Contains(chkListBox_Subjects.Items[e.Index])
                 if (e.NewValue == CheckState.Checked)
-                    dictionary[comboBox_StudyYearProfessor.SelectedIndex].Add(chkListBox_Subjects?.Items[e.Index]?.ToString() ?? string.Empty);
+                    dictionary[(string)comboBox_StudyYearProfessor.SelectedItem].Add(chkListBox_Subjects?.Items[e.Index]?.ToString() ?? string.Empty);
 
                 else
-                    dictionary[comboBox_StudyYearProfessor.SelectedIndex].Remove(chkListBox_Subjects?.Items[e.Index]?.ToString() ?? string.Empty);
+                    dictionary[(string)comboBox_StudyYearProfessor.SelectedItem].Remove(chkListBox_Subjects?.Items[e.Index]?.ToString() ?? string.Empty);
 
             }
 
@@ -200,76 +203,103 @@ namespace Legion_IX.User_Controls.StudentService_UC_s
         }
 
 
-        private BsonArray Form_2D_BsonArrayForSubjects()
-        {
-            List<int> keys = new List<int>(dictionary.Keys);
-            BsonArray array_dim1 = new BsonArray();
-
-            for (int i = 0; i < keys.Count; i++)
-            {
-                if (dictionary[i].Count > 0)
-                {
-
-                    array_dim1.Add(((string)comboBox_StudyYearProfessor.Items[keys[i]]).Replace(" ", ""));
-                    BsonArray array_dim2 = new BsonArray();
-
-                    for (int j = 0; j < dictionary[i].Count; j++)
-                    {
-                        array_dim2.Add(dictionary[i][j]);
-                    }
-
-                    array_dim1.Add(array_dim2);
-
-                }
-            }
-
-            return array_dim1;
-        }
-
-
         // Create Proff
         private void btn_CreateProffesor_Click(object sender, EventArgs e)
         {
 
             if (InputValidation_Professor(sender, e))
             {
-                Professor newProff = new Professor
-                    (
-                    txtBox_ProffName.Text,
-                    txtBox_ProffSurname.Text,
-                    dtTimePicker_ProffBirthdate.Value,
-                    picBox_ProffPhoto.Image,
 
-                    txtBox_ProffPassword.Text,
-                    txtBox_ProffEmail.Text,
-
-                    Form_2D_BsonArrayForSubjects()
-
-                    );
-
-                if (newProff.CreateAndUpload())
+                if (CreateProfessorObject().CreateAndUpload())
                 {
-                    MessageBox.Show("Created and Added to ATLAS!", "SUCCESS", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
-                    // Resseting Input Fields
-                    txtBox_ProffName.Text = "";
-                    txtBox_ProffSurname.Text = "";
-                    dtTimePicker_ProffBirthdate.Value = DateTime.Now;
+                    ResetInputFields();
 
-                    txtBox_ProffEmail.Text = ".@edu.fit.ba";
-                    checkBox_CustomProffEmail.Checked = false;
-
-                    txtBox_ProffPassword.Text = "";
-
-                    // Resetting the image to be as original
-                    System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(UC_AddProfessor));
-                    picBox_ProffPhoto.Image = (Image)resources.GetObject("picBox_ProffPhoto.Image");
+                    Reset_chkListBox();
                 }
 
                 else
                     MessageBox.Show("Problem has occured: Check 'btn_CreateProff_Click'!");
+
             }
 
+        }
+
+
+        // Creates and returns an object of Professor
+        private Professor CreateProfessorObject()
+        {
+            return new Professor
+                (
+
+                txtBox_ProffName.Text,
+                txtBox_ProffSurname.Text,
+                dtTimePicker_ProffBirthdate.Value,
+                picBox_ProffPhoto.Image,
+
+                txtBox_ProffPassword.Text,
+                txtBox_ProffEmail.Text,
+
+                Get_FilteredDictionary()
+
+                );
+        }
+
+
+        // Returns a filtered dictionary that does not contain empty lists and empty spaces in keys
+        private Dictionary<string, List<string>> Get_FilteredDictionary()
+        {
+            Dictionary<string, List<string>> filteredDictionary = new Dictionary<string, List<string>>();
+
+            foreach(string key in dictionary.Keys)
+                if (dictionary[key].Count > 0)
+                    filteredDictionary.Add(key.Replace(" ", ""), new List<string>(dictionary[key]));
+
+            return filteredDictionary;
+        }
+
+
+        // Resets input fields
+        private void ResetInputFields()
+        {
+            MessageBox.Show("Created and Added to ATLAS!", "SUCCESS", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+            // Resseting Input Fields
+            txtBox_ProffName.Text = "";
+            txtBox_ProffSurname.Text = "";
+            dtTimePicker_ProffBirthdate.Value = DateTime.Now;
+
+            txtBox_ProffEmail.Text = ".@edu.fit.ba";
+            checkBox_CustomProffEmail.Checked = false;
+
+            txtBox_ProffPassword.Text = "";
+
+            // Resetting the image to be as original
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(UC_AddProfessor));
+            picBox_ProffPhoto.Image = (Image)resources.GetObject("picBox_ProffPhoto.Image");
+
+            Reset_chkListBox();
+        }
+
+
+        // Resetting Check List Box checked items
+        private void Reset_chkListBox()
+        {
+            /* Might come in handy...
+            foreach(int key in dictionary.Keys)
+                dictionary[key].Clear();
+            */
+            chkListBox_Subjects.Items.Clear();
+            comboBox_StudyYearProfessor.Items.Clear();
+
+            foreach (List<string> list in dictionary.Values)
+                list.Clear();
+            dictionary.Clear();
+
+            dictionary = new Dictionary<string, List<string>>();
+
+            AddOptionsToComboBox_Professor();
+            Give_chkListBox_SubjectsByYear();
         }
     }
 }

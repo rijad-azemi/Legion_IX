@@ -115,7 +115,7 @@
             RevokePrivileges.Name = "RevokePrivileges";
             RevokePrivileges.ReadOnly = true;
             RevokePrivileges.Text = "Revoke Privileges";
-            RevokePrivileges.UseColumnTextForButtonValue = true;
+            //RevokePrivileges.UseColumnTextForButtonValue = true;
             // 
             // UC_ActiveProfessors
             // 
@@ -132,7 +132,6 @@
 
         #endregion
         private Button btn_Close;
-        private DataGridViewTextBoxColumn ProfName;
         internal DataGridView dgv_ActiveProfessors;
         private DataGridViewTextBoxColumn FirstName;
         private DataGridViewTextBoxColumn Surname;

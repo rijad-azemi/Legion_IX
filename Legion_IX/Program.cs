@@ -1,3 +1,4 @@
+using Legion_IX.Helpers;
 using MongoDB.Bson;
 
 namespace Legion_IX
@@ -13,6 +14,8 @@ namespace Legion_IX
             // To customize application configuration such as set high DPI settings or default font,
             // see https://aka.ms/applicationconfiguration.
             ApplicationConfiguration.Initialize();
+
+            //RequestCancel.killProccess = new CancellationTokenSource();
 
             Form formToShow = new frm_LoginScreen();
 

@@ -33,7 +33,13 @@ namespace Legion_IX
 
             // Subscribes the `NetworkAvailability` method to `NetworkChange` class
             NetworkListener.NetworkAvailabilityChanged += NetworkAvailability_frmStudentProfile;
+
+            this.FormClosed += Frm_StudentProfile_FormClosed;
         }
+
+
+        private void Frm_StudentProfile_FormClosed(object? sender, FormClosedEventArgs e) =>
+            LoggedInStudent.theStudent.UpdateStudent_LoggedIn_Field_toLoggedOut();
 
 
         private void frmStudentProfile_Load(object sender, EventArgs e)
@@ -48,6 +54,9 @@ namespace Legion_IX
 
             // Calling the method to detect and display Network change
             NetworkAvailability_frmStudentProfile(sender, e);
+
+            // Updating `LoggedIn` on Atlas to true
+            LoggedInStudent.theStudent.UpdateStudent_LoggedIn_Field_toLoggedIn();
         }
 
 

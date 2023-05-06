@@ -17,9 +17,9 @@ namespace Legion_IX.ProjectForms
     {
         #region UserControl size parameters
 
-        private int Width { get; set; } = 654;
+        private int Width { get; set; } = 780;
         private int Height { get; set; } = 470;
-        private int X_Axis { get; set; } = 234;
+        private int X_Axis { get; set; } = 120;
         private int Y_Axis { get; set; } = 12;
 
         #endregion UserControl size parameters
@@ -42,7 +42,14 @@ namespace Legion_IX.ProjectForms
 
             // Subscribes the `NetworkAvailability` method to `NetworkChange` class
             NetworkListener.NetworkAvailabilityChanged += NetworkAvailability_frmProfessorProfile;
+
+            this.FormClosed += FormClosedEvent;
         }
+
+
+        // Ocurring event after form has closed
+        private void FormClosedEvent(object? sender, FormClosedEventArgs e) =>
+            LoggedInProfessor.theProf.UpdateProfessor_LoggedIn_Field_toLoggedOut();
 
 
         // Form load event
@@ -62,6 +69,8 @@ namespace Legion_IX.ProjectForms
             NetworkAvailability_frmProfessorProfile(sender, e);
 
             ShowCurrent_UserControl();
+
+            LoggedInProfessor.theProf.UpdateProfessor_LoggedIn_Field_toLoggedIn();
         }
 
 
@@ -144,7 +153,7 @@ namespace Legion_IX.ProjectForms
         // Documents button event
         private void btn_Documents_Click(object sender, EventArgs e)
         {
-            if(currentButton.Name != btn_Documents.Name)
+            if (currentButton.Name != btn_Documents.Name)
             {
                 UC_Unclicked();
 
@@ -157,6 +166,8 @@ namespace Legion_IX.ProjectForms
 
                 // Assigning this button as current
                 currentButton = btn_Documents;
+
+                UC_Clicked();
             }
         }
 
@@ -177,6 +188,7 @@ namespace Legion_IX.ProjectForms
         }
 
 
+        // Button Logout event
         private void button_LogOut_Click(object sender, EventArgs e)
         {
             this.DialogResult = DialogResult.OK;

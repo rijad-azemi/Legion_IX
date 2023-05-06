@@ -129,6 +129,7 @@ namespace Legion_IX.User_Controls
 
         }
 
+
         private void btn_DiscardChanges_Click(object sender, EventArgs e)
         {
             ShowButtonSaveChanges(ChangesMade = false);

@@ -134,7 +134,7 @@ namespace Legion_IX.ProjectForms
             Controls.Add(button_LogOut);
             Name = "frm_StudentServiceADMIN";
             StartPosition = FormStartPosition.CenterScreen;
-            Text = "frm_StudentServiceADMIN";
+            Text = "Student Service";
             Load += frm_StudentServiceADMIN_Load;
             ResumeLayout(false);
             PerformLayout();

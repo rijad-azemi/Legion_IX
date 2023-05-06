@@ -6,6 +6,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -19,13 +20,16 @@ namespace Legion_IX.User_Controls.Professor_UC_s
             InitializeComponent();
         }
 
+
         private void UserControlProf_Load(object sender, EventArgs e)
         {
             // Hiding from view on load
             this.Hide();
         }
 
-        public void GetDataFrom_frmProfessorProfile()
+
+        // Assigning all data to UI of UserControl
+        internal void GetDataFrom_frmProfessorProfile()
         {
             txtBox_uc_DisplayName.Text = LoggedInProfessor.theProf.Name;
             txtBox_uc_DisplaySurname.Text = LoggedInProfessor.theProf.Surname;
@@ -35,9 +39,38 @@ namespace Legion_IX.User_Controls.Professor_UC_s
 
             txtBox_uc_Email.Text = LoggedInProfessor.theProf.Email;
 
-            foreach(BsonValue subject in LoggedInProfessor.theProf.Subjects_Teaching)
+            GiveSubjectsToListBox();
+        }
+
+
+        // Gives subjects by year to ListBox for display
+        private void GiveSubjectsToListBox()
+        {
+            // Reference variable
+            Dictionary<string, List<string>> subjects = LoggedInProfessor.theProf.SubjectsTeaching;
+
+            foreach(string key in subjects.Keys)
             {
-                listBox_SubjectsTeaching.Items.Add(subject.AsString);
+                listBox_ProfessorSubjects.Items.Add(TidyFacultyYear(key));
+
+                foreach(string subject in subjects[key])
+                    listBox_ProfessorSubjects.Items.Add(subject);
+
+                listBox_ProfessorSubjects.Items.Add("");
+            }
+        }
+
+
+        private string TidyFacultyYear(string facultyYear)
+        {
+            switch(facultyYear)
+            {
+                case "FirstYear": return "--- First Year ---";
+                case "SecondYear": return "--- Second Year ---";
+                case "ThirdYear": return "--- Third Year ---";
+                case "FourthYear": return "--- Fourth Year ---";
+
+                default: return "";
             }
         }
     }

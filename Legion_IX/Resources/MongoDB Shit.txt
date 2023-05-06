@@ -79,3 +79,10 @@ Location For User Control: X = 234;
 			*(Fix) Cancellation token at `StudentDocuments` User Control
 			*(Test) Adding default browser and WinRAR directory.
 			*(Add) Change Password
+
+
+----------------------------------------------------------------------------------------------------
+	YOU CAN VIEW `ASSEMBLY NAME` OF ANY PROJECT BY OPENING IT'S PROPERTIES
+----------------------------------------------------------------------------------------------------
+
+dgv_AtlasFiles property names: NameOfFile, FileType, TimeStamp_Creation

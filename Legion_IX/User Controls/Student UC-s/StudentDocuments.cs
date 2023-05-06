@@ -40,12 +40,11 @@ namespace Legion_IX.User_Controls
         }
 
 
-        private void SignalCancellationToken(object? sender, FormClosingEventArgs e)
-        {
+        // Signals `Cancel()` method of CancellationTokenSource if Parent Form is closing
+        private void SignalCancellationToken(object? sender, FormClosingEventArgs e) =>
             RequestCancel.killProccess.Cancel();
-        }
 
-
+        // UC `OnLoad` event
         private void StudentDocuments_Load(object sender, EventArgs e)
         {
 
@@ -371,8 +370,10 @@ namespace Legion_IX.User_Controls
                     })
                 };
 
-                IAsyncCursor<BsonDocument> theAvailableDocs =
-                    await LoggedInStudent.theStudent.StudentDBConnection.Client.GetDatabase(SubjectsStudyYear).GetCollection<BsonDocument>(ChosenSubject).AggregateAsync<BsonDocument>(pipeline);
+                IAsyncCursor<BsonDocument> theAvailableDocs = await LoggedInStudent.theStudent.StudentDBConnection.Client.
+                    GetDatabase(SubjectsStudyYear).
+                    GetCollection<BsonDocument>(ChosenSubject).
+                    AggregateAsync<BsonDocument>(pipeline);
 
                 // Cleats the list holding the Existing collections to create a new one with fresh records
                 if (files.Count > 0)
@@ -424,6 +425,7 @@ namespace Legion_IX.User_Controls
         }
 
 
+        // Gets all properties of clicked cell and returns them as an `AtlasFile` object
         private AtlasFile GetAtlasFileDataFromCell(DataGridViewCellEventArgs e)
         {
             return new AtlasFile(
@@ -437,9 +439,9 @@ namespace Legion_IX.User_Controls
         }
 
 
+        // Checks the type of document user wants to preview and calls the apprppriate method
         private async Task DoIfButton_OpenPreview(DataGridViewCellEventArgs e, ObjectId? theDocID, string theDocName, string theExtension)
         {
-
             if (theExtension == ".pdf")
             {
                 await PDF_File_WriteToFileAndOpen(theDocID, theDocName, theExtension);
@@ -452,6 +454,7 @@ namespace Legion_IX.User_Controls
         }
 
 
+        // Checks the type of document user wants to download, writes and saves it to SQLite database
         private async Task DoIfButton_Download(DataGridViewCellEventArgs e, ObjectId? theDocID, string theDocName, string theExtension)
         {
             MySQLcustomConnection SQL_db = new MySQLcustomConnection();
@@ -625,7 +628,9 @@ namespace Legion_IX.User_Controls
         private void LoadToDataGridView()
         {
             dgv_Files.DataSource = null;
-            dgv_Files.DataSource = files;
+
+            if(files.Count > 0)
+                dgv_Files.DataSource = files;
         }
 
 
