@@ -1,5 +1,7 @@
 ﻿using Legion_IX.DataFiles;
 using Legion_IX.Helpers;
+using Microsoft.AspNet.SignalR.Messaging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.IdentityModel.Tokens;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
@@ -39,6 +41,14 @@ namespace Legion_IX.User_Controls.Professor_UC_s
         // This list holds indexes of faculty years in `comboBox_Subjects` and will be ingored in `comboBox_Subjects_SelectedIndexChanged` event handler
         List<int> comboBox_IgnoreOptionIndex = new List<int>();
 
+        /*          Class properties for `dgv_Files_DragDrop` Event         */
+
+        // List of `AtlasFile` objects that were dropped on `dgv_Files` in purpose of upload
+        List<AtlasFile> AtlasFiles_Dropped = new List<AtlasFile>();
+
+        // Indexes of `AtlasFile` objects inside `AtlasFiles_Dropped` that contain a supported extension
+        List<int> IndexesOfValidDroppedFiles = new List<int>();
+
         #endregion Global vars
 
 
@@ -48,9 +58,14 @@ namespace Legion_IX.User_Controls.Professor_UC_s
         }
 
 
+        // UC `OnLoad` event
         private void ProfessorDocuments_Load(object sender, EventArgs e)
         {
             this.Hide();
+
+            this.ParentForm.FormClosing += SignalThe_CancellationToken;
+
+            Hide_Or_Show_DragDropButtons(false);
 
             // Loading the list of subjects to comboBox
             LoadToComboBoxSubjects();
@@ -60,6 +75,23 @@ namespace Legion_IX.User_Controls.Professor_UC_s
 
             dgv_Files.AutoGenerateColumns = false;
             dgv_Files.DataSource = null;
+        }
+
+
+        // Method that will signal a static, global `CancellationToken` that the form is closing and the `Task` should be cancelled
+        private void SignalThe_CancellationToken(object? sender, FormClosingEventArgs e)
+        {
+            RequestCancel.killProccess.Cancel();
+        }
+
+
+        // Shows buttons if DragDrop event is triggered
+        private void Hide_Or_Show_DragDropButtons(bool show)
+        {
+            btn_CancelDrop.Visible = show;
+            btn_RemoveUnsupported.Visible = show;
+
+            lbl_Info.Visible = show;
         }
 
 
@@ -497,13 +529,273 @@ namespace Legion_IX.User_Controls.Professor_UC_s
 
 
         // Button evenet for uploading a document to Atlas
-        private void btn_UploadDocument_Click(object sender, EventArgs e)
+        private async void btn_UploadDocument_Click(object sender, EventArgs e)
         {
+            if (!ChosenSubject.IsNullOrEmpty())
+            {
 
+                // If `AtlasFiles_Dropped` is not empty means files were dropped on `dgv_Files` so different upload method occurs
+                if(AtlasFiles_Dropped.Count > 0 && IndexesOfValidDroppedFiles.Count > 0)
+                {
+                    btn_RemoveUnsupported_Click(sender, e);
+
+                    if (MessageBox.Show($"The following files will be uploaded to: '{ChosenSubject}'", "Files to be uploaded", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                    {
+                        SignalUploading();
+
+                        await UploadDroppedFiles();
+
+                        _ = Task.Run(() => lblInfo_InformUser("Files uploaded successfully!", 5));
+
+                        Hide_Or_Show_DragDropButtons(false);
+
+                        await GetAvailableDocuments();
+                    }
+                }
+
+                else
+                {
+                    //string opf_ChooseDocumentFilter = "PDF files (*.pdf)|*.pdf|RAR files (*.rar)|*.rar";
+                    string opf_ChooseDocumentFilter = "PDF files (.pdf); RAR files (.rar)|*.pdf;*.rar";
+
+                    await InsertFile(opf_ChooseDocumentFilter);
+                }
+
+            }
+        }
+
+        CancellationTokenSource kill_UploadingMessage = new CancellationTokenSource();
+        private void SignalUploading()
+        {
+            Task.Run(() => lblInfo_Uploading(kill_UploadingMessage.Token));
         }
 
 
-        // Button evenet for refreshing DGV datasource
+        // Method that creates a `BsonDocument` list of files to upload and inserts them all to Atlas at once
+        private async Task UploadDroppedFiles()
+        {
+            BsonDocument[] docsToUpload = new BsonDocument[IndexesOfValidDroppedFiles.Count];
+
+            for(int i = 0; i < IndexesOfValidDroppedFiles.Count; i++)
+            {
+
+                AtlasFile refOBJ = AtlasFiles_Dropped[i];
+
+                switch(refOBJ.FileType)
+                {
+                    case ".pdf":
+                        PDF_File pdf_Serialized = new PDF_File(in refOBJ, File.ReadAllBytes(refOBJ.PathToFile));
+                        docsToUpload[i] = pdf_Serialized.ToBsonDocument();
+                        break;
+
+                    case ".rar":
+                        RAR_File rar_Serialized = new RAR_File(in refOBJ, File.ReadAllBytes(refOBJ.PathToFile));
+                        docsToUpload[i] = rar_Serialized.ToBsonDocument();
+                        break;
+                }
+            }
+
+            await LoggedInProfessor.theProf.ProfessorAtlasAccess.Client.
+                GetDatabase(Get_YearOfSubject()).
+                GetCollection<BsonDocument>(ChosenSubject).
+                InsertManyAsync(docsToUpload);
+
+            kill_UploadingMessage.Cancel();
+        }
+
+
+        // Inserts File into collection chosen from `comboBox Subjects`
+        private async Task InsertFile(string filter)
+        {
+            // Creating a Filter for `OpenFileDialog`
+            opf_ChooseDocument.Filter = filter;
+
+            // Continue if chosen file
+            if (opf_ChooseDocument.ShowDialog() == DialogResult.OK)
+            {
+
+                if (Path.GetExtension(opf_ChooseDocument.FileName) == ".pdf")
+                {
+
+                    await toInsert_PDF(
+                        Path.GetFileName(opf_ChooseDocument.FileName),
+                        Path.GetExtension(opf_ChooseDocument.FileName),
+                        File.GetCreationTime(opf_ChooseDocument.FileName),
+                        File.ReadAllBytes(opf_ChooseDocument.FileName)
+                        );
+
+                }
+
+                else if (Path.GetExtension(opf_ChooseDocument.FileName) == ".rar")
+                {
+
+                    await toInsert_RAR(
+                        Path.GetFileName(opf_ChooseDocument.FileName),
+                        Path.GetExtension(opf_ChooseDocument.FileName),
+                        File.GetCreationTime(opf_ChooseDocument.FileName),
+                        File.ReadAllBytes(opf_ChooseDocument.FileName)
+                        );
+
+                }
+
+                else
+                {
+                    MessageBox.Show("Unsuported File Selected!", "Supported Files: .pdf | .rar", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+
+                // Showing confirmation message
+                MessageBox.Show("Uploaded", "All went fine!", MessageBoxButtons.OK);
+
+                // Refreshing the `DataGridView`
+                GetAvailableDocuments();
+
+            }
+        }
+
+
+        // Method that inserts a `PDF_File` into Atlas based on information from `opf_ChooseDocument` in `btn_UploadPdf_Click` method event
+        private async Task toInsert_PDF(string fileName, string extension, DateTime timeStamp, byte[] data)
+        {
+            PDF_File toInsert = new PDF_File(new ObjectId(), fileName, extension, timeStamp, data);
+
+            // Serialising the `PDF_File` object as `BsonDocument`
+            BsonDocument converted = toInsert.ToBsonDocument();
+
+            // Inserting serialised document
+            await LoggedInProfessor.theProf.ProfessorAtlasAccess.Client.
+                GetDatabase(Get_YearOfSubject()).
+                GetCollection<BsonDocument>(ChosenSubject).
+                InsertOneAsync(converted);
+        }
+
+
+        // Method that inserts a `RAR_File` into Atlas based on information from `opf_ChooseDocument` in `btn_UploadPdf_Click` method event
+        private async Task toInsert_RAR(string fileName, string extension, DateTime timeStamp, byte[] data)
+        {
+            RAR_File toInsert = new RAR_File(new ObjectId(), fileName, extension, timeStamp, data);
+
+            // Serialising the `PDF_File` object as `BsonDocument`
+            BsonDocument converted = toInsert.ToBsonDocument();
+
+            // Inserting serialised document
+            await LoggedInProfessor.theProf.ProfessorAtlasAccess.Client.GetDatabase(Get_YearOfSubject()).GetCollection<BsonDocument>(ChosenSubject).InsertOneAsync(converted);
+        }
+
+
+        // Event that occurs when files are dropped on the `dgv_Files`
+        private void dgv_Files_DragEnter(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                e.Effect = DragDropEffects.Copy;
+            }
+        }
+
+
+        // Event that occurs after the files are dropped on the `dgv_Files` and handles how the data is processed
+        private void dgv_Files_DragDrop(object sender, DragEventArgs e)
+        {
+            CheckIf_FilesWereDroppedBefore();
+
+            comboBox_Subjects.SelectedIndexChanged -= comboBox_Subjects_SelectedIndexChanged;
+
+            string[] fileNames = (string[])e.Data.GetData(DataFormats.FileDrop);
+            string ext; /* reference var */
+
+            foreach (string extension in fileNames)
+            {
+                ext = Path.GetExtension(extension);
+
+                AtlasFiles_Dropped.Add(GetDropedFileAsAtlas(extension));
+
+                if (ext == ".pdf" || ext == ".rar")
+                    IndexesOfValidDroppedFiles.Add(AtlasFiles_Dropped.Count - 1);
+            }
+
+            Display_DragDropFilesTo_DGV();
+        }
+
+
+        // Checks the `AtlasFiles_Dropped` list and clears it if it contains any files from previous drop
+        private void CheckIf_FilesWereDroppedBefore()
+        {
+            if (AtlasFiles_Dropped.Count > 0)
+            {
+                AtlasFiles_Dropped.Clear();
+                IndexesOfValidDroppedFiles.Clear();
+
+                dgv_Files.DataSource = null;
+            }
+        }
+
+
+        // Returns a `AtlasFile` object based on the file dropped on the `dgv_Files`
+        private AtlasFile GetDropedFileAsAtlas(string pathToFile)
+        {
+            // public AtlasFile(string nameOfFile, string fileType, DateTime timeStamp, string pathToFile)
+            return new AtlasFile
+                (
+                Path.GetFileName(pathToFile),
+                Path.GetExtension(pathToFile),
+                File.GetCreationTime(pathToFile),
+                pathToFile
+                );
+        }
+
+
+        // Displays the dropped files on the `dgv_Files`
+        private void Display_DragDropFilesTo_DGV()
+        {
+            if (AtlasFiles_Dropped.Count > 0)
+            {
+                dgv_Files.DataSource = null;
+                dgv_Files.DataSource = AtlasFiles_Dropped;
+            }
+
+            PaintValidFiles(Color.Green);
+
+            lblInfo_InformUser(true, "Files in Green are valid for upload!");
+            dgv_Files.KeyDown += EscapeKey_Pressed;
+
+            Hide_Or_Show_DragDropButtons(true);
+        }
+
+
+        // Paints the valid files in the `dgv_Files` with the specified color
+        private void PaintValidFiles(Color color)
+        {
+            foreach (int index in IndexesOfValidDroppedFiles)
+                dgv_Files.Rows[index].DefaultCellStyle.BackColor = Color.Green;
+        }
+
+
+        // Event that occurs when an `ESC` key is pressed while the `dgv_Files` is selected
+        private void EscapeKey_Pressed(object? sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Escape && AtlasFiles_Dropped.Count > 0)
+            {
+                dgv_Files.DataSource = null;
+
+                AtlasFiles_Dropped.Clear();
+                IndexesOfValidDroppedFiles.Clear();
+
+                if (AtlasFiles.Count > 0)
+                    dgv_Files.DataSource = AtlasFiles;
+
+                comboBox_Subjects.SelectedIndexChanged += comboBox_Subjects_SelectedIndexChanged;
+
+                if (!ChosenSubject.IsNullOrEmpty())
+                    comboBox_Subjects.SelectedItem = ChosenSubject;
+
+                lblInfo_InformUser(false, "");
+                Hide_Or_Show_DragDropButtons(false);
+
+                dgv_Files.KeyDown -= EscapeKey_Pressed;
+            }
+        }
+
+
+        // Button event for refreshing DGV datasource
         private void btn_Refresh_Click(object sender, EventArgs e)
         {
             // Resetting the `dgv_files` DataSource property to null
@@ -512,8 +804,113 @@ namespace Legion_IX.User_Controls.Professor_UC_s
             // Loading fresh data based on choice from `comboBox_Subjects`
             LoadDocumentsTo_dgv();
         }
+
+
+        // Calls method to remove invalid files from `AtlasFiles_Dropped` list and refreshes the `dgv_Files` datasource with valid files only
+        private void btn_RemoveUnsupported_Click(object sender, EventArgs e)
+        {
+            if (AtlasFiles_Dropped.Count > 0)
+            {
+                FilterDroppedFiles();
+
+                dgv_Files.DataSource = null;
+                dgv_Files.DataSource = AtlasFiles_Dropped;
+
+                PaintValidFiles(Color.Green);
+            }
+        }
+
+
+        // Removes all files from `AtlasFiles_Dropped` that are not supported by the application for upload to Atlas
+        private void FilterDroppedFiles()
+        {
+            List<AtlasFile> atlasFiles_Filtered = new List<AtlasFile>();
+            List<int> indexes = new List<int>();
+
+            foreach (int index in IndexesOfValidDroppedFiles)
+            {
+                atlasFiles_Filtered.Add(new AtlasFile(AtlasFiles_Dropped[index], true));
+                indexes.Add(atlasFiles_Filtered.Count - 1);
+            }
+
+            AtlasFiles_Dropped.Clear();
+            IndexesOfValidDroppedFiles.Clear();
+
+            AtlasFiles_Dropped = new List<AtlasFile>(atlasFiles_Filtered);
+            IndexesOfValidDroppedFiles = new List<int>(indexes);
+        }
+
+
+        // `btn_CancelDrop` event is the same as `EscapeKey_Pressed` event, so it calls it
+        private void btn_CancelDrop_Click(object sender, EventArgs e) => EscapeKey_Pressed(sender, new KeyEventArgs(Keys.Escape));
+
+
+        // Universal method for informing the user of current status
+        private void lblInfo_InformUser(bool showLabel, string message)
+        {
+            lbl_Info.Visible = showLabel;
+            lbl_Info.Text = message;
+        }
+
+
+        // Universal method for informing the user of current status
+        /* What a fucking mess... */
+        private async Task lblInfo_InformUser(string message, int blinkTimes)
+        {
+            RequestCancel.killProccess.Token.ThrowIfCancellationRequested();
+
+            this.Invoke(() => { lbl_Info.Visible = true; });
+            this.Invoke(() => { lbl_Info.Text = message; });
+
+            RequestCancel.killProccess.Token.ThrowIfCancellationRequested();
+
+            for (int i = 0; i < blinkTimes; i++)
+            {
+                RequestCancel.killProccess.Token.ThrowIfCancellationRequested();
+
+                this.Invoke(() => { lbl_Info.ForeColor = Color.Green; });
+
+                RequestCancel.killProccess.Token.ThrowIfCancellationRequested();
+
+                await Task.Delay(500);
+
+                RequestCancel.killProccess.Token.ThrowIfCancellationRequested();
+
+                this.Invoke(() => { lbl_Info.ForeColor = Color.White; });
+
+                RequestCancel.killProccess.Token.ThrowIfCancellationRequested();
+
+                await Task.Delay(500);
+
+                RequestCancel.killProccess.Token.ThrowIfCancellationRequested();
+            }
+
+            RequestCancel.killProccess.Token.ThrowIfCancellationRequested();
+
+            this.Invoke(() => { lbl_Info.Visible = false; });
+            this.Invoke(() => { lbl_Info.Text = ""; });
+        }
+
+
+        private async Task lblInfo_Uploading(CancellationToken killProcess)
+        {
+            this.Invoke(() => lbl_Info.Text = "Uploading");
+            this.Invoke(() => lbl_Info.Visible = true);
+
+            while(!killProcess.IsCancellationRequested)
+            {
+
+                this.Invoke(() => lbl_Info.Text += " .");
+                await Task.Delay(500);
+
+                if (lbl_Info.Text.EndsWith(" . . ."))
+                    this.Invoke(() => lbl_Info.Text = "Uploading");
+
+            }
+        }
     }
 }
+
 
 
 /*

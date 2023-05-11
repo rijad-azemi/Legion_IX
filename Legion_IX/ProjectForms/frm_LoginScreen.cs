@@ -71,7 +71,7 @@ namespace Legion_IX
         private async void button_Login_Click(object sender, EventArgs e)
         {
             //StudentLogIn();
-            ProfessorLogIn();
+            //ProfessorLogIn();
             //ProfessorLogIn1();
             //ServiceLogIn();
 

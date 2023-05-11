@@ -29,6 +29,7 @@
         private void InitializeComponent()
         {
             groupBox_uc_ProfessorInfo = new GroupBox();
+            listBox_ProfessorSubjects = new ListBox();
             lbl_SubjectsTeaching = new Label();
             lbl_uc_Line = new Label();
             txtBox_uc_Email = new TextBox();
@@ -40,7 +41,6 @@
             lbl_Name = new Label();
             lbl_Birthdate = new Label();
             lbl_Surname = new Label();
-            listBox_ProfessorSubjects = new ListBox();
             groupBox_uc_ProfessorInfo.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)picBox_uc_ProfessorPhoto).BeginInit();
             SuspendLayout();
@@ -66,7 +66,16 @@
             groupBox_uc_ProfessorInfo.Size = new Size(598, 303);
             groupBox_uc_ProfessorInfo.TabIndex = 7;
             groupBox_uc_ProfessorInfo.TabStop = false;
-            groupBox_uc_ProfessorInfo.Text = "Student Information";
+            groupBox_uc_ProfessorInfo.Text = "Professor Information";
+            // 
+            // listBox_ProfessorSubjects
+            // 
+            listBox_ProfessorSubjects.FormattingEnabled = true;
+            listBox_ProfessorSubjects.ItemHeight = 15;
+            listBox_ProfessorSubjects.Location = new Point(357, 176);
+            listBox_ProfessorSubjects.Name = "listBox_ProfessorSubjects";
+            listBox_ProfessorSubjects.Size = new Size(168, 109);
+            listBox_ProfessorSubjects.TabIndex = 18;
             // 
             // lbl_SubjectsTeaching
             // 
@@ -185,15 +194,6 @@
             lbl_Surname.Size = new Size(76, 21);
             lbl_Surname.TabIndex = 2;
             lbl_Surname.Text = "Surname:";
-            // 
-            // listBox_ProfessorSubjects
-            // 
-            listBox_ProfessorSubjects.FormattingEnabled = true;
-            listBox_ProfessorSubjects.ItemHeight = 15;
-            listBox_ProfessorSubjects.Location = new Point(357, 176);
-            listBox_ProfessorSubjects.Name = "listBox_ProfessorSubjects";
-            listBox_ProfessorSubjects.Size = new Size(132, 109);
-            listBox_ProfessorSubjects.TabIndex = 18;
             // 
             // ProfessorData
             // 

@@ -193,94 +193,6 @@ namespace Legion_IX.User_Controls
         }
 
 
-        // TestButton for Document Insertion
-        private async void btn_UploadPdf_Click(object sender, EventArgs e)
-        {
-            if (CheckForChosenSubject())
-            {
-                //string opf_ChooseDocumentFilter = "PDF files (*.pdf)|*.pdf|RAR files (*.rar)|*.rar";
-                string opf_ChooseDocumentFilter = "PDF files (.pdf); RAR files (.rar)|*.pdf;*.rar";
-
-                await InsertFile(opf_ChooseDocumentFilter);
-            }
-        }
-
-
-        // Inserts File into collection chosen from `comboBox Subjects`
-        private async Task InsertFile(string filter)
-        {
-            // Creating a Filter for `OpenFileDialog`
-            opf_ChooseDocument.Filter = filter;
-
-            // Continue if chosen file
-            if (opf_ChooseDocument.ShowDialog() == DialogResult.OK)
-            {
-
-                if (Path.GetExtension(opf_ChooseDocument.FileName) == ".pdf")
-                {
-
-                    await toInsert_PDF(
-                        Path.GetFileName(opf_ChooseDocument.FileName),
-                        Path.GetExtension(opf_ChooseDocument.FileName),
-                        File.GetCreationTime(opf_ChooseDocument.FileName),
-                        File.ReadAllBytes(opf_ChooseDocument.FileName)
-                        );
-
-                }
-
-                else if (Path.GetExtension(opf_ChooseDocument.FileName) == ".rar")
-                {
-
-                    await toInsert_RAR(
-                        Path.GetFileName(opf_ChooseDocument.FileName),
-                        Path.GetExtension(opf_ChooseDocument.FileName),
-                        File.GetCreationTime(opf_ChooseDocument.FileName),
-                        File.ReadAllBytes(opf_ChooseDocument.FileName)
-                        );
-                }
-
-                else
-                {
-                    MessageBox.Show("Unsuported File Selected!", "Supported Files: .pdf | .rar", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                }
-
-                // Showing confirmation message
-                MessageBox.Show("Uploaded", "All went fine!", MessageBoxButtons.OK);
-
-                // Refreshing the `DataGridView`
-                GetAvailableDocuments();
-
-            }
-        }
-
-
-        // Method that inserts a `PDF_File` into Atlas based on information from `opf_ChooseDocument` in `btn_UploadPdf_Click` method event
-        private async Task toInsert_PDF(string fileName, string extension, DateTime timeStamp, byte[] data)
-        {
-            PDF_File toInsert = new PDF_File(new ObjectId(), fileName, extension, timeStamp, data);
-
-
-            // Serialising the `PDF_File` object as `BsonDocument`
-            BsonDocument converted = toInsert.ToBsonDocument();
-
-            // Inserting serialised document
-            await LoggedInStudent.theStudent.StudentDBConnection.Client.GetDatabase(SubjectsStudyYear).GetCollection<BsonDocument>(ChosenSubject).InsertOneAsync(converted);
-        }
-
-
-        // Method that inserts a `RAR_File` into Atlas based on information from `opf_ChooseDocument` in `btn_UploadPdf_Click` method event
-        private async Task toInsert_RAR(string fileName, string extension, DateTime timeStamp, byte[] data)
-        {
-            RAR_File toInsert = new RAR_File(new ObjectId(), fileName, extension, timeStamp, data);
-
-            // Serialising the `PDF_File` object as `BsonDocument`
-            BsonDocument converted = toInsert.ToBsonDocument();
-
-            // Inserting serialised document
-            await LoggedInStudent.theStudent.StudentDBConnection.Client.GetDatabase(SubjectsStudyYear).GetCollection<BsonDocument>(ChosenSubject).InsertOneAsync(converted);
-        }
-
-
         // Getting the chosen PDF file via Server-Side filtering
         private async Task<PDF_File> GetFile_PDF(ObjectId? theDocID, string theDocName, string theExtension)
         {
@@ -629,7 +541,7 @@ namespace Legion_IX.User_Controls
         {
             dgv_Files.DataSource = null;
 
-            if(files.Count > 0)
+            if (files.Count > 0)
                 dgv_Files.DataSource = files;
         }
 

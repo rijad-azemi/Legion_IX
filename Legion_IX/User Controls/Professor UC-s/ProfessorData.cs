@@ -49,11 +49,11 @@ namespace Legion_IX.User_Controls.Professor_UC_s
             // Reference variable
             Dictionary<string, List<string>> subjects = LoggedInProfessor.theProf.SubjectsTeaching;
 
-            foreach(string key in subjects.Keys)
+            foreach (string key in subjects.Keys)
             {
                 listBox_ProfessorSubjects.Items.Add(TidyFacultyYear(key));
 
-                foreach(string subject in subjects[key])
+                foreach (string subject in subjects[key])
                     listBox_ProfessorSubjects.Items.Add(subject);
 
                 listBox_ProfessorSubjects.Items.Add("");
@@ -63,7 +63,7 @@ namespace Legion_IX.User_Controls.Professor_UC_s
 
         private string TidyFacultyYear(string facultyYear)
         {
-            switch(facultyYear)
+            switch (facultyYear)
             {
                 case "FirstYear": return "--- First Year ---";
                 case "SecondYear": return "--- Second Year ---";

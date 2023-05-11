@@ -86,6 +86,7 @@ namespace Legion_IX.DataFiles
             BinData = null;
         }
 
+
         public PDF_File(ObjectId id, string nameOfFile, string fileType, DateTime timeStamp_Creation, byte[] PDFdata)
         {
             _id = id;
@@ -94,6 +95,7 @@ namespace Legion_IX.DataFiles
             TimeStamp_Creation = timeStamp_Creation;
             BinData = PDFdata;
         }
+
 
         public PDF_File(PDF_File document)
         {
@@ -104,6 +106,7 @@ namespace Legion_IX.DataFiles
             BinData = document.BinData;
         }
 
+
         public PDF_File(in BsonDocument document)
         {
             _id = (ObjectId)document.GetValue("_id");
@@ -111,6 +114,17 @@ namespace Legion_IX.DataFiles
             TimeStamp_Creation = (DateTime)document.GetValue("TimeStamp_Creation");
             FileType = (string)document.GetValue("FileType");
         }
+
+
+        public PDF_File(in AtlasFile droppedAtlasFile, byte[] bin)
+        {
+            _id = ObjectId.GenerateNewId();
+            NameOfFile = droppedAtlasFile.NameOfFile;
+            FileType = droppedAtlasFile.FileType;
+            TimeStamp_Creation = droppedAtlasFile.TimeStamp_Creation;
+            BinData = bin;
+        }
+
 
         public override string ToString()
         {

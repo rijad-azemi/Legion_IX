@@ -18,6 +18,11 @@ namespace Legion_IX.DataFiles
         public string FileType { get; set; }
         public DateTime TimeStamp_Creation { get; set; }
 
+
+        [BsonIgnore]
+        public string PathToFile { get; set; }
+
+
         [BsonIgnore] // This is not necessary since I will not be uploading `AtlasFile` object, but just in case I change my mind, I don't want this to be uploaded
         public string Subject { get; set; }
 
@@ -37,6 +42,38 @@ namespace Legion_IX.DataFiles
             NameOfFile = nameOfFile;
             FileType = fileType;
             TimeStamp_Creation = timeStamp;
+        }
+
+        
+        // User Defined Constructor for AtlasFile received from `ProfessorDocuments` - `dgv_Files` - `DragDrop` event
+        public AtlasFile(string nameOfFile, string fileType, DateTime timeStamp, string pathToFile)
+        {
+            NameOfFile = nameOfFile;
+            FileType = fileType;
+            TimeStamp_Creation = timeStamp;
+
+            PathToFile = pathToFile;
+        }
+
+
+        public AtlasFile(AtlasFile file, bool fromAtlasFileDropped)
+        {
+            if(fromAtlasFileDropped)
+            {
+                NameOfFile = file.NameOfFile;
+                FileType = file.FileType;
+                TimeStamp_Creation = file.TimeStamp_Creation;
+
+                PathToFile = file.PathToFile;
+            }
+
+            else
+            {
+                _id = file._id;
+                NameOfFile = file.NameOfFile;
+                FileType = file.FileType;
+                TimeStamp_Creation = file.TimeStamp_Creation;
+            }
         }
 
 
@@ -93,7 +130,6 @@ namespace Legion_IX.DataFiles
 
         public static void GetFilesFrom_SQL(out List<AtlasFile> listToFill, string ChosenSubject)
         {
-
             Thread filterAnd_Add_PDF_Files = new Thread(new ThreadStart(() => Add_PDFs_ToList(ChosenSubject)));
             Thread filterAnd_Add_RAR_Files = new Thread(new ThreadStart(() => Add_RARs_ToList(ChosenSubject)));
 
@@ -123,7 +159,6 @@ namespace Legion_IX.DataFiles
                     PassThisOver.Add(GetAtlasFileFrom_PDF(pdf));
                 }
             }
-
         }
 
 

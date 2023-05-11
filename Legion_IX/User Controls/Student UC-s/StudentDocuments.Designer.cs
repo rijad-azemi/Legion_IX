@@ -29,7 +29,6 @@
         private void InitializeComponent()
         {
             comboBox_Subjects = new ComboBox();
-            btn_UploadPdf = new Button();
             opf_ChooseDocument = new OpenFileDialog();
             dgv_Files = new DataGridView();
             NameOfFile = new DataGridViewTextBoxColumn();
@@ -50,16 +49,6 @@
             comboBox_Subjects.Size = new Size(155, 23);
             comboBox_Subjects.TabIndex = 0;
             comboBox_Subjects.SelectedIndexChanged += comboBox_Subjects_SelectedIndexChanged;
-            // 
-            // btn_UploadPdf
-            // 
-            btn_UploadPdf.Location = new Point(457, 350);
-            btn_UploadPdf.Name = "btn_UploadPdf";
-            btn_UploadPdf.Size = new Size(113, 23);
-            btn_UploadPdf.TabIndex = 1;
-            btn_UploadPdf.Text = "Upload me?";
-            btn_UploadPdf.UseVisualStyleBackColor = true;
-            btn_UploadPdf.Click += btn_UploadPdf_Click;
             // 
             // opf_ChooseDocument
             // 
@@ -145,7 +134,6 @@
             BorderStyle = BorderStyle.FixedSingle;
             Controls.Add(btn_Refresh);
             Controls.Add(dgv_Files);
-            Controls.Add(btn_UploadPdf);
             Controls.Add(comboBox_Subjects);
             Name = "StudentDocuments";
             Size = new Size(654, 470);
@@ -157,7 +145,6 @@
         #endregion
 
         private ComboBox comboBox_Subjects;
-        private Button btn_UploadPdf;
         private OpenFileDialog opf_ChooseDocument;
         private DataGridView dgv_Files;
         private Button btn_Refresh;

@@ -38,12 +38,15 @@
             btn_UploadDocument = new Button();
             btn_Refresh = new Button();
             opf_ChooseDocument = new OpenFileDialog();
-            lbl_Information = new Label();
+            lbl_Info = new Label();
+            btn_RemoveUnsupported = new Button();
+            btn_CancelDrop = new Button();
             ((System.ComponentModel.ISupportInitialize)dgv_Files).BeginInit();
             SuspendLayout();
             // 
             // dgv_Files
             // 
+            dgv_Files.AllowDrop = true;
             dgv_Files.AllowUserToAddRows = false;
             dgv_Files.AllowUserToDeleteRows = false;
             dgv_Files.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
@@ -56,6 +59,8 @@
             dgv_Files.Size = new Size(774, 300);
             dgv_Files.TabIndex = 4;
             dgv_Files.CellContentClick += dgv_Files_CellContentClick;
+            dgv_Files.DragDrop += dgv_Files_DragDrop;
+            dgv_Files.DragEnter += dgv_Files_DragEnter;
             // 
             // NameOfFile
             // 
@@ -137,16 +142,42 @@
             // 
             opf_ChooseDocument.FileName = "openFileDialog1";
             // 
-            // lbl_Information
+            // lbl_Info
             // 
-            lbl_Information.BackColor = Color.Transparent;
-            lbl_Information.Font = new Font("Segoe UI", 11F, FontStyle.Bold, GraphicsUnit.Point);
-            lbl_Information.ForeColor = Color.Red;
-            lbl_Information.Location = new Point(253, 15);
-            lbl_Information.Name = "lbl_Information";
-            lbl_Information.Size = new Size(514, 47);
-            lbl_Information.TabIndex = 8;
-            lbl_Information.TextAlign = ContentAlignment.MiddleCenter;
+            lbl_Info.BackColor = Color.Black;
+            lbl_Info.Font = new Font("Segoe UI", 11F, FontStyle.Bold, GraphicsUnit.Point);
+            lbl_Info.ForeColor = Color.White;
+            lbl_Info.Location = new Point(253, 15);
+            lbl_Info.Name = "lbl_Info";
+            lbl_Info.Size = new Size(514, 47);
+            lbl_Info.TabIndex = 8;
+            lbl_Info.TextAlign = ContentAlignment.MiddleCenter;
+            // 
+            // btn_RemoveUnsupported
+            // 
+            btn_RemoveUnsupported.BackColor = Color.DimGray;
+            btn_RemoveUnsupported.FlatStyle = FlatStyle.Flat;
+            btn_RemoveUnsupported.ForeColor = SystemColors.ButtonFace;
+            btn_RemoveUnsupported.Location = new Point(3, 409);
+            btn_RemoveUnsupported.Name = "btn_RemoveUnsupported";
+            btn_RemoveUnsupported.Size = new Size(155, 23);
+            btn_RemoveUnsupported.TabIndex = 9;
+            btn_RemoveUnsupported.Text = "Remove unsupported files";
+            btn_RemoveUnsupported.UseVisualStyleBackColor = false;
+            btn_RemoveUnsupported.Click += btn_RemoveUnsupported_Click;
+            // 
+            // btn_CancelDrop
+            // 
+            btn_CancelDrop.BackColor = Color.DimGray;
+            btn_CancelDrop.FlatStyle = FlatStyle.Flat;
+            btn_CancelDrop.ForeColor = SystemColors.ButtonFace;
+            btn_CancelDrop.Location = new Point(179, 409);
+            btn_CancelDrop.Name = "btn_CancelDrop";
+            btn_CancelDrop.Size = new Size(113, 23);
+            btn_CancelDrop.TabIndex = 10;
+            btn_CancelDrop.Text = "Cancel";
+            btn_CancelDrop.UseVisualStyleBackColor = false;
+            btn_CancelDrop.Click += btn_CancelDrop_Click;
             // 
             // ProfessorDocuments
             // 
@@ -154,7 +185,9 @@
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.Transparent;
             BorderStyle = BorderStyle.FixedSingle;
-            Controls.Add(lbl_Information);
+            Controls.Add(btn_CancelDrop);
+            Controls.Add(btn_RemoveUnsupported);
+            Controls.Add(lbl_Info);
             Controls.Add(btn_Refresh);
             Controls.Add(btn_UploadDocument);
             Controls.Add(comboBox_Subjects);
@@ -162,6 +195,7 @@
             Name = "ProfessorDocuments";
             Size = new Size(780, 468);
             Load += ProfessorDocuments_Load;
+            KeyDown += EscapeKey_Pressed;
             ((System.ComponentModel.ISupportInitialize)dgv_Files).EndInit();
             ResumeLayout(false);
         }
@@ -178,6 +212,8 @@
         private DataGridViewButtonColumn View;
         private DataGridViewButtonColumn Delete;
         private OpenFileDialog opf_ChooseDocument;
-        private Label lbl_Information;
+        private Label lbl_Info;
+        private Button btn_RemoveUnsupported;
+        private Button btn_CancelDrop;
     }
 }
