@@ -13,6 +13,7 @@
     <PackageIcon>L1on.png</PackageIcon>
     <RepositoryUrl>https://github.com/rijad-azemi/Legion_IX.git</RepositoryUrl>
     <StartupObject>Legion_IX.Program</StartupObject>
+    <UserSecretsId>d8cfa479-76f6-4f2d-b274-284e7ff4ac3f</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
@@ -37,6 +38,7 @@
     <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="7.0.5" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="7.0.5" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="7.0.5" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="7.0.0" />
     <PackageReference Include="MongoDB.Analyzer" Version="1.2.0" />
     <PackageReference Include="MongoDB.Driver" Version="2.19.1" />
     <PackageReference Include="MongoDB.Driver.GridFS" Version="2.19.1" />
